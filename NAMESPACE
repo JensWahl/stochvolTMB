@@ -1,0 +1,4 @@
+useDynLib(stochvolTMB)
+import(RcppEigen)
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")
