@@ -9,7 +9,7 @@ simSV <- function(param, T = 1000, seed = NULL, method = "gaussian"){
   if(!is.null(seed)) set.seed(seed)
   
   phi <- param$phi
-  #sigma_y <- param$sigma_y
+  sigma_y <- param$sigma_y
   sigma_h <- param$sigma_h
   
   # Latent process 
@@ -25,18 +25,14 @@ simSV <- function(param, T = 1000, seed = NULL, method = "gaussian"){
   # Observations 
   y <- rep(NA, T)
     if(method == "gaussian"){
-      # parameter specific for the gaussian case
-      sigma_y <- param$sigma_y
-      
       y <- exp(h / 2) * rnorm(T, 0, sigma_y)
     } else if(method == "t"){
       # parameter sepcific for the t-distribution
       df <- param$df
       
-      y <- exp(h / 2) * rt(T, df = df)
+      y <- exp(h / 2) * sigma_y * rt(T, df = df)
     }
   
-  return(y)
-  }
+  return(data.frame(y = y, h = h))
   
 }
