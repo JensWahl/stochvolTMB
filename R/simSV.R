@@ -25,9 +25,12 @@ simSV <- function(param, T = 1000, seed = NULL, method = "gaussian"){
   # Observations 
   y <- rep(NA, T)
     if(method == "gaussian"){
+      
       y <- exp(h / 2) * rnorm(T, 0, sigma_y)
+      
     } else if(method == "t"){
-      # parameter sepcific for the t-distribution
+      
+      # parameter specific for the t-distribution
       df <- param$df
       
       y <- exp(h / 2) * sigma_y * rt(T, df = df)
