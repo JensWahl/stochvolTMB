@@ -10,15 +10,17 @@ optSV <- function(data, method = "gaussian"){
                 log_sigma_h = 0, 
                 phi_logit = 2,
                 df = if(method == "t"){2}else{numeric(0)},
+                alpha = if(method == "skew_gaussian"){-5}else{numeric(0)},
                 h = rep(0, length(data)))
   
   data <- list(y = data,
                method = ifelse(method == "gaussian", 0,
-                               ifelse(method == "t", 1, 2)))
+                               ifelse(method == "t", 1, 
+                                      ifelse(method == "skew_gaussian", 2, 3))))
   
   obj <- TMB::MakeADFun(data = data, parameters = param, random = "h", DLL = "stochvolTMB")
-  opt <- stats::nlminb(obj$par, obj$fn, obj$gr)
+  opt <- stats::nlminb(obj$par, obj$fn, obj$gr, control = list(trace = TRUE))
+  rep <- summary(TMB::sdreport(obj))
   
-  
-  return(opt$par)
+  return(list(opt = opt, rep = rep))
 }

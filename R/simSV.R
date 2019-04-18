@@ -3,7 +3,7 @@
 #' @param param List of parameters
 #' @param seed Seed to reproduce simulation
 #' @param method Distribtion of error term (only Gaussian so far)
-simSV <- function(param, T = 1000, seed = NULL, method = "gaussian"){
+simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
   
   # Set seed if specified
   if(!is.null(seed)) set.seed(seed)
@@ -13,27 +13,37 @@ simSV <- function(param, T = 1000, seed = NULL, method = "gaussian"){
   sigma_h <- param$sigma_h
   
   # Latent process 
-  h <- rep(NA, T)
+  h <- rep(NA, N)
   
   # We assume stationary distribution
   h[1] <- rnorm(1, 0, sigma_h / sqrt(1 - phi^2))
   
-  for(t in 2:T){
+  for(t in 2:N){
     h[t] <- phi * h[t - 1] + rnorm(1, 0, sigma_h)
   }
   
   # Observations 
-  y <- rep(NA, T)
+  y <- rep(NA, N)
     if(method == "gaussian"){
       
-      y <- exp(h / 2) * rnorm(T, 0, sigma_y)
+      y <- exp(h / 2) * rnorm(N, 0, sigma_y)
       
     } else if(method == "t"){
       
       # parameter specific for the t-distribution
       df <- param$df
       
-      y <- exp(h / 2) * sigma_y * rt(T, df = df)
+      y <- exp(h / 2) * sigma_y * rt(N, df = df)
+    }else if(method == "skew_gaussian"){
+      
+      # parameter specific for the skew normal distribution
+      # use package sn do generate random sample from skew normal distribution
+      alpha <- param$alpha
+      y <- exp(h / 2) * sigma_y * sn::rsn(N, alpha = alpha)
+      
+      # remove attributes specific for rsn
+      attr(y, "family") <- NULL
+      attr(y, "parameters") <- NULL
     }
   
   return(data.frame(y = y, h = h))
