@@ -12,7 +12,9 @@ optSV <- function(data, method = "gaussian"){
                 df = if(method == "t"){2}else{numeric(0)},
                 h = rep(0, length(data)))
   
-  data <- list(y = data)
+  data <- list(y = data,
+               method = ifelse(method == "gaussian", 0,
+                               ifelse(method == "t", 1, 2)))
   
   obj <- TMB::MakeADFun(data = data, parameters = param, random = "h", DLL = "stochvolTMB")
   opt <- stats::nlminb(obj$par, obj$fn, obj$gr)

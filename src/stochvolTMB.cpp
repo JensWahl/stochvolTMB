@@ -15,7 +15,8 @@ Type objective_function<Type>::operator()(){
   
   // Data
   DATA_VECTOR(y);
-
+  DATA_INTEGER(method);
+  
   // Parameters
   PARAMETER(log_sigma_y); 
   PARAMETER(log_sigma_h);
@@ -49,7 +50,25 @@ Type objective_function<Type>::operator()(){
   
   for(int i = 0; i < T; i++){
     
-    nll -= dnorm(y(i), Type(0), exp(h(i) / 2) * sigma_y, true);
+    switch(method){
+      
+    // Gaussian
+    case 0:
+      nll -= dnorm(y(i), Type(0), exp(h(i) / 2) * sigma_y, true);
+    break;
+    
+    // Centered t-distibution
+    // last term is contribution from jacobian of linear transformation y = a * x
+    case 1:
+      nll -= dt(y(i) / (exp(h(i) / 2) * sigma_y), df(0), true) - log( (exp(h(i) / 2) * sigma_y));
+    break; 
+    
+    default:
+      std::cout << "This distribution is not implementet!" << std::endl;
+    break;
+    }
+    
+    
     
   }
   // Add estimate for conditional variance 

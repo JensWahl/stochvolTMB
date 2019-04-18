@@ -1,6 +1,6 @@
-all: sv_likelihood.so 
+all: stochvolTMB.so 
 	# Comment here preserves the prior tab
-sv_likelihood.so: sv_likelihood.cpp
-	Rscript --vanilla -e "TMB::compile('sv_likelihood.cpp')"
+stochvolTMB.so: stochvolTMB.cpp
+	Rscript --vanilla -e "TMB::compile('stochvolTMB.cpp')"
 clean:
 	rm -rf *o
