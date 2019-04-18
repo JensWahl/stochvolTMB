@@ -1,6 +1,6 @@
 all: sv_likelihood.dll
 	# Comment here preserves the prior tab
 sv_likelihood.dll: sv_likelihood.cpp
-    Rscript --vanilla -e "TMB::compile('sv_likelihood.cpp', '-O1 -g',DLLFLAGS='')"
+    Rscript --vanilla -e "TMB::compile('sv_likelihood.cpp')"
 clean:
     rm -rf *.dll
