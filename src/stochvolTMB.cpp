@@ -44,6 +44,7 @@ Type objective_function<Type>::operator()(){
   PARAMETER(phi_logit); 
   PARAMETER_VECTOR(df); // Degrees of freedom in t-distribution
   PARAMETER_VECTOR(alpha); // Skewness parameter in skew normal model
+  PARAMETER_VECTOR(rho); // Correlation in leverage model
   PARAMETER_VECTOR(h); // Latent process 
   
   // Transform parameters------------------
@@ -79,27 +80,44 @@ Type objective_function<Type>::operator()(){
     // Gaussian
     case 0:
       nll -= dnorm(y(i), Type(0), exp(h(i) / 2) * sigma_y, true);
-    break;
+      break;
     
     // Centered t-distibution
     // last term is contribution from jacobian of linear transformation y = a * x
     case 1:
       nll -= dt(y(i) / (exp(h(i) / 2) * sigma_y), df(0), true) - log((exp(h(i) / 2) * sigma_y));
-    break; 
+      break; 
     
     // Skew normal distribution
-    case 2:
+    case 2: {
       nll -= skew_norm(y(i), alpha(0), sigma_y, h(i), true);
-    break;
+      // Type delta = alpha(0) / sqrt(1 + alpha(0) * alpha(0));
+      // Type std_y = (y(i) - delta * sqrt(2 / M_PI) * exp(h(i) / 2) * sigma_y);
+      // std_y = std_y / (sqrt(1 - delta * delta / M_PI) * exp(h(i) / 2) * sigma_y); 
+      // nll -= dsn(std_y, alpha(0), true);
+      break;
+      }
+    
+    // Leverage model - normal distribution
+    case 3:{
+      
+      if(i < (N - 1)){
+      nll -= dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho(0) / sigma_h * (h(i + 1) - phi * h(i))), 
+                   sigma_y * exp(h(i) / 2) * sqrt(1 - rho(0) * rho(0)), true); 
+      }
+      break;
+    }
+    
+    
     
     // TO DO: 
     // Leverage model 
-    // Skew normal distribution 
+    // Skew normal distribution - Ok 
     // Skew t distribution
     
     default:
       std::cout << "This distribution is not implementet!" << std::endl;
-    break;
+      break;
     }
     
     

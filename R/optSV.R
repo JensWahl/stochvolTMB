@@ -11,6 +11,7 @@ optSV <- function(data, method = "gaussian"){
                 phi_logit = 2,
                 df = if(method == "t"){2}else{numeric(0)},
                 alpha = if(method == "skew_gaussian"){-5}else{numeric(0)},
+                rho = if(method == "leverage"){0}else{numeric(0)},
                 h = rep(0, length(data)))
   
   data <- list(y = data,
