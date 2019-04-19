@@ -1,4 +1,4 @@
-#' @useDynLib sv_likelihood
+#' @useDynLib stochvolTMB
 .onLoad <- function(libname,pkgname){
 }
 

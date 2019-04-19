@@ -12,7 +12,7 @@ Type skew_norm(Type x, Type alpha, Type sigma_y, Type h, bool give_log){
   Type scale = sigma_y * exp(h / 2);
   Type delta = alpha / sqrt(1 + alpha * alpha); 
   Type omega = scale / sqrt(1 - 2 * delta * delta / M_PI); 
-  Type epsilon = omega * delta * sqrt(2 / M_PI);
+  Type epsilon = - omega * delta * sqrt(2 / M_PI);
   
   Type dens = log(2) + dnorm(x, epsilon, omega, true) + log(pnorm(alpha * (x - epsilon) / omega));
   

@@ -5,15 +5,15 @@
 // @param alpha double. Skewness parameter 
 // @sigma_y double. Parameter from observational equation
 // @h double. Latent variable 
-//@give_log bool. Return log of density
+// @give_log bool. Return log of density
 template<class Type>
 Type skew_norm(Type x, Type alpha, bool give_log){
 
-  Type delta = alpha / sqrt(1 + alpha * alpha);
-  Type omega = sqrt(1 / (1 - 2 * delta * delta / M_PI));
-  Type epsilon = - omega * delta * sqrt(2 / M_PI);
+  Type delta = alpha / sqrt(Type(1.0) + alpha * alpha);
+  Type omega = Type(1.0) / sqrt(Type(1.0) - Type(2.0) * delta * delta / M_PI);
+  Type epsilon = - omega * delta * sqrt(Type(2) / M_PI);
 
-  Type dens = log(2.0) - log(omega) + dnorm((x - epsilon) / omega, Type(0), Type(1), true) + log(pnorm(alpha * (x - epsilon) / omega));
+  Type dens = log(Type(2.0)) - log(omega) + dnorm((x - epsilon) / omega, Type(0), Type(1), true) + log(pnorm(alpha * (x - epsilon) / omega));
 
   if(give_log) return dens;
   else return exp(dens);
@@ -40,6 +40,10 @@ Type objective_function<Type>::operator()(){
       case 1:
         nll -= dsn(x(i), alpha, true);
       break;
+      
+      // case 2:
+      //   Type delta = alpha / sqrt(1 + alpha * alpha);
+      // 
       
       default:
         std::cout << "Not implemented" << std::endl; 
