@@ -16,8 +16,17 @@ dat <- stochvolTMB::simSV(param = param, N = N, method = method, seed = 123)
 
 opt <- stochvolTMB::optSV(data = dat$y, method = method)
 
-ts.plot(dat$h)
-#lines(dat$y, col = "red")
 
-h_est <- opt$rep[rownames(opt$rep) == "h", 1]
-lines(h_est, col = "red")
+h_est <- opt$report %>% 
+  filter(type == "random")
+
+plot(1:N, h_est$estimate, type = "l")
+lines(1:N, dat$h, col = "green")
+
+stochvol <- stochvol::svlsample(data$y)
+h_stoch <- stochvol$summary$latent[, 1] - stochvol$summary$para[1,1]
+lines(1:N, h_stoch, col = "red")
+
+stochvol::paradensplot(stochvol)
+stochvol::paratraceplot(stochvol)
+stochvol::volplot(stochvol)

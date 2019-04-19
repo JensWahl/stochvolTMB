@@ -44,17 +44,19 @@ Type objective_function<Type>::operator()(){
   PARAMETER(phi_logit); 
   PARAMETER_VECTOR(df); // Degrees of freedom in t-distribution
   PARAMETER_VECTOR(alpha); // Skewness parameter in skew normal model
-  PARAMETER_VECTOR(rho); // Correlation in leverage model
+  PARAMETER_VECTOR(rho_logit); // Correlation in leverage model
   PARAMETER_VECTOR(h); // Latent process 
   
   // Transform parameters------------------
   Type sigma_y = exp(log_sigma_y);
   Type sigma_h = exp(log_sigma_h); 
   Type phi = f(phi_logit); 
+  Type rho = f(rho_logit(0));
   
   ADREPORT(sigma_y); 
   ADREPORT(sigma_h); 
   ADREPORT(phi); 
+  ADREPORT(rho);
   
   // Negative log likelihood
   Type nll = 0; 
@@ -102,8 +104,8 @@ Type objective_function<Type>::operator()(){
     case 3:{
       
       if(i < (N - 1)){
-      nll -= dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho(0) / sigma_h * (h(i + 1) - phi * h(i))), 
-                   sigma_y * exp(h(i) / 2) * sqrt(1 - rho(0) * rho(0)), true); 
+      nll -= dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho / sigma_h * (h(i + 1) - phi * h(i))), 
+                   sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true); 
       }
       break;
     }
@@ -111,7 +113,7 @@ Type objective_function<Type>::operator()(){
     
     
     // TO DO: 
-    // Leverage model 
+    // Leverage model - Ok
     // Skew normal distribution - Ok 
     // Skew t distribution
     
