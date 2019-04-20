@@ -51,13 +51,11 @@ Type objective_function<Type>::operator()(){
   Type sigma_y = exp(log_sigma_y);
   Type sigma_h = exp(log_sigma_h); 
   Type phi = f(phi_logit); 
-  Type rho = f(rho_logit(0));
   
   ADREPORT(sigma_y); 
   ADREPORT(sigma_h); 
   ADREPORT(phi); 
-  ADREPORT(rho);
-  
+
   // Negative log likelihood
   Type nll = 0; 
   int N = y.size();
@@ -91,21 +89,20 @@ Type objective_function<Type>::operator()(){
       break; 
     
     // Skew normal distribution
-    case 2: {
+    case 2:{
       nll -= skew_norm(y(i), alpha(0), sigma_y, h(i), true);
-      // Type delta = alpha(0) / sqrt(1 + alpha(0) * alpha(0));
-      // Type std_y = (y(i) - delta * sqrt(2 / M_PI) * exp(h(i) / 2) * sigma_y);
-      // std_y = std_y / (sqrt(1 - delta * delta / M_PI) * exp(h(i) / 2) * sigma_y); 
-      // nll -= dsn(std_y, alpha(0), true);
       break;
       }
     
     // Leverage model - normal distribution
     case 3:{
+      // parameter specific for leverage model 
+      Type rho = f(rho_logit(0));
+      ADREPORT(rho);
       
       if(i < (N - 1)){
-      nll -= dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho / sigma_h * (h(i + 1) - phi * h(i))), 
-                   sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true); 
+      nll -= dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho / sigma_h * (h(i + 1) - phi * h(i))),
+                   sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true);
       }
       break;
     }

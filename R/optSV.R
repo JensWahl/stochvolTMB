@@ -19,7 +19,8 @@ optSV <- function(data,
   data <- list(y = data,
                method = ifelse(method == "gaussian", 0,
                                ifelse(method == "t", 1, 
-                                      ifelse(method == "skew_gaussian", 2, 3))))
+                                      ifelse(method == "skew_gaussian", 2,
+                                             ifelse(method == "leverage", 3, 4)))))
   
   obj <- TMB::MakeADFun(data = data, parameters = param, random = "h", DLL = "stochvolTMB")
   opt <- stats::nlminb(obj$par, obj$fn, obj$gr, control = list(trace = TRUE))
