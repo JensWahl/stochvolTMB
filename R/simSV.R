@@ -2,7 +2,8 @@
 #' @param T Length of time series 
 #' @param param List of parameters
 #' @param seed Seed to reproduce simulation
-#' @param method Distribtion of error term (only Gaussian so far)
+#' @param method Distribtion of error term 
+#' @export
 simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
   
   # Set seed if specified
@@ -47,6 +48,15 @@ simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
       # remove attributes specific for rsn
       attr(y, "family") <- NULL
       attr(y, "parameters") <- NULL
+    } else if(method == "leverage"){
+      
+      #parameter specific for leverage model
+      rho <- param$rho
+      for(i in 1:(N - 1)){
+        y[i] <- sigma_y * exp(h[i] / 2) * (rho / sigma_h * (h[i + 1] - phi * h[i]) + sqrt(1 - rho^2) * rnorm(1))
+      }
+      # set last value (not used) to zero
+      y[N] <- 0
     }
   
   return(data.frame(y = y, h = h))
