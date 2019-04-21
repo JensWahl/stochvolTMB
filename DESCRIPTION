@@ -11,3 +11,4 @@ Imports: TMB
 Depends: TMB
 LinkingTo: TMB, RcppEigen
 RoxygenNote: 6.1.1
+Suggests: testthat
