@@ -1,14 +1,20 @@
 Package: stochvolTMB
 Type: Package
-Title: What the package does (short line)
+Title: Likelihood estimation of stochastic volatility models
 Version: 1.0
 Date: 2018-12-19
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Author: Jens Christian Wahl <jens.c.wahl@gmail.com>
+Maintainer: Jens Christian Wahl <jens.c.wahl@gmail.com>
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
-Imports: TMB
-Depends: TMB
-LinkingTo: TMB, RcppEigen
+Imports: 
+    TMB,
+    dplyr,
+    ggplot2
+Depends: 
+    TMB
+LinkingTo:
+    TMB,
+    RcppEigen
 RoxygenNote: 6.1.1
 Suggests: testthat

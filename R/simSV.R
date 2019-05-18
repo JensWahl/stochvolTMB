@@ -3,6 +3,7 @@
 #' @param param List of parameters
 #' @param seed Seed to reproduce simulation
 #' @param method Distribtion of error term 
+#' @return tibble of dimension \code{N x 2}
 #' @export
 simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
   
@@ -59,6 +60,6 @@ simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
       y[N] <- 0
     }
   
-  return(data.frame(y = y, h = h))
+  return(dplyr::tibble(y = y, h = h))
   
 }

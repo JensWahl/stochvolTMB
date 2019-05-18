@@ -3,7 +3,7 @@ library(sn)
 compile("scripts/skew_normal.cpp")
 dyn.load(dynlib("scripts/skew_normal"))
 alpha <- 2
-n <- 100
+n <- 1000
 set.seed(342)
 
 
@@ -16,7 +16,7 @@ attr(x, "family") <- NULL
 attr(x, "parameters") <- NULL
 
 
-dat <- list(x = x, mod = 1)
+dat <- list(x = x, mod = 0)
 param <- list(alpha = 2)
 
 obj <- MakeADFun(dat, param, DLL = "skew_normal")

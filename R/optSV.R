@@ -1,4 +1,4 @@
-#' Function for parameter estimation of stochastic volatility model
+#' Function for parameter estimation of stochastic volatility models
 #'@param data vector of observations 
 #'@param method string specifying distribution of error term in observational equation
 #'@return tibble of parameter estimates and standard error of estimates
@@ -26,7 +26,7 @@ optSV <- function(data,
   opt <- stats::nlminb(obj$par, obj$fn, obj$gr, control = list(trace = TRUE))
   rep <- TMB::sdreport(obj)
   
-    srep_fixed <- summary(rep, select = c("report", "fixed"), p.value = TRUE) %>% 
+    srep_fixed <- summary(rep, select = c("fixed"), p.value = TRUE) %>% 
       tibble::as_tibble(rownames = NA) %>%
       tibble::rownames_to_column() %>% 
       dplyr::rename(parameter = rowname, 
@@ -36,6 +36,17 @@ optSV <- function(data,
                     p_value = `Pr(>|z^2|)`) %>% 
       mutate(type = "fixed")
     
+    srep_report <- summary(rep, select = c("report"), p.value = TRUE) %>% 
+      tibble::as_tibble(rownames = NA) %>%
+      tibble::rownames_to_column() %>% 
+      dplyr::rename(parameter = rowname, 
+                    estimate = Estimate, 
+                    std_error = `Std. Error`,
+                    z_value = `z value`,
+                    p_value = `Pr(>|z^2|)`) %>% 
+      mutate(type = "transformed")    
+    
+    
     srep_random <- summary(rep, select = c("random"), p.value = TRUE) %>% 
       tibble::as_tibble(rownames = NA) %>%
       tibble::rownames_to_column() %>% 
@@ -44,9 +55,7 @@ optSV <- function(data,
                     std_error = `Std. Error`,
                     z_value = `z value`,
                     p_value = `Pr(>|z^2|)`) %>% 
-      mutate(type = "random") %>% 
-    dplyr::mutate(parameter = ifelse(parameter == "h", paste0("h", 1:n()), parameter))
-    
+      mutate(type = "random")
 
   # if("fixed" %in% report){
   #   srep_fixed <- summary(rep, select = c("report", "random"), p.value = TRUE) %>% 
@@ -59,7 +68,7 @@ optSV <- function(data,
   #                   p_value = `Pr(>|z^2|)`)
   # }
   
-    srep <- dplyr::bind_rows(srep_fixed, srep_random)
+    srep <- dplyr::bind_rows(srep_fixed, srep_report, srep_random)
   
   return(list(report = srep, opt = opt))
   

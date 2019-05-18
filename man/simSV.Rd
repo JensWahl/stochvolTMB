@@ -4,16 +4,16 @@
 \alias{simSV}
 \title{Simulate data for the stochastic volatility model}
 \usage{
-simSV(param, T = 1000, seed = NULL, method = "gaussian")
+simSV(param, N = 1000, seed = NULL, method = "gaussian")
 }
 \arguments{
 \item{param}{List of parameters}
 
-\item{T}{Length of time series}
-
 \item{seed}{Seed to reproduce simulation}
 
-\item{method}{Distribtion of error term (only Gaussian so far)}
+\item{method}{Distribtion of error term}
+
+\item{T}{Length of time series}
 }
 \description{
 Simulate data for the stochastic volatility model

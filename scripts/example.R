@@ -12,18 +12,19 @@ param <- list(phi = 0.9,
               rho = -0.7)
 
 method <- "leverage"
-method <- "skew_gaussian"
+#method <- "skew_gaussian"
 #method <- "t"
 dat <- stochvolTMB::simSV(param = param, N = N, method = method, seed = 123)
 
 opt <- stochvolTMB::optSV(data = dat$y, method = method)
 opt$report
 
-volplot(opt$report)
+volplot(opt$report, plot_log = TRUE)
 
 
-$ compare with stochvol package
-# stochvol <- stochvol::svlsample(data$y)
-# stochvol::paradensplot(stochvol)
-# stochvol::paratraceplot(stochvol)
-# stochvol::volplot(stochvol)
+
+# compare with stochvol package
+stochvol <- stochvol::svlsample(dat$y, draws = 2000)
+stochvol::paradensplot(stochvol)
+stochvol::paratraceplot(stochvol)
+stochvol::volplot(stochvol)

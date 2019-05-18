@@ -98,12 +98,14 @@ Type objective_function<Type>::operator()(){
     case 3:{
       // parameter specific for leverage model 
       Type rho = f(rho_logit(0));
-      ADREPORT(rho);
       
       if(i < (N - 1)){
       nll -= dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho / sigma_h * (h(i + 1) - phi * h(i))),
                    sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true);
+      }else{
+        ADREPORT(rho); // only report once
       }
+      
       break;
     }
     
@@ -123,9 +125,11 @@ Type objective_function<Type>::operator()(){
     
   }
   // Add estimate for conditional variance 
-  //vector<Type> cond_var = exp(h) * sigma_y * sigma_y; 
+  // vector<Type> volatility = exp(h) * sigma_y * sigma_y; 
+  // ADREPORT(volatility);
+
   
-  //ADREPORT(cond_var);
+  
   
   return nll; 
 }
