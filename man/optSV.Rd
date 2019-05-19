@@ -2,7 +2,7 @@
 % Please edit documentation in R/optSV.R
 \name{optSV}
 \alias{optSV}
-\title{Function for parameter estimation of stochastic volatility model}
+\title{Function for parameter estimation of stochastic volatility models}
 \usage{
 optSV(data, method = "gaussian", report = c("fixed", "random"))
 }
@@ -15,5 +15,5 @@ optSV(data, method = "gaussian", report = c("fixed", "random"))
 tibble of parameter estimates and standard error of estimates
 }
 \description{
-Function for parameter estimation of stochastic volatility model
+Function for parameter estimation of stochastic volatility models
 }

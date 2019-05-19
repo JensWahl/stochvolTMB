@@ -4,7 +4,7 @@
 \alias{volplot}
 \title{Function for plotting log volatiliy}
 \usage{
-volplot(report, include_ci = TRUE, plot_log = "TRUE")
+volplot(report, include_ci = TRUE, plot_log = TRUE)
 }
 \arguments{
 \item{report}{tibble returned from optSV}

@@ -15,6 +15,9 @@ simSV(param, N = 1000, seed = NULL, method = "gaussian")
 
 \item{T}{Length of time series}
 }
+\value{
+tibble of dimension \code{N x 2}
+}
 \description{
 Simulate data for the stochastic volatility model
 }
