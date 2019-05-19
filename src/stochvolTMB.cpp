@@ -1,11 +1,11 @@
 #include<TMB.hpp>
 
 // Skew normal distribution with mean zero and unit variance
-// @param x double. Where to evaluate density
-// @param alpha double. Skewness parameter 
-// @sigma_y double. Parameter from observational equation
-// @h double. Latent variable 
-//@give_log bool. Return log of density
+//' @param x double. Where to evaluate density
+//' @param alpha double. Skewness parameter 
+//' @sigma_y double. Parameter from observational equation
+//' @param h double. Latent variable 
+//' @param give_log bool. Return log of density
 template<class Type> 
 Type skew_norm(Type x, Type alpha, Type sigma_y, Type h, bool give_log){
   

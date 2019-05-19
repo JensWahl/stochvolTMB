@@ -26,7 +26,7 @@ optSV <- function(data,
   opt <- stats::nlminb(obj$par, obj$fn, obj$gr, control = list(trace = TRUE))
   rep <- TMB::sdreport(obj)
   
-    srep_fixed <- summary(rep, select = c("fixed"), p.value = TRUE) %>% 
+    srep_fixed <- TMB::summary.sdreport(rep, select = c("fixed"), p.value = TRUE) %>% 
       tibble::as_tibble(rownames = NA) %>%
       tibble::rownames_to_column() %>% 
       dplyr::rename(parameter = rowname, 
@@ -34,9 +34,9 @@ optSV <- function(data,
                     std_error = `Std. Error`,
                     z_value = `z value`,
                     p_value = `Pr(>|z^2|)`) %>% 
-      mutate(type = "fixed")
+      dplyr::mutate(type = "fixed")
     
-    srep_report <- summary(rep, select = c("report"), p.value = TRUE) %>% 
+    srep_report <- TMB::summary.sdreport(rep, select = c("report"), p.value = TRUE) %>% 
       tibble::as_tibble(rownames = NA) %>%
       tibble::rownames_to_column() %>% 
       dplyr::rename(parameter = rowname, 
@@ -47,7 +47,7 @@ optSV <- function(data,
       mutate(type = "transformed")    
     
     
-    srep_random <- summary(rep, select = c("random"), p.value = TRUE) %>% 
+    srep_random <- TMB::summary.sdreport(rep, select = c("random"), p.value = TRUE) %>% 
       tibble::as_tibble(rownames = NA) %>%
       tibble::rownames_to_column() %>% 
       dplyr::rename(parameter = rowname, 
@@ -55,19 +55,9 @@ optSV <- function(data,
                     std_error = `Std. Error`,
                     z_value = `z value`,
                     p_value = `Pr(>|z^2|)`) %>% 
-      mutate(type = "random")
+      dplyr::mutate(type = "random")
 
-  # if("fixed" %in% report){
-  #   srep_fixed <- summary(rep, select = c("report", "random"), p.value = TRUE) %>% 
-  #     tibble::as_tibble(rownames = NA) %>%
-  #     tibble::rownames_to_column() %>% 
-  #     dplyr::rename(parameter = rowname, 
-  #                   estimate = Estimate, 
-  #                   std_error = `Std. Error`,
-  #                   z_value = `z value`,
-  #                   p_value = `Pr(>|z^2|)`)
-  # }
-  
+
     srep <- dplyr::bind_rows(srep_fixed, srep_report, srep_random)
   
   return(list(report = srep, opt = opt))

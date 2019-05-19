@@ -9,11 +9,11 @@ simSV(param, N = 1000, seed = NULL, method = "gaussian")
 \arguments{
 \item{param}{List of parameters}
 
+\item{N}{Length of time series}
+
 \item{seed}{Seed to reproduce simulation}
 
 \item{method}{Distribtion of error term}
-
-\item{T}{Length of time series}
 }
 \value{
 tibble of dimension \code{N x 2}

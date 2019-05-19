@@ -1,5 +1,5 @@
 #' Simulate data for the stochastic volatility model
-#' @param T Length of time series 
+#' @param N Length of time series 
 #' @param param List of parameters
 #' @param seed Seed to reproduce simulation
 #' @param method Distribtion of error term 
