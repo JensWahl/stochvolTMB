@@ -21,7 +21,7 @@ volplot <- function(report, include_ci = TRUE, plot_log = TRUE){
            h_lower = estimate - 2 * std_error)
   
   # set theme 
-  ggplot2::theme_set(theme_bw())
+  ggplot2::theme_set(ggplot2::theme_bw())
   
   if(plot_log){
     

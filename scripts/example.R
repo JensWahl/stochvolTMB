@@ -19,7 +19,7 @@ dat <- stochvolTMB::simSV(param = param, N = N, method = method, seed = 123)
 opt <- stochvolTMB::optSV(data = dat$y, method = method)
 opt$report
 
-volplot(opt$report, plot_log = TRUE)
+volplot(opt$report, plot_log = FALSE)
 
 
 

@@ -44,7 +44,7 @@ optSV <- function(data,
                     std_error = `Std. Error`,
                     z_value = `z value`,
                     p_value = `Pr(>|z^2|)`) %>% 
-      mutate(type = "transformed")    
+      dplyr::mutate(type = "transformed")    
     
     
     srep_random <- TMB::summary.sdreport(rep, select = c("random"), p.value = TRUE) %>% 
