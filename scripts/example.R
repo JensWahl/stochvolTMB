@@ -11,7 +11,7 @@ param <- list(phi = 0.9,
               alpha = 5,
               rho = -0.7)
 
-method <- "leverage"
+method <- "gaussian"
 #method <- "skew_gaussian"
 #method <- "t"
 dat <- stochvolTMB::simSV(param = param, N = N, method = method, seed = 123)
@@ -19,7 +19,7 @@ dat <- stochvolTMB::simSV(param = param, N = N, method = method, seed = 123)
 opt <- stochvolTMB::optSV(data = dat$y, method = method)
 opt$report
 
-volplot(opt$report, plot_log = FALSE)
+volplot(opt$report, plot_log = F, include_ci = F)
 
 
 

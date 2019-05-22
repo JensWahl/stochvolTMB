@@ -1,6 +1,6 @@
 all: stochvolTMB.dll
 	# Comment here preserves the prior tab
 stochvolTMB.dll: stochvolTMB.cpp
-    Rscript --vanilla -e "TMB::compile('stochvolTMB.cpp')"
+  $(R_HOME)/bin/Rscript --vanilla -e "TMB::compile('stochvolTMB.cpp', '-O1 -g',DLLFLAGS='')"
 clean:
-    rm -rf *.dll
+  rm -rf *.dll
