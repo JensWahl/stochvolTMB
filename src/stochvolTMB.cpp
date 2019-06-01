@@ -22,7 +22,7 @@ Type skew_norm(Type x, Type alpha, Type sigma_y, Type h, bool give_log){
   }
 
 
-// Helper function for phi
+// Helper function for phi and rho
 // Transform x from the real line to [-1,1]
 template<class Type>
 Type f(Type x){
@@ -55,7 +55,9 @@ Type objective_function<Type>::operator()(){
   ADREPORT(sigma_y); 
   ADREPORT(sigma_h); 
   ADREPORT(phi); 
-
+    
+  
+  
   // Negative log likelihood
   Type nll = 0; 
   int N = y.size();
@@ -84,9 +86,10 @@ Type objective_function<Type>::operator()(){
     
     // Centered t-distibution
     // last term is contribution from jacobian of linear transformation y = a * x
-    case 1:
+    case 1:{
       nll -= dt(y(i) / (exp(h(i) / 2) * sigma_y), df(0), true) - log((exp(h(i) / 2) * sigma_y));
       break; 
+      }
     
     // Skew normal distribution
     case 2:{
@@ -96,14 +99,29 @@ Type objective_function<Type>::operator()(){
     
     // Leverage model - normal distribution
     case 3:{
-      // parameter specific for leverage model 
-      Type rho = f(rho_logit(0));
       
+      Type rho = f(rho_logit(0));
+      if(i == 0){
+      ADREPORT(rho); // only report once
+      }
       if(i < (N - 1)){
       nll -= dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho / sigma_h * (h(i + 1) - phi * h(i))),
                    sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true);
-      }else{
-        ADREPORT(rho); // only report once
+      }
+      
+      break;
+    }
+      
+    case 4:{
+      
+      Type rho = f(rho_logit(0));
+      if(i == 0){
+      ADREPORT(rho); // only report once
+      }
+      
+      if(i < (N - 1)){
+      Type scale = (y(i) - sigma_y * exp(h(i) / 2) * rho / sigma_h * (h(i + 1) - phi * h(i))) / sqrt(1 - rho * rho);
+      nll -= skew_norm(scale, alpha(0), sigma_y, h(i), true);
       }
       
       break;
@@ -112,12 +130,11 @@ Type objective_function<Type>::operator()(){
     
     
     // TO DO: 
-    // Leverage model - Ok
-    // Skew normal distribution - Ok 
     // Skew t distribution
     
     default:
-      std::cout << "This distribution is not implementet!" << std::endl;
+      Rprintf("This distribution is not implementet!");
+      exit(EXIT_FAILURE);
       break;
     }
     

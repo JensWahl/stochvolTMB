@@ -18,24 +18,24 @@ simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
   h <- rep(NA, N)
   
   # We assume stationary distribution
-  h[1] <- rnorm(1, 0, sigma_h / sqrt(1 - phi^2))
+  h[1] <- stats::rnorm(1, 0, sigma_h / sqrt(1 - phi^2))
   
   for(t in 2:N){
-    h[t] <- phi * h[t - 1] + rnorm(1, 0, sigma_h)
+    h[t] <- phi * h[t - 1] + stats::rnorm(1, 0, sigma_h)
   }
   
   # Observations 
   y <- rep(NA, N)
     if(method == "gaussian"){
       
-      y <- exp(h / 2) * rnorm(N, 0, sigma_y)
+      y <- exp(h / 2) * stats::rnorm(N, 0, sigma_y)
       
     } else if(method == "t"){
       
       # parameter specific for the t-distribution
       df <- param$df
       
-      y <- exp(h / 2) * sigma_y * rt(N, df = df)
+      y <- exp(h / 2) * sigma_y * stats::rt(N, df = df)
     }else if(method == "skew_gaussian"){
       
       # parameter specific for the skew normal distribution
@@ -54,12 +54,31 @@ simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
       #parameter specific for leverage model
       rho <- param$rho
       for(i in 1:(N - 1)){
-        y[i] <- sigma_y * exp(h[i] / 2) * (rho / sigma_h * (h[i + 1] - phi * h[i]) + sqrt(1 - rho^2) * rnorm(1))
+        y[i] <- sigma_y * exp(h[i] / 2) * (rho / sigma_h * (h[i + 1] - phi * h[i]) + sqrt(1 - rho^2) * stats::rnorm(1))
       }
       # set last value (not used) to zero
       y[N] <- 0
+    } else if(method == "skew_gaussian_leverage"){
+      
+      alpha <- param$alpha
+      delta <- alpha / sqrt(1 + alpha^2)
+      omega <- 1 / sqrt(1 - 2 * delta^2 / pi)
+      epsilon <- - omega * delta * sqrt(2 / pi)
+      
+      #parameter specific for leverage model
+      rho <- param$rho
+      for(i in 1:(N - 1)){
+        y[i] <- sigma_y * exp(h[i] / 2) * (rho / sigma_h * (h[i + 1] - phi * h[i]) + sqrt(1 - rho^2) *
+                                             sn::rsn(n = 1, alpha = alpha, xi = epsilon, omega = omega))
+      }
+      # set last value (not used) to zero
+      y[N] <- 0
+      
+      # remove attributes specific for rsn
+      attr(y, "family") <- NULL
+      attr(y, "parameters") <- NULL
     }
   
-  return(dplyr::tibble(y = y, h = h))
+  return(tibble::tibble(y = y, h = h))
   
 }

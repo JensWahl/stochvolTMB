@@ -10,10 +10,14 @@ License: What license is it under?
 Imports: 
     TMB,
     dplyr,
+    tibble,
     ggplot2,
-    magrittr
+    magrittr,
+    sn,
+    stats
 LinkingTo:
     RcppEigen,
     TMB
 RoxygenNote: 6.1.1
-Suggests: testthat
+Suggests: 
+    testthat (>= 2.1.0)

@@ -4,15 +4,18 @@
 \alias{optSV}
 \title{Function for parameter estimation of stochastic volatility models}
 \usage{
-optSV(data, method = "gaussian", report = c("fixed", "random"))
+optSV(data, method = "gaussian", report = c("fixed", "report",
+  "random"))
 }
 \arguments{
 \item{data}{vector of observations}
 
 \item{method}{string specifying distribution of error term in observational equation}
+
+\item{report}{character vector}
 }
 \value{
-tibble of parameter estimates and standard error of estimates
+list of summary report and opt object
 }
 \description{
 Function for parameter estimation of stochastic volatility models
