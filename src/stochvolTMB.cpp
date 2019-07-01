@@ -37,6 +37,8 @@ Type objective_function<Type>::operator()(){
   // Data-----------------
   DATA_VECTOR(y);
   DATA_INTEGER(method);
+  DATA_VECTOR_INDICATOR(keep, y);  // For one-step predictions
+  
   
   // Parameters-----------------
   PARAMETER(log_sigma_y); 
@@ -81,19 +83,19 @@ Type objective_function<Type>::operator()(){
       
     // Gaussian
     case 0:
-      nll -= dnorm(y(i), Type(0), exp(h(i) / 2) * sigma_y, true);
+      nll -= keep(i) * dnorm(y(i), Type(0), exp(h(i) / 2) * sigma_y, true);
       break;
     
     // Centered t-distibution
     // last term is contribution from jacobian of linear transformation y = a * x
     case 1:{
-      nll -= dt(y(i) / (exp(h(i) / 2) * sigma_y), df(0), true) - log((exp(h(i) / 2) * sigma_y));
+      nll -= keep(i) * dt(y(i) / (exp(h(i) / 2) * sigma_y), df(0), true) - log((exp(h(i) / 2) * sigma_y));
       break; 
       }
     
     // Skew normal distribution
     case 2:{
-      nll -= skew_norm(y(i), alpha(0), sigma_y, h(i), true);
+      nll -= keep(i) * skew_norm(y(i), alpha(0), sigma_y, h(i), true);
       break;
       }
     
@@ -105,7 +107,7 @@ Type objective_function<Type>::operator()(){
       ADREPORT(rho); // only report once
       }
       if(i < (N - 1)){
-      nll -= dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho / sigma_h * (h(i + 1) - phi * h(i))),
+      nll -= keep(i) * dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho / sigma_h * (h(i + 1) - phi * h(i))),
                    sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true);
       }
       
@@ -121,7 +123,7 @@ Type objective_function<Type>::operator()(){
       
       if(i < (N - 1)){
       Type scale = (y(i) - sigma_y * exp(h(i) / 2) * rho / sigma_h * (h(i + 1) - phi * h(i))) / sqrt(1 - rho * rho);
-      nll -= skew_norm(scale, alpha(0), sigma_y, h(i), true);
+      nll -= keep(i) * skew_norm(scale, alpha(0), sigma_y, h(i), true);
       }
       
       break;

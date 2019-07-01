@@ -19,7 +19,7 @@ volplot <- function(report, include_ci = TRUE, plot_log = TRUE){
   
   report <- report %>% 
     dplyr::filter(type == "random") %>% 
-    dplyr::mutate(time = 1:n(),
+    dplyr::mutate(time = 1:dplyr::n(),
            h_upper = estimate + 2 * std_error,
            h_lower = estimate - 2 * std_error)
   

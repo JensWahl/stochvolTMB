@@ -81,6 +81,6 @@ optSV <- function(data,
 
     srep <- dplyr::bind_rows(srep_fixed, srep_report, srep_random)
   
-  return(list(report = srep, opt = opt))
+  return(list(report = srep, opt = opt, obj = obj))
   
 }
