@@ -59,7 +59,7 @@ simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
       # set last value (not used) to zero
       y[N] <- 0
     } else if(method == "skew_gaussian_leverage"){
-      
+      cat("hu\n")
       alpha <- param$alpha
       delta <- alpha / sqrt(1 + alpha^2)
       omega <- 1 / sqrt(1 - 2 * delta^2 / pi)

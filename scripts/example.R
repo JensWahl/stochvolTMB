@@ -4,7 +4,7 @@ library(tidyverse)
 N <- 3000
 
 # Gaussian case
-param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, df = 5, alpha = -5, rho = -0.7)
+param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -5, rho = -0.7)
 
 method <- "skew_gaussian_leverage"
 # method <- 'skew_gaussian' method <- 't'

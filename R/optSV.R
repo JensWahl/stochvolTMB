@@ -4,7 +4,7 @@
 #'@return list of summary report and opt object
 #'@export
 get_nll <- function(data, 
-                  method = "gaussian"){
+                    method = "gaussian"){
   
   # set column names of data to NULL to remove notes from R CMD check
   # see https://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
@@ -115,11 +115,13 @@ estimate_parameters <- function(data,
   return(opt)
 }
   
+#' Calculate AIC of model
 #' @rdname aic
 #' @return \code{AIC}: AIC of fitted model.
 #' @export
 AIC.stochvolTMB <- function(object, ...) object$aic
 
+#' Calculate BIC of model
 #' @rdname bic
 #' @return \code{BIC}: BIC of fitted model.
 #' @export
