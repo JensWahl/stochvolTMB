@@ -9,12 +9,9 @@ param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, df = 5, alpha = -5, rho =
 method <- "skew_gaussian_leverage"
 # method <- 'skew_gaussian' method <- 't'
 dat <- stochvolTMB::simSV(param = param, N = N, method = method, seed = 123)
-
-opt <- stochvolTMB::optSV(data = dat$y, method = method)
-opt$report
-
-volplot(opt$report, plot_log = F, include_ci = T)
-
+obj <- stochvolTMB::get_nll(dat$y, method)
+opt <- stochvolTMB::estimate_parameters(dat$y, method)
+plot(opt)
 
 
 # compare with stochvol package
