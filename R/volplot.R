@@ -20,8 +20,12 @@ plot.stochvolTMB <- function(x, include_ci = TRUE, plot_log = TRUE){
     stop("ggplot2 is not installed. Please run install.packages('ggplot2')")
   }
   
-  if(!inherits(x, "stochvolTMB"))
-
+  if(!inherits(x, "stochvolTMB")){
+    stop("x has to be a stochvolTMB object")
+  }
+  
+  report <- x$rep
+    
   # Get sigma_y 
   sigma_y <- report %>% 
     dplyr::filter(parameter == "sigma_y") %>% 

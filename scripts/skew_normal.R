@@ -1,7 +1,7 @@
 library(TMB)
 library(sn)
 compile("scripts/skew_normal.cpp")
-dyn.load(dynlib("scripts/skew_normal"))
+dyn.load(dynlib("src/stochvolTMB.cpp"))
 alpha <- 2
 n <- 1000
 set.seed(342)

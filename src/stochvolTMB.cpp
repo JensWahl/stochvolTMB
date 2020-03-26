@@ -6,20 +6,30 @@
 //' @sigma_y double. Parameter from observational equation
 //' @param h double. Latent variable 
 //' @param give_log bool. Return log of density
+// template<class Type> 
+// Type skew_norm(Type x, Type alpha, Type sigma_y, Type h, bool give_log){
+//   
+//   Type scale = sigma_y * exp(h / 2);
+//   Type delta = alpha / sqrt(1 + alpha * alpha); 
+//   Type omega = scale / sqrt(1 - 2 * delta * delta / M_PI); 
+//   Type xi = - omega * delta * sqrt(2 / M_PI);
+//   
+//   Type dens = log(2) + dnorm(x, xi, omega, true) + log(pnorm(alpha * (x - xi) / omega));
+//   
+//   if(give_log) return dens;
+//   else return exp(dens);
+//   
+//   }
+
 template<class Type> 
-Type skew_norm(Type x, Type alpha, Type sigma_y, Type h, bool give_log){
+Type skew_norm(Type x, Type alpha, Type omega, Type xi, bool give_log){
   
-  Type scale = sigma_y * exp(h / 2);
-  Type delta = alpha / sqrt(1 + alpha * alpha); 
-  Type omega = scale / sqrt(1 - 2 * delta * delta / M_PI); 
-  Type epsilon = - omega * delta * sqrt(2 / M_PI);
-  
-  Type dens = log(2) + dnorm(x, epsilon, omega, true) + log(pnorm(alpha * (x - epsilon) / omega));
+  Type dens = log(2) + dnorm(x, xi, omega, true) + log(0.00001 + pnorm(alpha * (x - xi) / omega));
   
   if(give_log) return dens;
   else return exp(dens);
   
-  }
+}
 
 
 // Helper function for phi and rho
@@ -37,7 +47,7 @@ Type objective_function<Type>::operator()(){
   // Data-----------------
   DATA_VECTOR(y);
   DATA_INTEGER(method);
-  DATA_VECTOR_INDICATOR(keep, y);  // For one-step predictions
+  DATA_VECTOR_INDICATOR(keep, y);  // For one-s|tep predictions
   
   
   // Parameters-----------------
@@ -95,7 +105,13 @@ Type objective_function<Type>::operator()(){
     
     // Skew normal distribution
     case 2:{
-      nll -= keep(i) * skew_norm(y(i), alpha(0), sigma_y, h(i), true);
+      
+      Type scale = sigma_y * exp(h(i) / 2);
+      Type delta = alpha(0) / sqrt(1 + alpha(0) * alpha(0)); 
+      Type omega = scale / sqrt(1 - 2 * delta * delta / M_PI); 
+      Type xi = - omega * delta * sqrt(2 / M_PI);
+      
+      nll -= keep(i) * skew_norm(y(i), alpha(0), omega, xi, true);
       break;
       }
     
@@ -107,27 +123,42 @@ Type objective_function<Type>::operator()(){
       ADREPORT(rho); // only report once
       }
       if(i < (N - 1)){
-      nll -= keep(i) * dnorm(y(i), sigma_y * exp(h(i) / 2) * (rho / sigma_h * (h(i + 1) - phi * h(i))),
-                   sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true);
+
+        Type eta = (h(i + 1) - phi * h(i)) / sigma_h; 
+        nll -= keep(i) * dnorm(y(i), sigma_y * exp(h(i) / 2) * rho * eta, sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true); 
+        
+        
       }
       
       break;
     }
       
-    case 4:{
-      
-      Type rho = f(rho_logit(0));
-      if(i == 0){
-      ADREPORT(rho); // only report once
-      }
-      
-      if(i < (N - 1)){
-      Type scale = (y(i) - sigma_y * exp(h(i) / 2) * rho / sigma_h * (h(i + 1) - phi * h(i))) / sqrt(1 - rho * rho);
-      nll -= keep(i) * skew_norm(scale, alpha(0), sigma_y, h(i), true);
-      }
-      
-      break;
-    }
+    // case 4:{
+    //   
+    //   Type rho = f(rho_logit(0));
+    //   if(i == 0){
+    //   ADREPORT(rho); // only report once
+    //   }
+    //   
+    //   if(i < (N - 1)){
+    //   // reparameterization based on p.39 in Vita Petersones master thesis. See also Capitania et al 2003
+    //  
+    //   Type eta = (h(i + 1) - phi * h(i)) / sigma_h; 
+    //   Type scale = sigma_y * exp(h(i) / 2);
+    //   Type delta = alpha(0) / sqrt(1 + alpha(0) * alpha(0)); 
+    //   
+    //   Type omega = 1 / sqrt(1 - 2 * delta * delta / M_PI);
+    //   Type omega_scale = scale * omega * sqrt(1 - rho * rho);
+    //    
+    //   Type xi = -omega * delta * sqrt(2 / M_PI);
+    //   Type xi_scale = scale * (xi + rho * omega * eta);
+    //     
+    //   nll -= log(2) + dnorm(y(i), xi_scale, omega_scale, true) + log(0.00001 + pnorm(alpha(0) * (y(i) - xi_scale) / omega_scale)); 
+    // 
+    //   }
+    //   
+    //   break;
+    // }
     
     
     
