@@ -46,7 +46,7 @@ Type objective_function<Type>::operator()(){
   
   // Data-----------------
   DATA_VECTOR(y);
-  DATA_INTEGER(method);
+  DATA_INTEGER(model);
   DATA_VECTOR_INDICATOR(keep, y);  // For one-s|tep predictions
   
   
@@ -89,7 +89,7 @@ Type objective_function<Type>::operator()(){
   
   for(int i = 0; i < N; i++){
     
-    switch(method){
+    switch(model){
       
     // Gaussian
     case 0:

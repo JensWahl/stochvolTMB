@@ -4,7 +4,7 @@
 \alias{simSV}
 \title{Simulate data for the stochastic volatility model}
 \usage{
-simSV(param, N = 1000, seed = NULL, method = "gaussian")
+simSV(param, N = 1000, seed = NULL, model = "gaussian")
 }
 \arguments{
 \item{param}{List of parameters}
@@ -13,7 +13,7 @@ simSV(param, N = 1000, seed = NULL, method = "gaussian")
 
 \item{seed}{Seed to reproduce simulation}
 
-\item{method}{Distribtion of error term}
+\item{model}{Distribution of error term}
 }
 \value{
 tibble of dimension \code{N x 2}

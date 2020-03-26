@@ -4,7 +4,10 @@
 \alias{AIC.stochvolTMB}
 \title{Calculate BIC of model}
 \usage{
-\method{AIC}{stochvolTMB}(object, ...)
+\method{AIC}{stochvolTMB}(object)
+}
+\arguments{
+\item{object}{A \code{stochvolTMB} object.}
 }
 \value{
 \code{BIC}: BIC of fitted model.

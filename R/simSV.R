@@ -2,10 +2,10 @@
 #' @param N Length of time series 
 #' @param param List of parameters
 #' @param seed Seed to reproduce simulation
-#' @param method Distribtion of error term 
+#' @param model Distribution of error term 
 #' @return tibble of dimension \code{N x 2}
 #' @export
-simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
+simSV <- function(param, N = 1000, seed = NULL, model = "gaussian"){
   
   # Set seed if specified
   if(!is.null(seed)) set.seed(seed)
@@ -26,17 +26,17 @@ simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
   
   # Observations 
   y <- rep(NA, N)
-    if(method == "gaussian"){
+    if(model == "gaussian"){
       
       y <- exp(h / 2) * stats::rnorm(N, 0, sigma_y)
       
-    } else if(method == "t"){
+    } else if(model == "t"){
       
       # parameter specific for the t-distribution
       df <- param$df
       
       y <- exp(h / 2) * sigma_y * stats::rt(N, df = df)
-    }else if(method == "skew_gaussian"){
+    }else if(model == "skew_gaussian"){
       
       # parameter specific for the skew normal distribution
       # use package sn do generate random sample from skew normal distribution
@@ -49,7 +49,7 @@ simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
       # remove attributes specific for rsn
       attr(y, "family") <- NULL
       attr(y, "parameters") <- NULL
-    } else if(method == "leverage"){
+    } else if(model == "leverage"){
       
       #parameter specific for leverage model
       rho <- param$rho
@@ -58,7 +58,7 @@ simSV <- function(param, N = 1000, seed = NULL, method = "gaussian"){
       }
       # set last value (not used) to zero
       y[N] <- 0
-    } #else if(method == "skew_gaussian_leverage"){
+    } #else if(model == "skew_gaussian_leverage"){
       
     #   alpha <- param$alpha
     #   delta <- alpha / sqrt(1 + alpha^2)

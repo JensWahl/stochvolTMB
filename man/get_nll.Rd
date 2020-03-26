@@ -4,12 +4,12 @@
 \alias{get_nll}
 \title{Function for parameter estimation of stochastic volatility models}
 \usage{
-get_nll(data, method = "gaussian")
+get_nll(data, model = "gaussian")
 }
 \arguments{
 \item{data}{vector of observations}
 
-\item{method}{string specifying distribution of error term in observational equation}
+\item{modelstring}{specifying distribution of error term in observational equation}
 }
 \value{
 list of summary report and opt object

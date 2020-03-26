@@ -10,9 +10,9 @@ N <- 3000
 # Gaussian case
 param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -0.5, rho = -0.7)
 
-method <- "leverage"
+method <- "skew_gaussian_leverage"
 # method <- 'skew_gaussian' method <- 't'
-dat <- stochvolTMB::simSV(param = param, N = N, method = method, seed = 123)
+dat <- stochvolTMB::sim_sv(param = param, N = N, method = method, seed = 123)
 obj <- stochvolTMB::get_nll(dat$y, method)
 opt <- stochvolTMB::estimate_parameters(dat$y, method = "skew_gaussian_leverage")
 plot(opt)
