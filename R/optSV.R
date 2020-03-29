@@ -7,10 +7,7 @@ get_nll <- function(data, model= "gaussian"){
   
   # set column names of data to NULL to remove notes from R CMD check
   # see https://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
-  
-  if (!is.vector(data)) stop("data needs to be a vector")
-  if (!is.character(model)) stop("modelhas to be a character")
-  if (!(model%in% c("gaussian", "skew_gaussian", "t", "leverage"))) stop("model not implemented")
+
 
   rowname <- Estimate <- `Std. Error` <- `z value` <- `Pr(>|z^2|)` <- NULL
   
@@ -54,18 +51,18 @@ get_nll <- function(data, model= "gaussian"){
 #' @param data A vector of observations.
 #' @param model A character specifying the model. Must be one of the following: gaussian, t, leverage, skew_gaussian.
 #' @param opt.control An optional list of parameters for nlminb
-#' @param report Parameters to report with uncertanty . Can be any subset of "fixed", "transformed" or "random" (see \link[TMB]{summary.sdreport}). "fixed" 
-#' report the parameters on the scale they were estimated, for example are all standard deviations are estimated on log scale. "transformed" 
-#' reports all transformed parameters, for example estimated standard deviations transformed from log scale by taking the exponential. Lastly, "random"
-#' report the estimated latent log-volatility. 
 #' 
 #' @return Object of class \code{stochvolTMB}
 #' 
 #' @export 
 estimate_parameters <- function(data,
                                 model, 
-                                opt.control = NULL,  
-                                report = c("all", "fixed", "transformed", "random")){
+                                opt.control = NULL){
+  
+  
+  if (!is.vector(data)) stop("data needs to be a vector")
+  if (!is.character(model)) stop("model has to be a character")
+  if (!(model%in% c("gaussian", "skew_gaussian", "t", "leverage"))) stop("model not implemented")
   
   # create TMB object
   obj = get_nll(data, model)
@@ -76,7 +73,54 @@ estimate_parameters <- function(data,
   # Calculate standard error for all parameters (including latent)
   rep <- TMB::sdreport(obj)
 
+  
+  opt <- list()
+  class(opt) <- "stochvolTMB"
+
+  opt$rep <- rep
+  opt$obj <- obj
+  opt$fit <- fit
+  opt$aic <- 2 * fit$objective + 2 * length(fit$par)
+  opt$bic <- 2 * fit$objective + log(length(data)) * length(fit$par)
+  opt$model <- model
+
+  return(opt)
+}
+  
+#' Calculate AIC of model
+#' @rdname AIC
+#' @param object A \code{stochvolTMB} object.
+#' @return \code{AIC}: AIC of fitted model.
+#' @export
+AIC.stochvolTMB <- function(object) object$aic
+
+#' Calculate BIC of model
+#' @rdname BIC
+#' @param object A \code{stochvolTMB} object.
+#' @return \code{BIC}: BIC of fitted model.
+#' @export
+BIC.stochvolTMB <- function(object) object$bic
+
+
+#' Summary tables of model parameters 
+#' 
+#' Extract parameters, transformed parameters and latent log volatility along with standard error and p-value 
+#' 
+#' @param object A \code{stochvolTMB} object.
+#' @param report Parameters to report with uncertainty estimates. Can be any subset of "fixed", "transformed" or "random" (see \link[TMB]{summary.sdreport}). "fixed" 
+#' report the parameters on the scale they were estimated, for example are all standard deviations are estimated on log scale. "transformed" 
+#' report all transformed parameters, for example estimated standard deviations transformed from log scale by taking the exponential. Lastly, "random"
+#' report the estimated latent log-volatility. 
+#' @return \code{tibble} with parameters
+#' @export
+summary.stochvolTMB <- function(object,  report = c("all", "fixed", "transformed", "random")){
+  
+  # check argument
+  report <- match.arg(report, several.ok = TRUE)
+  
   if ("all" %in% report) report <- c("fixed", "transformed", "random")
+  
+  rep <- object$rep
   
   srep_fixed <- srep_report <- srep_random <- NULL
   
@@ -119,31 +163,14 @@ estimate_parameters <- function(data,
   
   srep <- dplyr::bind_rows(srep_fixed, srep_report, srep_random)
   
+  if (nrow(srep) == 0){
+    warning("no or empty summary selected via 'report = %s'", 
+            deparse(report))
+  }
   
-  opt <- list()
-  class(opt) <- "stochvolTMB"
-
-  opt$rep <- srep
-  opt$obj <- obj
-  opt$fit <- fit
-  opt$aic <- 2 * fit$objective + 2 * length(fit$par)
-  opt$bic <- 2 * fit$objective + log(length(data)) * length(fit$par)
-  opt$model <- model
-
-  return(opt)
+  return(srep)
+  
+  
 }
-  
-#' Calculate AIC of model
-#' @rdname AIC
-#' @param object A \code{stochvolTMB} object.
-#' @return \code{AIC}: AIC of fitted model.
-#' @export
-AIC.stochvolTMB <- function(object) object$aic
 
-#' Calculate BIC of model
-#' @rdname BIC
-#' @param object A \code{stochvolTMB} object.
-#' @return \code{BIC}: BIC of fitted model.
-#' @export
-AIC.stochvolTMB <- function(object) object$bic
 

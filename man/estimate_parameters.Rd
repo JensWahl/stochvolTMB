@@ -15,9 +15,12 @@ estimate_parameters(data, model, opt.control = NULL, report = c("all",
 \item{opt.control}{An optional list of parameters for nlminb}
 
 \item{report}{Parameters to report with uncertanty . Can be any subset of "fixed", "transformed" or "random" (see \link[TMB]{summary.sdreport}). "fixed" 
-report the parameters on the scale they were estimated, for example are all standard devitations are estimated on log scale. "transformed" 
-reports all transformed parameters, for example estimated standard devtions transformed from log scale by taking the exponential. Lastly, "random"
-report the estimated}
+report the parameters on the scale they were estimated, for example are all standard deviations are estimated on log scale. "transformed" 
+reports all transformed parameters, for example estimated standard deviations transformed from log scale by taking the exponential. Lastly, "random"
+report the estimated latent log-volatility.}
+}
+\value{
+Object of class \code{stochvolTMB}
 }
 \description{
 \code{estimate parameters} estimate the parameters of a stochastic volatility model with a latent log-volatility \code{h} that follows an 

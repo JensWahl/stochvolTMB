@@ -17,7 +17,7 @@ shinyUI(fluidPage(
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-            selectInput("method", "Select method",
+            selectInput("model", "Select model",
                         choices = c("Gaussian" = "gaussian",
                                        "Student-t" = "t",
                                        "Skew-Gaussian" = "skew_gaussian",
@@ -29,8 +29,7 @@ shinyUI(fluidPage(
             sliderInput("nu", "degrees of freedom \\(\\nu\\) (only for Student-t)", 3, 20, 5, step = 1),
             sliderInput("alpha", "Skewness parameter \\(\\alpha\\) (only for Skew-Gaussian)", -5, 5, -1, step = 0.1),
             sliderInput("rho", "Leverage parameter \\(\\rho\\) (only for Gaussian leverage)", -0.99, 0.99, -0.6, step = 0.05),
-            sliderInput("nobs", "Number of observations", 100, 10000, 3000, step = 100),
-            actionButton("estimate", "Simulate and estimate model")
+            sliderInput("nobs", "Number of observations", 100, 10000, 3000, step = 100)
          ),
         
 
@@ -43,7 +42,7 @@ shinyUI(fluidPage(
             #h3("Simulated data"),
             plotOutput("simPlot"),
             #br(),
-            plotOutput("estPlot"),
+            shinycssloaders::withSpinner(plotOutput("estPlot"), 8),
             #h3("Estimated process")
             plotOutput("est_vs_sim")
             

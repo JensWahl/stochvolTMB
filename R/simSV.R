@@ -5,7 +5,7 @@
 #' @param model Distribution of error term 
 #' @return tibble of dimension \code{N x 2}
 #' @export
-simSV <- function(param, N = 1000, seed = NULL, model = "gaussian"){
+sim_sv <- function(param, N = 1000, seed = NULL, model = "gaussian"){
   
   # Set seed if specified
   if(!is.null(seed)) set.seed(seed)

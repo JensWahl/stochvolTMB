@@ -5,34 +5,34 @@ dyn.load(dynlib("src/stochvolTMB"))
 devtools::load_all()
 library(tidyverse)
 
-N <- 3000
+N <- 8000
 
 # Gaussian case
-param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -0.5, rho = -0.7)
+param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7)
 
-method <- "skew_gaussian_leverage"
-# method <- 'skew_gaussian' method <- 't'
-dat <- stochvolTMB::sim_sv(param = param, N = N, method = method, seed = 123)
-obj <- stochvolTMB::get_nll(dat$y, method)
-opt <- stochvolTMB::estimate_parameters(dat$y, method = "skew_gaussian_leverage")
+model <- "skew_gaussian"
+# model <- 'skew_gaussian' model <- 't'
+dat <- stochvolTMB::sim_sv(param = param, N = N, model = model, seed = 123)
+obj <- stochvolTMB::get_nll(dat$y, model)
+opt <- stochvolTMB::estimate_parameters(dat$y, model = model)
 plot(opt)
 
-method = "skew_gaussian_leverage"
+model = "skew_gaussian_leverage"
 data = dat$y
 param <- list(log_sigma_y = 0,
               log_sigma_h = 0, 
               phi_logit = 2.95,
-              df = if(method == "t"){2}else{numeric(0)},
-              alpha = if(method %in% c("skew_gaussian", "skew_gaussian_leverage")) {-0} else {numeric(0)},
-              rho_logit = if(method %in% c("leverage", "skew_gaussian_leverage")) {-2} else {numeric(0)},
+              df = if(model == "t"){2}else{numeric(0)},
+              alpha = if(model %in% c("skew_gaussian", "skew_gaussian_leverage")) {-0} else {numeric(0)},
+              rho_logit = if(model %in% c("leverage", "skew_gaussian_leverage")) {-2} else {numeric(0)},
               h = rep(0, length(data)))
 
 data <- list(y = data,
-             method = ifelse(method == "gaussian", 0,
-                             ifelse(method == "t", 1, 
-                                    ifelse(method == "skew_gaussian", 2,
-                                           ifelse(method == "leverage", 3,
-                                                  ifelse(method == "skew_gaussian_leverage", 4, 5))))))
+             model = ifelse(model == "gaussian", 0,
+                             ifelse(model == "t", 1, 
+                                    ifelse(model == "skew_gaussian", 2,
+                                           ifelse(model == "leverage", 3,
+                                                  ifelse(model == "skew_gaussian_leverage", 4, 5))))))
 
 
 
@@ -48,11 +48,11 @@ opt$par
 
 data("exrates")
 dat = stochvol::logret(exrates$USD)
-opt1 <- stochvolTMB::estimate_parameters(dat, method = "leverage")
-opt2 <- stochvolTMB::estimate_parameters(dat, method = "t")
-opt3 <- stochvolTMB::estimate_parameters(dat, method = "skew_gaussian")
-opt4 <- stochvolTMB::estimate_parameters(dat, method = "skew_gaussian_leverage")
-opt5 <- stochvolTMB::estimate_parameters(dat, method = "gaussian")
+opt1 <- stochvolTMB::estimate_parameters(dat, model = "leverage")
+opt2 <- stochvolTMB::estimate_parameters(dat, model = "t")
+opt3 <- stochvolTMB::estimate_parameters(dat, model = "skew_gaussian")
+opt4 <- stochvolTMB::estimate_parameters(dat, model = "skew_gaussian_leverage")
+opt5 <- stochvolTMB::estimate_parameters(dat, model = "gaussian")
 
 
 

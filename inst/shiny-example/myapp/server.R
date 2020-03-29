@@ -12,6 +12,7 @@ library(ggplot2)
 library(gridExtra)
 library(dplyr)
 library(tidyr)
+library(stochvolTMB)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -26,7 +27,7 @@ shinyServer(function(input, output) {
                       rho = input$rho)
         
         # Simulate data 
-        data_sim <- simSV(param = param, N = input$nobs, method = input$method)
+        data_sim <- sim_sv(param = param, N = input$nobs, model = input$model)
         data_sim$t <- 1:input$nobs
         
         return(data_sim)
@@ -35,7 +36,7 @@ shinyServer(function(input, output) {
 
     estimate <- reactive({
         # Estimate parameters
-        estimate <- optSV(data = data()$y, method = input$method)
+        estimate <- estimate_parameters(data = data()$y, model = input$model)
 
     })
         
@@ -68,7 +69,7 @@ shinyServer(function(input, output) {
         if("plot_log" %in% input$plot_settings) plot_log <- TRUE else plot_log <- FALSE
         if("include_ci" %in% input$plot_settings) include_ci <- TRUE else include_ci <- FALSE
 
-        volplot(estimate()$report, include_ci = include_ci, plot_log = plot_log)
+        plot(estimate(), include_ci = include_ci, plot_log = plot_log)
 
 
     })
@@ -76,9 +77,7 @@ shinyServer(function(input, output) {
     output$est_vs_sim <- renderPlot({
 
         #$if(is.null(values$estimates)) return(NULL)
-        h_est <- estimate()$report %>% 
-            filter(parameter == "h") %>% 
-            select(estimate)
+        h_est <- summary(estimate(), report = "random")
         
         data <- data() %>%
             transmute(estimated = h_est$estimate,

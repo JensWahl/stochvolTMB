@@ -1,4 +1,4 @@
-context("test-simSV")
+context("test-sim_sv")
 
   ## Example data -------
   # Gaussian case
@@ -9,7 +9,7 @@ context("test-simSV")
                 alpha = 5,
                 rho = -0.7)
   N <- 1000
-  data <- simSV(param = param, N = N, method = "gaussian")
+  data <- sim_sv(param = param, N = N, model = "gaussian")
   
   test_that("data dimensions correct", {
     expect_equal(nrow(data), N)

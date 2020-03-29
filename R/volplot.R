@@ -24,7 +24,7 @@ plot.stochvolTMB <- function(x, include_ci = TRUE, plot_log = TRUE){
     stop("x has to be a stochvolTMB object")
   }
   
-  report <- x$rep
+  report <- summary(x)
     
   # Get sigma_y 
   sigma_y <- report %>% 
@@ -63,7 +63,7 @@ plot.stochvolTMB <- function(x, include_ci = TRUE, plot_log = TRUE){
                     volatility_upper =  100 * sigma_y * exp(h_upper / 2),
                     volatility_lower =  100 * sigma_y * exp(h_lower / 2))
     
-    p <- ggplot2::ggplot(report, ggplot2::aes(time, volatility)) + ggplot2::geom_line(size = 0.5, color = "black") + 
+    p <- ggplot2::ggplot(report, ggplot2::aes(time, volatility)) + ggplot2::geom_line(size = 0.8, color = "black") + 
       ggplot2::ggtitle("Estimated volatility") + 
       ggplot2::xlab("") +
       ggplot2::ylab("")
