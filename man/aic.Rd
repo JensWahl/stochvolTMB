@@ -4,10 +4,14 @@
 \alias{AIC.stochvolTMB}
 \title{Calculate AIC of model}
 \usage{
-\method{AIC}{stochvolTMB}(object)
+\method{AIC}{stochvolTMB}(object, ..., k = 2)
 }
 \arguments{
 \item{object}{A \code{stochvolTMB} object.}
+
+\item{...}{Currently not used.}
+
+\item{k}{numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.}
 }
 \value{
 \code{AIC}: AIC of fitted model.

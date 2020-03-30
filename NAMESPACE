@@ -2,10 +2,12 @@
 
 S3method(AIC,stochvolTMB)
 S3method(plot,stochvolTMB)
+S3method(summary,stochvolTMB)
 export("%>%")
+export(demo)
 export(estimate_parameters)
 export(get_nll)
 export(residuals)
 export(sim_sv)
 importFrom(magrittr,"%>%")
-useDynLib(stochvolTMB)
+useDynLib(stochvolTMB, .registration = TRUE)

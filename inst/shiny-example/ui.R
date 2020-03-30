@@ -8,7 +8,7 @@
 #
 
 library(shiny)
-devtools::load_all()
+library(stochvolTMB)
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
 

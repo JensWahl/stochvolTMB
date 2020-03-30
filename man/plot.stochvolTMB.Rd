@@ -4,10 +4,12 @@
 \alias{plot.stochvolTMB}
 \title{Plot estimated latent volatility process}
 \usage{
-\method{plot}{stochvolTMB}(x, include_ci = TRUE, plot_log = TRUE)
+\method{plot}{stochvolTMB}(x, ..., include_ci = TRUE, plot_log = TRUE)
 }
 \arguments{
 \item{x}{A \code{stochvolTMB} object returned form \link{estimate_parameters}.}
+
+\item{...}{Currently not used.}
 
 \item{include_ci}{logical value indicating if volatility should be plotted with approximately 95 \% confidence intervall.}
 

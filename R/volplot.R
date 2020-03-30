@@ -3,14 +3,13 @@
 #' Displays the estimated latent volatility process over time. 
 #' 
 #' @param x A \code{stochvolTMB} object returned form \link{estimate_parameters}.
+#' @param ... Currently not used. 
 #' @param include_ci logical value indicating if volatility should be plotted with approximately 95 \% confidence intervall. 
 #' @param plot_log logical value indicating if the estimated should be plotted on log or original scale. If \code{plot_log = TRUE} the process h is plottet. 
 #' If \code{plot_log = FALSE} 100 \code{sigma_y} exp(\code{h} / 2) is plotted. 
-#' 
 #' @return ggplot object with plot of estimated estimated volatility.
-#' 
-#' @export
-plot.stochvolTMB <- function(x, include_ci = TRUE, plot_log = TRUE){
+#' @export 
+plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE){
   
   parameter <- estimate <- type <- h_upper <- h_lower <- n <- std_error <- volatility <- NULL
   volatility_upper <- volatility_lower <- time <- NULL

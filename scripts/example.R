@@ -5,15 +5,15 @@ dyn.load(dynlib("src/stochvolTMB"))
 devtools::load_all()
 library(tidyverse)
 
-N <- 8000
+N <- 2000
 
 # Gaussian case
 param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7)
 
-model <- "skew_gaussian"
+model <- "gaussian"
 # model <- 'skew_gaussian' model <- 't'
 dat <- stochvolTMB::sim_sv(param = param, N = N, model = model, seed = 123)
-obj <- stochvolTMB::get_nll(dat$y, model)
+obj <- stochvolTMB::get_nll(dat$y, model = "gaussian")
 opt <- stochvolTMB::estimate_parameters(dat$y, model = model)
 plot(opt)
 

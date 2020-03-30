@@ -4,8 +4,7 @@
 \alias{estimate_parameters}
 \title{Estimate parameters for the stochastic volatility model}
 \usage{
-estimate_parameters(data, model, opt.control = NULL, report = c("all",
-  "fixed", "transformed", "random"))
+estimate_parameters(data, model, opt.control = NULL)
 }
 \arguments{
 \item{data}{A vector of observations.}
@@ -13,11 +12,6 @@ estimate_parameters(data, model, opt.control = NULL, report = c("all",
 \item{model}{A character specifying the model. Must be one of the following: gaussian, t, leverage, skew_gaussian.}
 
 \item{opt.control}{An optional list of parameters for nlminb}
-
-\item{report}{Parameters to report with uncertanty . Can be any subset of "fixed", "transformed" or "random" (see \link[TMB]{summary.sdreport}). "fixed" 
-report the parameters on the scale they were estimated, for example are all standard deviations are estimated on log scale. "transformed" 
-reports all transformed parameters, for example estimated standard deviations transformed from log scale by taking the exponential. Lastly, "random"
-report the estimated latent log-volatility.}
 }
 \value{
 Object of class \code{stochvolTMB}

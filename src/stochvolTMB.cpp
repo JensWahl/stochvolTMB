@@ -1,11 +1,22 @@
+#define TMB_LIB_INIT R_init_stochvolTMB
 #include<TMB.hpp>
 
 // Skew normal distribution with mean zero and unit variance
-//' @param x double. Where to evaluate density
-//' @param alpha double. Skewness parameter 
-//' @sigma_y double. Parameter from observational equation
-//' @param h double. Latent variable 
-//' @param give_log bool. Return log of density
+// @param x double. Where to evaluate density
+// @param alpha double. Skewness parameter 
+// @sigma_y double. Parameter from observational equation
+// @param h double. Latent variable 
+// @param give_log bool. Return log of density
+template<class Type> 
+Type skew_norm(Type x, Type alpha, Type omega, Type xi, bool give_log){
+  
+  Type dens = log(2) + dnorm(x, xi, omega, true) + log(0.00001 + pnorm(alpha * (x - xi) / omega));
+  
+  if(give_log) return dens;
+  else return exp(dens);
+  
+}
+
 // template<class Type> 
 // Type skew_norm(Type x, Type alpha, Type sigma_y, Type h, bool give_log){
 //   
@@ -21,15 +32,7 @@
 //   
 //   }
 
-template<class Type> 
-Type skew_norm(Type x, Type alpha, Type omega, Type xi, bool give_log){
-  
-  Type dens = log(2) + dnorm(x, xi, omega, true) + log(0.00001 + pnorm(alpha * (x - xi) / omega));
-  
-  if(give_log) return dens;
-  else return exp(dens);
-  
-}
+
 
 
 // Helper function for phi and rho
@@ -166,8 +169,7 @@ Type objective_function<Type>::operator()(){
     // Skew t distribution
     
     default:
-      Rprintf("This distribution is not implementet!");
-      exit(EXIT_FAILURE);
+      error("This distribution is not implementet!");
       break;
     }
     

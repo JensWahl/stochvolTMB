@@ -5,8 +5,11 @@ Version: 1.0
 Date: 2018-12-19
 Author: Jens Christian Wahl <jens.c.wahl@gmail.com>
 Maintainer: Jens Christian Wahl <jens.c.wahl@gmail.com>
-Description: More about what it does (maybe more than one line)
+Description: Parameter estimation for stochastic volatility models using maximum likelihood. The latent log-volatility is 
+    integrated out of the likelihood using the Laplace approximation. The models are fitted via 'TMB' (Template Model
+    Builder). 
 License: MIT + file LICENSE
+Depends: R (>= 3.5.0)
 Imports: 
     TMB,
     dplyr,
@@ -18,7 +21,8 @@ Imports:
 LinkingTo:
     RcppEigen,
     TMB
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Encoding: UTF-8
 Suggests: 
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    shiny

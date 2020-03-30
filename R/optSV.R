@@ -1,6 +1,6 @@
 #' Function for parameter estimation of stochastic volatility models
 #'@param data vector of observations 
-#'@param modelstring specifying distribution of error term in observational equation
+#'@param model string specifying distribution of error term in observational equation
 #'@return list of summary report and opt object
 #'@export
 get_nll <- function(data, model= "gaussian"){
@@ -80,8 +80,8 @@ estimate_parameters <- function(data,
   opt$rep <- rep
   opt$obj <- obj
   opt$fit <- fit
-  opt$aic <- 2 * fit$objective + 2 * length(fit$par)
-  opt$bic <- 2 * fit$objective + log(length(data)) * length(fit$par)
+
+  opt$nobs <- length(data)
   opt$model <- model
 
   return(opt)
@@ -90,30 +90,29 @@ estimate_parameters <- function(data,
 #' Calculate AIC of model
 #' @rdname AIC
 #' @param object A \code{stochvolTMB} object.
+#' @param k numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.
+#' @param ... Currently not used. 
 #' @return \code{AIC}: AIC of fitted model.
-#' @export
-AIC.stochvolTMB <- function(object) object$aic
+#' @export 
 
-#' Calculate BIC of model
-#' @rdname BIC
-#' @param object A \code{stochvolTMB} object.
-#' @return \code{BIC}: BIC of fitted model.
-#' @export
-BIC.stochvolTMB <- function(object) object$bic
+AIC.stochvolTMB <- function(object, ..., k = 2) 2 * object$fit$objective + k * length(object$fit$par)
 
 
 #' Summary tables of model parameters 
 #' 
 #' Extract parameters, transformed parameters and latent log volatility along with standard error and p-value 
 #' 
+#' @rdname summary
 #' @param object A \code{stochvolTMB} object.
+#' @param ... Currently not used. 
 #' @param report Parameters to report with uncertainty estimates. Can be any subset of "fixed", "transformed" or "random" (see \link[TMB]{summary.sdreport}). "fixed" 
 #' report the parameters on the scale they were estimated, for example are all standard deviations are estimated on log scale. "transformed" 
 #' report all transformed parameters, for example estimated standard deviations transformed from log scale by taking the exponential. Lastly, "random"
 #' report the estimated latent log-volatility. 
 #' @return \code{tibble} with parameters
-#' @export
-summary.stochvolTMB <- function(object,  report = c("all", "fixed", "transformed", "random")){
+#' @export 
+
+summary.stochvolTMB <- function(object, ..., report = c("all", "fixed", "transformed", "random")){
   
   # check argument
   report <- match.arg(report, several.ok = TRUE)

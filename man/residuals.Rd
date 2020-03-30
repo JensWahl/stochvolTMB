@@ -4,10 +4,10 @@
 \alias{residuals}
 \title{Calculate one-step-ahead (OSA) residuals for stochastic volatility model.}
 \usage{
-residuals(obj)
+residuals(object)
 }
 \arguments{
-\item{obj}{Output from optSV}
+\item{object}{A \code{stochvolTMB} object.}
 }
 \value{
 vector of one-step-ahead residuals of length \code{T}, where \code{T} is the number of observations.
