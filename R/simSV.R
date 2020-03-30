@@ -83,6 +83,6 @@ sim_sv <- function(param, N = 1000, seed = NULL, model = "gaussian"){
     #   attr(y, "parameters") <- NULL
     # }
   
-  return(tibble::tibble(y = y, h = h))
+  return(data.table::data.table(y = y, h = h))
   
 }

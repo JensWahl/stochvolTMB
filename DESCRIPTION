@@ -12,18 +12,16 @@ License: MIT + file LICENSE
 Depends: R (>= 3.5.0)
 Imports: 
     TMB,
-    dplyr,
-    tibble,
     ggplot2,
-    magrittr,
     sn,
     stats,
-    scales
+    data.table
 LinkingTo:
     RcppEigen,
     TMB
-RoxygenNote: 7.1.0
-Encoding: UTF-8
 Suggests: 
     testthat (>= 2.1.0),
     shiny
+RoxygenNote: 7.1.0
+Encoding: UTF-8
+LazyData: true

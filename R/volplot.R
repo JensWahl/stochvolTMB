@@ -7,6 +7,8 @@
 #' @param include_ci logical value indicating if volatility should be plotted with approximately 95 \% confidence intervall. 
 #' @param plot_log logical value indicating if the estimated should be plotted on log or original scale. If \code{plot_log = TRUE} the process h is plottet. 
 #' If \code{plot_log = FALSE} 100 \code{sigma_y} exp(\code{h} / 2) is plotted. 
+#' @param dates vector of length ncol(x$nobs), providing optional dates for labeling the x-axis. 
+#' The default value is NULL; in this case, the axis will be labeled with numbers.
 #' @return ggplot object with plot of estimated estimated volatility.
 #' @export 
 plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates = NULL){
@@ -33,17 +35,14 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates =
   report <- summary(x)
     
   # Get sigma_y 
-  sigma_y <- report %>% 
-    dplyr::filter(parameter == "sigma_y") %>% 
-    dplyr::pull(estimate)
+  sigma_y <- report[parameter == "sigma_y", estimate]
+
+  report <- report[type == "random"][, ":=" (time = 1:.N, 
+                                             h_upper = estimate + 2 * std_error,
+                                             h_lower = estimate - 2 * std_error)]
+
   
-  report <- report %>% 
-    dplyr::filter(type == "random") %>% 
-    dplyr::mutate(time = 1:dplyr::n(),
-                  h_upper = estimate + 2 * std_error,
-                  h_lower = estimate - 2 * std_error)
-  
-  if(!is.null(dates)) report$time <- dates
+  if(!is.null(dates)) report[, time := dates]
   
   # set theme 
   ggplot2::theme_set(ggplot2::theme_bw())
@@ -53,7 +52,6 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates =
     p <- ggplot2::ggplot(report, ggplot2::aes(time, estimate)) +
       ggplot2::geom_line(size = 0.8, color = "black") + 
       ggplot2:: ggtitle("Estimated log volatility") + 
-      ggplot2::scale_x_date(breaks = scales::pretty_breaks(10)) +
       ggplot2::xlab("") +
       ggplot2::ylab("")
     
@@ -67,13 +65,11 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates =
     } 
   }else {
     # Transform from log volatility
-    report <- report %>%
-      dplyr::mutate(volatility = 100 * sigma_y * exp(estimate / 2),
-                    volatility_upper =  100 * sigma_y * exp(h_upper / 2),
-                    volatility_lower =  100 * sigma_y * exp(h_lower / 2))
+    report[, ":=" (volatility = 100 * sigma_y * exp(estimate / 2),
+                   volatility_upper =  100 * sigma_y * exp(h_upper / 2),
+                   volatility_lower =  100 * sigma_y * exp(h_lower / 2))]
     
     p <- ggplot2::ggplot(report, ggplot2::aes(time, volatility)) + ggplot2::geom_line(size = 0.8, color = "black") + 
-      ggplot2::scale_x_date(breaks = scales::pretty_breaks(10)) +
       ggplot2::ggtitle("Estimated volatility") + 
       ggplot2::xlab("") +
       ggplot2::ylab("")

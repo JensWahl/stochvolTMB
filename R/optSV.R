@@ -116,45 +116,32 @@ summary.stochvolTMB <- function(object, ..., report = c("all", "fixed", "transfo
   rep <- object$rep
   
   srep_fixed <- srep_report <- srep_random <- NULL
+  column_names <- c("estimate", "std_error", "z_value", "p_value")
   
   if ("fixed" %in% report){
-    srep_fixed <- TMB::summary.sdreport(rep, select = c("fixed"), p.value = TRUE) %>% 
-      tibble::as_tibble(rownames = NA) %>%
-      tibble::rownames_to_column() %>% 
-      dplyr::rename(parameter = rowname, 
-                    estimate = Estimate, 
-                    std_error = `Std. Error`,
-                    z_value = `z value`,
-                    p_value = `Pr(>|z^2|)`) %>% 
-      dplyr::mutate(type = "fixed")
+    
+    srep_fixed <- as.data.table(TMB::summary.sdreport(rep, select = c("fixed"), p.value = TRUE), keep.rownames = "parameter")
+    setnames(srep_fixed, 2:5, column_names)
+    srep_fixed[, type := "fixed"]
+
   }
   
   if ("transformed" %in% report){
-    srep_report <- TMB::summary.sdreport(rep, select = c("report"), p.value = TRUE) %>% 
-      tibble::as_tibble(rownames = NA) %>%
-      tibble::rownames_to_column() %>% 
-      dplyr::rename(parameter = rowname, 
-                    estimate = Estimate, 
-                    std_error = `Std. Error`,
-                    z_value = `z value`,
-                    p_value = `Pr(>|z^2|)`) %>% 
-      dplyr::mutate(type = "transformed") 
+    
+    srep_report <- as.data.table(TMB::summary.sdreport(rep, select = c("report"), p.value = TRUE), keep.rownames = "parameter")
+    setnames(srep_report, 2:5, column_names)
+    srep_report[, type := "transformed"]
+
   }
   
   if ("random" %in% report){
-    srep_random <- TMB::summary.sdreport(rep, select = c("random"), p.value = TRUE) %>% 
-      tibble::as_tibble(rownames = NA) %>%
-      tibble::rownames_to_column() %>% 
-      dplyr::rename(parameter = rowname, 
-                    estimate = Estimate, 
-                    std_error = `Std. Error`,
-                    z_value = `z value`,
-                    p_value = `Pr(>|z^2|)`) %>% 
-      dplyr::mutate(type = "random")
+    srep_random <- as.data.table(TMB::summary.sdreport(rep, select = c("random"), p.value = TRUE), keep.rownames = "parameter")
+    setnames(srep_random, 2:5, column_names)
+    srep_random[, type := "random"]
   }
   
   
-  srep <- dplyr::bind_rows(srep_fixed, srep_report, srep_random)
+  srep <- rbindlist(list(srep_fixed, srep_report, srep_random))
   
   if (nrow(srep) == 0){
     warning("no or empty summary selected via 'report = %s'", 
