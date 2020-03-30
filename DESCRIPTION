@@ -17,7 +17,8 @@ Imports:
     ggplot2,
     magrittr,
     sn,
-    stats
+    stats,
+    scales
 LinkingTo:
     RcppEigen,
     TMB

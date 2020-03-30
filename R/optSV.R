@@ -1,23 +1,19 @@
-#' Function for parameter estimation of stochastic volatility models
-#'@param data vector of observations 
-#'@param model string specifying distribution of error term in observational equation
-#'@return list of summary report and opt object
+#' Construct objective function with derivaties using \link[TMB]{MakeADFun}
+#'@param data vector of observations .
+#'@param model string specifying distribution of error term in observational equation.
+#'@param ... additional arguments passed to \link[TMB]{MakeADFun}.
+#'@return List of components returned from \link[TMB]{MakeADFun}.
 #'@export
-get_nll <- function(data, model= "gaussian"){
-  
-  # set column names of data to NULL to remove notes from R CMD check
-  # see https://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
+#'@keywords internal
+get_nll <- function(data, model = "gaussian", ...){
 
-
-  rowname <- Estimate <- `Std. Error` <- `z value` <- `Pr(>|z^2|)` <- NULL
-  
   # Starting values for parameters
   param <- list(log_sigma_y = 0,
                 log_sigma_h = 0, 
                 phi_logit = 2,
-                df = if(model== "t"){2}else{numeric(0)},
-                alpha = if(model%in% c("skew_gaussian")) {0} else {numeric(0)},
-                rho_logit = if(model%in% c("leverage")) {0} else {numeric(0)},
+                df = if (model== "t") {2} else {numeric(0)},
+                alpha = if (model%in% c("skew_gaussian")) {0} else {numeric(0)},
+                rho_logit = if (model%in% c("leverage")) {0} else {numeric(0)},
                 h = rep(0, length(data)))
   
   data <- list(y = data,
@@ -26,7 +22,7 @@ get_nll <- function(data, model= "gaussian"){
                                       ifelse(model== "skew_gaussian", 2,
                                              ifelse(model== "leverage", 3, 4)))))
   
-  obj <- TMB::MakeADFun(data = data, parameters = param, random = "h", DLL = "stochvolTMB")
+  obj <- TMB::MakeADFun(data = data, parameters = param, random = "h", DLL = "stochvolTMB", ...)
   
   return(obj)
   
@@ -50,22 +46,20 @@ get_nll <- function(data, model= "gaussian"){
 #' 
 #' @param data A vector of observations.
 #' @param model A character specifying the model. Must be one of the following: gaussian, t, leverage, skew_gaussian.
-#' @param opt.control An optional list of parameters for nlminb
+#' @param opt.control An optional list of parameters for nlminb.
+#' @param ... additional arguments passed to \link[TMB]{MakeADFun}.
 #' 
 #' @return Object of class \code{stochvolTMB}
 #' 
 #' @export 
-estimate_parameters <- function(data,
-                                model, 
-                                opt.control = NULL){
-  
+estimate_parameters <- function(data, model, opt.control = NULL, ...){
   
   if (!is.vector(data)) stop("data needs to be a vector")
   if (!is.character(model)) stop("model has to be a character")
   if (!(model%in% c("gaussian", "skew_gaussian", "t", "leverage"))) stop("model not implemented")
   
   # create TMB object
-  obj = get_nll(data, model)
+  obj = get_nll(data, model, ...)
   
   # Optimize nll 
   fit <- stats::nlminb(obj$par, obj$fn, obj$gr, opt.control)

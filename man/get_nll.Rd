@@ -2,18 +2,21 @@
 % Please edit documentation in R/optSV.R
 \name{get_nll}
 \alias{get_nll}
-\title{Function for parameter estimation of stochastic volatility models}
+\title{Construct objective function with derivaties using \link[TMB]{MakeADFun}}
 \usage{
-get_nll(data, model = "gaussian")
+get_nll(data, model = "gaussian", ...)
 }
 \arguments{
-\item{data}{vector of observations}
+\item{data}{vector of observations .}
 
-\item{model}{string specifying distribution of error term in observational equation}
+\item{model}{string specifying distribution of error term in observational equation.}
+
+\item{...}{additional arguments passed to \link[TMB]{MakeADFun}.}
 }
 \value{
-list of summary report and opt object
+List of components returned from \link[TMB]{MakeADFun}.
 }
 \description{
-Function for parameter estimation of stochastic volatility models
+Construct objective function with derivaties using \link[TMB]{MakeADFun}
 }
+\keyword{internal}

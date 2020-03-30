@@ -9,7 +9,7 @@
 #' If \code{plot_log = FALSE} 100 \code{sigma_y} exp(\code{h} / 2) is plotted. 
 #' @return ggplot object with plot of estimated estimated volatility.
 #' @export 
-plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE){
+plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates = NULL){
   
   parameter <- estimate <- type <- h_upper <- h_lower <- n <- std_error <- volatility <- NULL
   volatility_upper <- volatility_lower <- time <- NULL
@@ -21,6 +21,13 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE){
   
   if(!inherits(x, "stochvolTMB")){
     stop("x has to be a stochvolTMB object")
+  }
+  
+  if(!is.null(dates)){
+    if(length(dates) != x$nobs){
+      warning("dates is not same length as data and is ignored")
+      dates <- NULL
+    }
   }
   
   report <- summary(x)
@@ -36,6 +43,8 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE){
                   h_upper = estimate + 2 * std_error,
                   h_lower = estimate - 2 * std_error)
   
+  if(!is.null(dates)) report$time <- dates
+  
   # set theme 
   ggplot2::theme_set(ggplot2::theme_bw())
   
@@ -44,6 +53,7 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE){
     p <- ggplot2::ggplot(report, ggplot2::aes(time, estimate)) +
       ggplot2::geom_line(size = 0.8, color = "black") + 
       ggplot2:: ggtitle("Estimated log volatility") + 
+      ggplot2::scale_x_date(breaks = scales::pretty_breaks(10)) +
       ggplot2::xlab("") +
       ggplot2::ylab("")
     
@@ -63,6 +73,7 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE){
                     volatility_lower =  100 * sigma_y * exp(h_lower / 2))
     
     p <- ggplot2::ggplot(report, ggplot2::aes(time, volatility)) + ggplot2::geom_line(size = 0.8, color = "black") + 
+      ggplot2::scale_x_date(breaks = scales::pretty_breaks(10)) +
       ggplot2::ggtitle("Estimated volatility") + 
       ggplot2::xlab("") +
       ggplot2::ylab("")

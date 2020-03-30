@@ -4,14 +4,16 @@
 \alias{estimate_parameters}
 \title{Estimate parameters for the stochastic volatility model}
 \usage{
-estimate_parameters(data, model, opt.control = NULL)
+estimate_parameters(data, model, opt.control = NULL, ...)
 }
 \arguments{
 \item{data}{A vector of observations.}
 
 \item{model}{A character specifying the model. Must be one of the following: gaussian, t, leverage, skew_gaussian.}
 
-\item{opt.control}{An optional list of parameters for nlminb}
+\item{opt.control}{An optional list of parameters for nlminb.}
+
+\item{...}{additional arguments passed to \link[TMB]{MakeADFun}.}
 }
 \value{
 Object of class \code{stochvolTMB}
