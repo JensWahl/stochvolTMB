@@ -8,11 +8,11 @@ context("test-sim_sv")
                 df = 5, 
                 alpha = 5,
                 rho = -0.7)
-  N <- 1000
-  data <- sim_sv(param = param, N = N, model = "gaussian")
+  nobs <- 1000
+  data <- sim_sv(param = param, nobs = nobs, model = "gaussian")
   
   test_that("data dimensions correct", {
-    expect_equal(nrow(data), N)
+    expect_equal(nrow(data), nobs)
     expect_equal(ncol(data), 2)
   })
   
