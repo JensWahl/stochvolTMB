@@ -39,4 +39,4 @@ estimates <- summary(opt)
 plot(opt, include_ci = TRUE)
 ```
 
-```
+By running `demo()` you start a shiny application where you can visually inspect the effect of choosing  different models and parameter settings. 
