@@ -13,8 +13,8 @@ param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7)
 model <- "gaussian"
 # model <- 'skew_gaussian' model <- 't'
 dat <- stochvolTMB::sim_sv(param = param, N = N, model = model, seed = 123)
-obj <- stochvolTMB::get_nll(dat$y, model = "gaussian", silent = TRUE)
-opt <- stochvolTMB::estimate_parameters(dat$y, model = model)
+obj <- stochvolTMB::get_nll(dat$y, model = "gaussian", silent = TRUE, map = list(phi_logit = factor(NA)))
+opt <- stochvolTMB::estimate_parameters(dat$y, model = model, map = list(phi_logit = factor(NA)))
 plot(opt)
 
 model = "skew_gaussian_leverage"
@@ -67,51 +67,14 @@ AIC(opt3)
 AIC(opt4)
 
 
+# load data
+data("spy")
 
-data("exrates")
-dat = stochvol::logret(exrates$USD)
-opt1 <- stochvolTMB::estimate_parameters(dat, model = "leverage")
-opt2 <- stochvolTMB::estimate_parameters(dat, model = "t")
-opt3 <- stochvolTMB::estimate_parameters(dat, model = "skew_gaussian")
-opt4 <- stochvolTMB::estimate_parameters(dat, model = "skew_gaussian_leverage")
-opt5 <- stochvolTMB::estimate_parameters(dat, model = "gaussian")
+# estimate parameters 
+opt <- estimate_parameters(spy$log_return, model = "gaussian")
 
+# get parameter estimates with standard error
+estimates <- summary(opt)
 
-
-# compare with stochvol package
-library(stochvol)
-draws <- stochvol::svlsample(dat$y, draws = 2000)
-stochvol::paradensplot(draws)
-stochvol::paratraceplot(draws)
-stochvol::volplot(draws)
-
-mcmc_h <- draws$latent
-mcmc_h <- draws$summary$latent
-# demean
-mcmc_h <- mcmc_h - colMeans(draws$para)[1]
-ts.plot(mcmc_h)
-tmb_h <- opt$report %>% filter(type == "random") %>% select(estimate)
-lines(tmb_h$estimate, col = "red")
-
-
-newquants <- c(0.025, 0.5, 0.975)
-draws <- stochvol::updatesummary(draws, quantiles = newquants)
-stochvol::volplot(draws)
-lines(exp(tmb_h$estimate/2) * 0.199 * 100, col = "red", ylab = "")
-
-sigma_y <- opt$report %>% dplyr::filter(parameter == "sigma_y") %>% dplyr::select(estimate) %>% as.numeric()
-
-
-tmb_sd <- opt$report %>% filter(type == "random") %>% mutate(time = 1:n(), h_upper = estimate + 2 * std_error, h_lower = estimate - 
-    2 * std_error, volatility = 100 * sigma_y * exp(estimate/2), volatility_upper = 100 * sigma_y * exp(h_upper/2), volatility_lower = 100 * 
-    sigma_y * exp(h_lower/2))
-
-lines(tmb_sd$volatility, col = "red")
-lines(tmb_sd$volatility_upper, col = "blue")
-lines(tmb_sd$volatility_lower, col = "blue")
-
-x <- stochvol
-where <- grep("%", dimnames(x$summary$latent)[[2]])
-volquants <- t(100 * exp(x$summary$latent[, where, drop = FALSE]/2))  # monotone transformation!
-nvolquants <- dim(volquants)[1]
-timelen <- dim(volquants)[2]
+# plot volatility
+plot(opt, include_ci = TRUE)

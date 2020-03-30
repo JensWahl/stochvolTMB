@@ -32,3 +32,18 @@ autoregressive process of order one with normally distributed noise. The followi
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is integrated out by applying the
 Laplace approximation
 }
+\examples{
+# load data
+data("spy")
+
+# estimate parameters 
+opt <- estimate_parameters(spy$log_return, model = "gaussian")
+
+# get parameter estimates with standard error
+estimates <- summary(opt)
+
+# plot estimated volatility with 95 \% confidence interval
+\dontrun{
+plot(opt, include_ci = TRUE)
+}
+}

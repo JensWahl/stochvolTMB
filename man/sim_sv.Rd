@@ -2,22 +2,42 @@
 % Please edit documentation in R/simSV.R
 \name{sim_sv}
 \alias{sim_sv}
-\title{Simulate data for the stochastic volatility model}
+\title{Simulate data from the stochastic volatility model}
 \usage{
-sim_sv(param, N = 1000, seed = NULL, model = "gaussian")
+sim_sv(
+  param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4, alpha = -2, rho = -0.7),
+  nobs = 1000,
+  seed = NULL,
+  model = "gaussian"
+)
 }
 \arguments{
-\item{param}{List of parameters}
+\item{param}{List of parameters. This includes the standard deviation of the observations, \code{sigma_y}, 
+the standard deviation of the latent volatility process, \code{sigma_h}, the persistence parameter \code{phi}. If 
+\code{model} = "t", the degree of freedom \code{df} must be specified. If \code{model} = "skew_gaussian", the skewness 
+parameter \code{alpha} must be specified and if \code{model} = "leverage", the correlation \code{rho} between the latent error
+term and the observational error has to be spesified.}
 
-\item{N}{Length of time series}
+\item{nobs}{Length of time series}
 
 \item{seed}{Seed to reproduce simulation}
 
 \item{model}{Distribution of error term}
 }
 \value{
-tibble of dimension \code{N x 2}
+data.table with columns \code{y} (observations) and \code{h} (latent log-volatility)
 }
 \description{
-Simulate data for the stochastic volatility model
+\code{sim_sv} simulate observations from a stochastic volatility model.
+}
+\details{
+This function draws the initial log-volatility  from its stationary distribution, meaning that \code{h_0}
+is drawn from a gaussian distribution with mean zero and \code{sigma_h} / \code{sqrt(1 - phi^2)}. \code{h_{t+1}} is then simulated 
+from its conditional distibution given \code{h_t}, which is N(\code{phi*h_t}, \code{sigma_h}). Log-returns (\code{y_t}) is 
+simulated from its conditional distribution given the latent process \code{h}. If \code{model} = "gaussian", then \code{y_t} given \code{h_t}
+is gaussian with mean zero and standard deviation equal to \code{sigma_y*exp(h_t / 2)}. Heavy tail returns can be obtained by simulating from 
+the t-distribution by setting \code{model} = "t". How heavy of a tail is specified by the degree of freedom parameter \code{df}.
+Asymmetric returns is obtained from the "skew_gaussian" model. How asymmetric is governed by the skewness parameter \code{alpha}. The so called leverage
+model, where we allow for correlation between log-returns and volatility can be simulated by setting \code{model} to "leverage" and specifying the 
+correlation parameter \code{rho}.
 }

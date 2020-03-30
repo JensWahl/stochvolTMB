@@ -5,7 +5,7 @@
 \alias{spy}
 \title{Daily closing prices for the S&P500 from 2005 to 2018.}
 \format{
-A data frame with 53940 rows and 10 variables:
+A data frame with 3522 rows and 3 variables:
 \describe{
   \item{date}{date}
   \item{price}{price, in US dollars}

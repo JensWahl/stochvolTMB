@@ -1,4 +1,4 @@
-#' Construct objective function with derivaties using \link[TMB]{MakeADFun}
+#' Construct objective function with derivatives using \link[TMB]{MakeADFun}
 #'@param data vector of observations .
 #'@param model string specifying distribution of error term in observational equation.
 #'@param ... additional arguments passed to \link[TMB]{MakeADFun}.
@@ -52,11 +52,27 @@ get_nll <- function(data, model = "gaussian", ...){
 #' @return Object of class \code{stochvolTMB}
 #' 
 #' @export 
+#' 
+#' @examples
+#' # load data
+#' data("spy")
+#'
+#' # estimate parameters 
+#' opt <- estimate_parameters(spy$log_return, model = "gaussian")
+#'
+#' # get parameter estimates with standard error
+#' estimates <- summary(opt)
+#'
+#' # plot estimated volatility with 95 % confidence interval
+#' \dontrun{
+#' plot(opt, include_ci = TRUE)
+#' }
+
 estimate_parameters <- function(data, model, opt.control = NULL, ...){
   
   if (!is.vector(data)) stop("data needs to be a vector")
   if (!is.character(model)) stop("model has to be a character")
-  if (!(model%in% c("gaussian", "skew_gaussian", "t", "leverage"))) stop("model not implemented")
+  if (!(model %in% c("gaussian", "skew_gaussian", "t", "leverage"))) stop("This model not implemented")
   
   # create TMB object
   obj = get_nll(data, model, ...)
@@ -103,7 +119,7 @@ AIC.stochvolTMB <- function(object, ..., k = 2) 2 * object$fit$objective + k * l
 #' report the parameters on the scale they were estimated, for example are all standard deviations are estimated on log scale. "transformed" 
 #' report all transformed parameters, for example estimated standard deviations transformed from log scale by taking the exponential. Lastly, "random"
 #' report the estimated latent log-volatility. 
-#' @return \code{tibble} with parameters
+#' @return \code{data.table} with parameter estimates, standard error and approximated p-value.
 #' @export 
 
 summary.stochvolTMB <- function(object, ..., report = c("all", "fixed", "transformed", "random")){
