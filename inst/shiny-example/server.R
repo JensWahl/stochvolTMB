@@ -27,7 +27,7 @@ shinyServer(function(input, output) {
                       rho = input$rho)
         
         # Simulate data 
-        data_sim <- sim_sv(param = param, N = input$nobs, model = input$model)
+        data_sim <- sim_sv(param = param, nobs = input$nobs, model = input$model)
         data_sim$t <- 1:input$nobs
         
         return(data_sim)
