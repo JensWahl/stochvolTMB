@@ -40,15 +40,10 @@ You can install stochvolTMB from github by running
 devtools::install_github("JensWahl/stochvolTMB")
 ```
 
-And the development version from [GitHub](https://github.com/) with:
 
-``` r
-# install.packages("devtools")
-devtools::install_github("JensWahl/stochvolTMB")
-```
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+The main function for estimating parameters is `estimate_parameters`:
 
 ```{r example}
 library(stochvolTMB, warn.conflicts = FALSE)
