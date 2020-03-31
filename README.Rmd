@@ -44,11 +44,12 @@ devtools::install_github("JensWahl/stochvolTMB")
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(stochvolTMB)
-# load data
+library(stochvolTMB, warn.conflicts = FALSE)
+
+# load s&p500 data from 2005 to 2018
 data("spy")
 
-# estimate parameters 
+# estimate parameters in a gaussian model
 opt <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
 
 # get parameter estimates with standard error
@@ -60,3 +61,9 @@ plot(opt, include_ci = TRUE)
 ```
 
 By running `demo()` you start a shiny application where you can visually inspect the effect of choosing  different models and parameter settings. 
+
+```r
+shiny::runGitHub(repo = "JensWahl/stochvolTMB", subdir = "inst/shiny-example")
+```
+
+<img src="man/figures/shinyApp.png" width="100%" />
