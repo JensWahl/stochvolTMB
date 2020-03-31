@@ -91,4 +91,4 @@ settings.
 shiny::runGitHub(repo = "JensWahl/stochvolTMB", subdir = "inst/shiny-example")
 ```
 
-<img src="man/figures/shinyApp.png" width="100%" />
+![](man/figures/shinyApp.png)
