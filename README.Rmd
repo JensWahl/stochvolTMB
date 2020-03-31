@@ -1,0 +1,62 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# stochvolTMB
+
+<!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Build Status](https://travis-ci.org/JensWahl/stochvolTMB.svg?branch=master)](https://travis-ci.org/JensWahl/stochvolTMB)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<!-- badges: end -->
+
+The goal of stochvolTMB is to ...
+
+## Installation
+
+You can install stochvolTMB from github by running 
+
+``` r
+# install.packages("devtools")
+devtools::install_github("JensWahl/stochvolTMB")
+```
+
+And the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("JensWahl/stochvolTMB")
+```
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(stochvolTMB)
+# load data
+data("spy")
+
+# estimate parameters 
+opt <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
+
+# get parameter estimates with standard error
+estimates <- summary(opt)
+head(estimates, 10)
+
+## plot estimated volatility with 95 % confidence interval
+plot(opt, include_ci = TRUE)
+```
+
+By running `demo()` you start a shiny application where you can visually inspect the effect of choosing  different models and parameter settings. 
