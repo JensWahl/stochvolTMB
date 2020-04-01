@@ -10,8 +10,6 @@
 library(shiny)
 library(ggplot2)
 library(gridExtra)
-library(dplyr)
-library(tidyr)
 library(stochvolTMB)
 
 # Define server logic required to draw a histogram
@@ -42,26 +40,27 @@ shinyServer(function(input, output) {
         
     #})
 
-    output$simPlot <- renderPlot({
+    output$sim_y <- renderPlot({
 
         #if(is.null(values$data_sim)) return(NULL)
 
-        p1 <- ggplot(data(), aes(x = t, y = y)) +
+        ggplot(data(), aes(x = t, y = y)) +
             geom_line() +
             labs(title = "Observations",
                  xlab = "",
                  ylab = "y")
-
-        p2 <- ggplot(data(), aes(x = t, y = h)) +
+        
+    })
+    
+    output$sim_h <- renderPlot({
+        ggplot(data(), aes(x = t, y = h)) +
             geom_line() +
             labs(title = "Latent process",
                  xlab = "",
                  ylab = "h")
-
-        grid.arrange(p1, p2, nrow = 2)
-
-
     })
+
+    
     
     output$estPlot <- renderPlot({
 
@@ -79,15 +78,13 @@ shinyServer(function(input, output) {
         #$if(is.null(values$estimates)) return(NULL)
         h_est <- summary(estimate(), report = "random")
         
-        data <- data() %>%
-            transmute(estimated = h_est$estimate,
-                   true = h,
-                   t = 1:n()) %>%
-            gather(key, value, -t)
+        data <- data()[, .(estimated = h_est$estimate, true = h, time = 1:.N)]
+        data <- melt(data, id.vars = "time")
+     
 
 
         ggplot(data) +
-            geom_line(aes(t, value, color = key)) +
+            geom_line(aes(time, value, color = variable)) +
             labs(title = "Estimated vs true latent process",
                  xlab = "",
                  ylab = "h") +

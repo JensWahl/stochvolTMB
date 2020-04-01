@@ -2,7 +2,7 @@
 % Please edit documentation in R/optSV.R
 \name{get_nll}
 \alias{get_nll}
-\title{Construct objective function with derivaties using \link[TMB]{MakeADFun}}
+\title{Construct objective function with derivatives using \link[TMB]{MakeADFun}}
 \usage{
 get_nll(data, model = "gaussian", ...)
 }
@@ -17,6 +17,6 @@ get_nll(data, model = "gaussian", ...)
 List of components returned from \link[TMB]{MakeADFun}.
 }
 \description{
-Construct objective function with derivaties using \link[TMB]{MakeADFun}
+Construct objective function with derivatives using \link[TMB]{MakeADFun}
 }
 \keyword{internal}

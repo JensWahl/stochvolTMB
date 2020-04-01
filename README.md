@@ -24,8 +24,8 @@ implemented:
   - **Skew-Gaussian** - skew-gaussian distributed noise for asymmetric
     returns
 
-It is build on [Template Model Builder](https://github.com/kaskr/adcomp)
-for fast and efficent estimation. The latent volatility is integrated
+It is built on [Template Model Builder](https://github.com/kaskr/adcomp)
+for fast and efficient estimation. The latent volatility is integrated
 out of the likelihood using the Laplace approximation and automatic
 differentiation (AD) is used for accurate evaluation of derivatives.
 
@@ -84,11 +84,10 @@ plot(opt, include_ci = TRUE)
 <img src="man/figures/README-example-1.png" width="100%" />
 
 By running `demo()` you start a shiny application where you can visually
-inspect the effect of choosing different models and parameter
-settings.
+inspect the effect of choosing different models and parameter settings.
 
 ``` r
-shiny::runGitHub(repo = "JensWahl/stochvolTMB", subdir = "inst/shiny-example")
+demo()
 ```
 
 ![](man/figures/shinyApp.png)

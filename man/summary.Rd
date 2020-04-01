@@ -17,7 +17,7 @@ report all transformed parameters, for example estimated standard deviations tra
 report the estimated latent log-volatility.}
 }
 \value{
-\code{tibble} with parameters
+\code{data.table} with parameter estimates, standard error and approximated p-value.
 }
 \description{
 Extract parameters, transformed parameters and latent log volatility along with standard error and p-value

@@ -40,7 +40,8 @@ shinyUI(fluidPage(
                                  "Plot log volatility" = "plot_log"),
                                inline = TRUE),
             #h3("Simulated data"),
-            plotOutput("simPlot"),
+            plotOutput("sim_y"),
+            plotOutput("sim_h"),
             #br(),
             shinycssloaders::withSpinner(plotOutput("estPlot"), 8),
             #h3("Estimated process")

@@ -29,7 +29,7 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 * **Leverage** - Taking correlation between returns and volatility into account 
 * **Skew-Gaussian** - skew-gaussian distributed noise for asymmetric returns
 
-It is build on [Template Model Builder](https://github.com/kaskr/adcomp) for fast and efficent estimation. The latent volatility is integrated out of the likelihood using the Laplace approximation and automatic differentiation (AD) is used for accurate evaluation of derivatives. 
+It is built on [Template Model Builder](https://github.com/kaskr/adcomp) for fast and efficient estimation. The latent volatility is integrated out of the likelihood using the Laplace approximation and automatic differentiation (AD) is used for accurate evaluation of derivatives. 
 
 ## Installation
 
@@ -65,7 +65,7 @@ plot(opt, include_ci = TRUE)
 By running `demo()` you start a shiny application where you can visually inspect the effect of choosing  different models and parameter settings. 
 
 ```r
-shiny::runGitHub(repo = "JensWahl/stochvolTMB", subdir = "inst/shiny-example")
+demo()
 ```
 
 ![](man/figures/shinyApp.png)

@@ -11,7 +11,7 @@
 
 \item{...}{Currently not used.}
 
-\item{include_ci}{logical value indicating if volatility should be plotted with approximately 95 \% confidence intervall.}
+\item{include_ci}{logical value indicating if volatility should be plotted with approximately 95 \% confidence interval.}
 
 \item{plot_log}{logical value indicating if the estimated should be plotted on log or original scale. If \code{plot_log = TRUE} the process h is plottet. 
 If \code{plot_log = FALSE} 100 \code{sigma_y} exp(\code{h} / 2) is plotted.}
