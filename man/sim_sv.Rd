@@ -4,12 +4,9 @@
 \alias{sim_sv}
 \title{Simulate data from the stochastic volatility model}
 \usage{
-sim_sv(
-  param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4, alpha = -2, rho = -0.7),
-  nobs = 1000,
-  seed = NULL,
-  model = "gaussian"
-)
+sim_sv(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
+  alpha = -2, rho = -0.7), nobs = 1000, seed = NULL,
+  model = "gaussian")
 }
 \arguments{
 \item{param}{List of parameters. This includes the standard deviation of the observations, \code{sigma_y}, 
