@@ -14,20 +14,23 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 <!-- badges: end -->
 
 `stochvolTMB` is a package for fitting stochastic volatility (SV) models
-to time series data. Four distributions for the observational error are
-implemented:
+to time series data. It is inspired by the package
+[stochvol](https://github.com/gregorkastner/stochvol), but parameter
+estimates are obtained through optimization and not MCMC, leading to
+significast speed up. It is built on [Template Model
+Builder](https://github.com/kaskr/adcomp) for fast and efficient
+estimation. The latent volatility is integrated out of the likelihood
+using the Laplace approximation and automatic differentiation (AD) is
+used for accurate evaluation of derivatives.
+
+Four distributions for the observational error are implemented:
 
   - **Gaussian** - The classic SV model with Gaussian noise
   - **t** - t-distributed noise for heavy tail returns
-  - **Leverage** - Taking correlation between returns and volatility
-    into account
-  - **Skew-Gaussian** - skew-gaussian distributed noise for asymmetric
+  - **Leverage** - Extending the **Gaussian** model by allowing observed
+    returns to be correlated with the latent volatilty
+  - **Skew-Gaussian** - Skew-gaussian distributed noise for asymmetric
     returns
-
-It is built on [Template Model Builder](https://github.com/kaskr/adcomp)
-for fast and efficient estimation. The latent volatility is integrated
-out of the likelihood using the Laplace approximation and automatic
-differentiation (AD) is used for accurate evaluation of derivatives.
 
 ## Installation
 

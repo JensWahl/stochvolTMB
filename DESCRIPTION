@@ -1,6 +1,6 @@
 Package: stochvolTMB
 Type: Package
-Title: Likelihood estimation of stochastic volatility models
+Title: Likelihood Estimation of Stochastic Volatility Models
 Version: 1.0
 Date: 2018-12-19
 Author: Jens Christian Wahl <jens.c.wahl@gmail.com>

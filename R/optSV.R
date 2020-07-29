@@ -68,7 +68,7 @@ get_nll <- function(data, model = "gaussian", ...){
 #' plot(opt, include_ci = TRUE)
 #' }
 
-estimate_parameters <- function(data, model, opt.control = NULL, ...){
+estimate_parameters <- function(data, model = "gaussian", opt.control = NULL, ...){
   
   if (!is.vector(data)) stop("data needs to be a vector")
   if (!is.character(model)) stop("model has to be a character")
