@@ -4,8 +4,7 @@
 \alias{plot.stochvolTMB}
 \title{Plot estimated latent volatility process}
 \usage{
-\method{plot}{stochvolTMB}(x, ..., include_ci = TRUE, plot_log = TRUE,
-  dates = NULL)
+\method{plot}{stochvolTMB}(x, ..., include_ci = TRUE, plot_log = TRUE, dates = NULL)
 }
 \arguments{
 \item{x}{A \code{stochvolTMB} object returned form \link{estimate_parameters}.}

@@ -5,43 +5,24 @@ dyn.load(dynlib("src/stochvolTMB"))
 devtools::load_all()
 library(tidyverse)
 
-N <- 2000
+nobs <- 2000
 
 # Gaussian case
-param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7)
+param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7, df = 5)
 
-model <- "gaussian"
+model <- "t"
 # model <- 'skew_gaussian' model <- 't'
-dat <- stochvolTMB::sim_sv(param = param, N = N, model = model, seed = 123)
+dat <- stochvolTMB::sim_sv(param = param, nobs = nobs, model = model, seed = 123)
 obj <- stochvolTMB::get_nll(dat$y, model = "gaussian", silent = TRUE, map = list(phi_logit = factor(NA)))
 opt <- stochvolTMB::estimate_parameters(dat$y, model = model, map = list(phi_logit = factor(NA)))
+res = residuals(opt)
+
+
 plot(opt)
 
-model = "skew_gaussian_leverage"
-data = dat$y
-param <- list(log_sigma_y = 0,
-              log_sigma_h = 0, 
-              phi_logit = 2.95,
-              df = if(model == "t"){2}else{numeric(0)},
-              alpha = if(model %in% c("skew_gaussian", "skew_gaussian_leverage")) {-0} else {numeric(0)},
-              rho_logit = if(model %in% c("leverage", "skew_gaussian_leverage")) {-2} else {numeric(0)},
-              h = rep(0, length(data)))
+h = summary(opt, report = "random")
 
-data <- list(y = data,
-             model = ifelse(model == "gaussian", 0,
-                             ifelse(model == "t", 1, 
-                                    ifelse(model == "skew_gaussian", 2,
-                                           ifelse(model == "leverage", 3,
-                                                  ifelse(model == "skew_gaussian_leverage", 4, 5))))))
-
-
-
-
-map = list(alpha = as.factor(NA), rho_logit = as.factor(NA))
-obj = TMB::MakeADFun(data, param, random = "h", map = map, DLL = "stochvolTMB")
-opt = nlminb(obj$par, obj$fn, obj$gr)
-opt$par
-
+residuals = dat$y / exp(h$estimate / 2)
 
 
 X = quantmod::getSymbols("^GSPC", env = NULL, src = "yahoo",

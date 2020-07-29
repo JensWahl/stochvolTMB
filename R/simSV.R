@@ -86,7 +86,10 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     attr(y, "family") <- NULL
     attr(y, "parameters") <- NULL
   } else if (model == "leverage") {
-
+    
+    if (abs(param$rho) >= 1){
+      stop("Correlation parameter rho is not between -1 and 1")
+    }
     # parameter specific for leverage model
     rho <- param$rho
     for (i in 1:(nobs - 1)) {

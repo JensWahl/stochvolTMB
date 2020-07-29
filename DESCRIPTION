@@ -8,7 +8,7 @@ Maintainer: Jens Christian Wahl <jens.c.wahl@gmail.com>
 Description: Parameter estimation for stochastic volatility models using maximum likelihood. The latent log-volatility is 
     integrated out of the likelihood using the Laplace approximation. The models are fitted via 'TMB' (Template Model
     Builder). 
-License: MIT + file LICENSE
+License: GPL-3 + file LICENSE
 Depends: R (>= 3.5.0)
 Imports: 
     TMB,
@@ -22,6 +22,8 @@ LinkingTo:
 Suggests: 
     testthat (>= 2.1.0),
     shiny
+URL: https://github.com/JensWahl/stochvolTMB
+BugReports: https://github.com/JensWahl/stochvolTMB/issues
 RoxygenNote: 7.1.0
 Encoding: UTF-8
 LazyData: true

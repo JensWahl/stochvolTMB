@@ -7,7 +7,7 @@
 get_nll(data, model = "gaussian", ...)
 }
 \arguments{
-\item{data}{vector of observations .}
+\item{data}{vector of observations.}
 
 \item{model}{string specifying distribution of error term in observational equation.}
 

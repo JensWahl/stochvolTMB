@@ -1,5 +1,5 @@
 #' Construct objective function with derivatives using \link[TMB]{MakeADFun}
-#'@param data vector of observations .
+#'@param data vector of observations.
 #'@param model string specifying distribution of error term in observational equation.
 #'@param ... additional arguments passed to \link[TMB]{MakeADFun}.
 #'@return List of components returned from \link[TMB]{MakeADFun}.
