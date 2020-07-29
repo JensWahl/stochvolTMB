@@ -17,7 +17,6 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![Build Status](https://travis-ci.org/JensWahl/stochvolTMB.svg?branch=master)](https://travis-ci.org/JensWahl/stochvolTMB)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R build status](https://github.com/JensWahl/stochvolTMB/workflows/R-CMD-check/badge.svg)](https://github.com/JensWahl/stochvolTMB/actions)
 <!-- badges: end -->
@@ -28,15 +27,15 @@ Four distributions for the observational error are implemented:
 
 * **Gaussian** - The classic SV model with Gaussian noise 
 * **t** - t-distributed noise for heavy tail returns 
-* **Leverage** -  Extending the **Gaussian** model by allowing observed returns to be correlated with the latent volatilty
-* **Skew-Gaussian** - Skew-gaussian distributed noise for asymmetric returns
+* **Leverage** -  Extending the **Gaussian** model by allowing observed returns to be correlated with the latent volatility
+* **Skew-Gaussian** - Skew-Gaussian distributed noise for asymmetric returns
 
 
 ## Installation
 
-You can install stochvolTMB from github by running 
+You can install `stochvolTMB` from github by running 
 
-``` r
+``` {r eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("JensWahl/stochvolTMB")
 ```
@@ -50,7 +49,7 @@ The main function for estimating parameters is `estimate_parameters`:
 library(stochvolTMB, warn.conflicts = FALSE)
 
 # load s&p500 data from 2005 to 2018
-data("spy")
+data(spy)
 
 # estimate parameters in a gaussian model
 opt <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
@@ -75,23 +74,24 @@ library(ggplot2)
 
 data(spy)
 
-
-ct <- microbenchmark(
-  stochvol_gauss = {mod1 <- svsample(spy$log_return, quiet = TRUE)},
-  stochvol_lev = {mod1 <- svlsample(spy$log_return, quiet = TRUE)},
-  stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
-  stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
-  times = 2L
-)
-
-autoplot(ct, log = FALSE) + stat_summary(fun.y = median, geom = 'point', size = 2)
+# 
+# ct <- microbenchmark(
+#   stochvol_gauss = {mod1 <- svsample(spy$log_return, quiet = TRUE)},
+#   stochvol_lev = {mod1 <- svlsample(spy$log_return, quiet = TRUE)},
+#   stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
+#   stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
+#   times = 2L
+# )
+# 
+# autoplot(ct, log = FALSE) + stat_summary(fun.y = median, geom = 'point', size = 2)
 
 ```
 
+## Shiny app 
 
-By running `demo()` you start a shiny application where you can visually inspect the effect of choosing  different models and parameter settings. 
+By running `demo()` you start a shiny application where you can visually inspect the effect of choosing different models and parameter configurations 
 
-```r
+```{r eval = FALSE}
 demo()
 ```
 

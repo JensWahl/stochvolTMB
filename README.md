@@ -7,17 +7,17 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![Build
-Status](https://travis-ci.org/JensWahl/stochvolTMB.svg?branch=master)](https://travis-ci.org/JensWahl/stochvolTMB)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![R build
+status](https://github.com/JensWahl/stochvolTMB/workflows/R-CMD-check/badge.svg)](https://github.com/JensWahl/stochvolTMB/actions)
 <!-- badges: end -->
 
 `stochvolTMB` is a package for fitting stochastic volatility (SV) models
 to time series data. It is inspired by the package
 [stochvol](https://github.com/gregorkastner/stochvol), but parameter
 estimates are obtained through optimization and not MCMC, leading to
-significast speed up. It is built on [Template Model
+significant speed up. It is built on [Template Model
 Builder](https://github.com/kaskr/adcomp) for fast and efficient
 estimation. The latent volatility is integrated out of the likelihood
 using the Laplace approximation and automatic differentiation (AD) is
@@ -28,13 +28,13 @@ Four distributions for the observational error are implemented:
   - **Gaussian** - The classic SV model with Gaussian noise
   - **t** - t-distributed noise for heavy tail returns
   - **Leverage** - Extending the **Gaussian** model by allowing observed
-    returns to be correlated with the latent volatilty
-  - **Skew-Gaussian** - Skew-gaussian distributed noise for asymmetric
+    returns to be correlated with the latent volatility
+  - **Skew-Gaussian** - Skew-Gaussian distributed noise for asymmetric
     returns
 
 ## Installation
 
-You can install stochvolTMB from github by running
+You can install `stochvolTMB` from github by running
 
 ``` r
 # install.packages("devtools")
@@ -49,10 +49,14 @@ The main function for estimating parameters is `estimate_parameters`:
 library(stochvolTMB, warn.conflicts = FALSE)
 
 # load s&p500 data from 2005 to 2018
-data("spy")
+data(spy)
 
 # estimate parameters in a gaussian model
 opt <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
+#> Warning in checkMatrixPackageVersion(): Package version inconsistency detected.
+#> TMB was built with Matrix version 1.2.18
+#> Current Matrix version is 1.2.17
+#> Please re-install 'TMB' from source using install.packages('TMB', type = 'source') or ask CRAN for a binary version of 'TMB' matching CRAN's 'Matrix' package
 
 # get parameter estimates with standard error
 estimates <- summary(opt)
@@ -86,8 +90,37 @@ plot(opt, include_ci = TRUE)
 
 <img src="man/figures/README-example-1.png" width="100%" />
 
+## Benchmark
+
+An comparison of `stochvol` and `stochvolTMB`:
+
+``` r
+library(stochvol)
+#> Loading required package: coda
+library(stochvolTMB)
+library(microbenchmark)
+library(ggplot2)
+#> Warning: package 'ggplot2' was built under R version 3.6.2
+
+data(spy)
+
+# 
+# ct <- microbenchmark(
+#   stochvol_gauss = {mod1 <- svsample(spy$log_return, quiet = TRUE)},
+#   stochvol_lev = {mod1 <- svlsample(spy$log_return, quiet = TRUE)},
+#   stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
+#   stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
+#   times = 2L
+# )
+# 
+# autoplot(ct, log = FALSE) + stat_summary(fun.y = median, geom = 'point', size = 2)
+```
+
+## Shiny app
+
 By running `demo()` you start a shiny application where you can visually
-inspect the effect of choosing different models and parameter settings.
+inspect the effect of choosing different models and parameter
+configurations
 
 ``` r
 demo()
