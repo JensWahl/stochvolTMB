@@ -4,7 +4,7 @@
 \alias{estimate_parameters}
 \title{Estimate parameters for the stochastic volatility model}
 \usage{
-estimate_parameters(data, model, opt.control = NULL, ...)
+estimate_parameters(data, model = "gaussian", opt.control = NULL, ...)
 }
 \arguments{
 \item{data}{A vector of observations.}

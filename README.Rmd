@@ -51,8 +51,14 @@ library(stochvolTMB, warn.conflicts = FALSE)
 # load s&p500 data from 2005 to 2018
 data(spy)
 
-# estimate parameters in a gaussian model
-opt <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
+# find the best model using AIC 
+AIC(estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE),
+    estimate_parameters(spy$log_return, model = "t", silent = TRUE),
+    estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE),
+    estimate_parameters(spy$log_return, model = "leverage", silent = TRUE))
+
+# The leverage model stand out with an AIC for below the other models
+opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 
 # get parameter estimates with standard error
 estimates <- summary(opt)
@@ -62,9 +68,9 @@ head(estimates, 10)
 plot(opt, include_ci = TRUE)
 ```
 
-## Benchmark
+## Comparison 
 
-An comparison of `stochvol` and `stochvolTMB`: 
+An comparison of `stochvol` and `stochvolTMB` shows about a 20 times speed up for the Gaussian model and 200 for the leverage model: 
 
 ```{r}
 library(stochvol)
@@ -74,16 +80,22 @@ library(ggplot2)
 
 data(spy)
 
-# 
-# ct <- microbenchmark(
-#   stochvol_gauss = {mod1 <- svsample(spy$log_return, quiet = TRUE)},
-#   stochvol_lev = {mod1 <- svlsample(spy$log_return, quiet = TRUE)},
-#   stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
-#   stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
-#   times = 2L
-# )
-# 
-# autoplot(ct, log = FALSE) + stat_summary(fun.y = median, geom = 'point', size = 2)
+gaussian <- microbenchmark(
+  stochvol_gauss = {svsample(spy$log_return, quiet = T)},
+  stochvolTMB_gauss  = {estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
+  times = 3L
+)
+
+leverage <- microbenchmark(
+    stochvol_lev = {svlsample(spy$log_return, quiet = T)},
+    stochvolTMB_lev  = {estimate_parameters(spy$log_return, "leverage", silent = TRUE)},
+    times = 3L
+)
+
+gaussian
+autoplot(gaussian, log = FALSE) + stat_summary(fun = median, geom = 'point', size = 2) + ggtitle("Comparison of stochvolTMB and stochvol for Gaussian model")
+leverage
+autoplot(leverage, log = FALSE) + stat_summary(fun = median, geom = 'point', size = 2) + ggtitle("Comparison of stochvolTMB and stochvol for leverage model")
 
 ```
 

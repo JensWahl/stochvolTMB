@@ -51,36 +51,39 @@ library(stochvolTMB, warn.conflicts = FALSE)
 # load s&p500 data from 2005 to 2018
 data(spy)
 
-# estimate parameters in a gaussian model
-opt <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
-#> Warning in checkMatrixPackageVersion(): Package version inconsistency detected.
-#> TMB was built with Matrix version 1.2.18
-#> Current Matrix version is 1.2.17
-#> Please re-install 'TMB' from source using install.packages('TMB', type = 'source') or ask CRAN for a binary version of 'TMB' matching CRAN's 'Matrix' package
+# find the best model using AIC 
+AIC(estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE),
+    estimate_parameters(spy$log_return, model = "t", silent = TRUE),
+    estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE),
+    estimate_parameters(spy$log_return, model = "leverage", silent = TRUE))
+#> [1] -23430.57
+
+# The leverage model stand out with an AIC for below the other models
+opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 
 # get parameter estimates with standard error
 estimates <- summary(opt)
 head(estimates, 10)
-#>       parameter     estimate    std_error     z_value      p_value
-#>  1: log_sigma_y -4.805444178 0.0893661590 -53.7725268 0.000000e+00
-#>  2: log_sigma_h -1.503114690 0.0854421060 -17.5922009 2.826823e-69
-#>  3:   phi_logit  4.547489989 0.2246000006  20.2470613 3.770740e-91
-#>  4:     sigma_y  0.008185065 0.0007314678  11.1899181 4.568554e-29
-#>  5:     sigma_h  0.222436260 0.0190054225  11.7038314 1.218261e-31
-#>  6:         phi  0.979034580 0.0046594721 210.1170609 0.000000e+00
-#>  7:           h -0.378840079 0.5151780523  -0.7353576 4.621218e-01
-#>  8:           h -0.440335544 0.5104392407  -0.8626601 3.883244e-01
-#>  9:           h -0.485412499 0.5047402313  -0.9617076 3.361965e-01
-#> 10:           h -0.512076392 0.4968052069  -1.0307388 3.026633e-01
+#>       parameter     estimate    std_error     z_value       p_value
+#>  1: log_sigma_y -4.786880902 0.0499293705 -95.8730474  0.000000e+00
+#>  2: log_sigma_h -1.296652044 0.0667927998 -19.4130512  5.986433e-84
+#>  3:   phi_logit  4.110208379 0.1375465458  29.8823090 3.341130e-196
+#>  4:   rho_logit -1.939946750 0.1467666528 -13.2178987  6.916940e-40
+#>  5:     sigma_y  0.008338425 0.0004163323  20.0282918  3.121840e-89
+#>  6:     sigma_h  0.273445746 0.0182642070  14.9716736  1.124552e-50
+#>  7:         phi  0.967720808 0.0043682334 221.5359687  0.000000e+00
+#>  8:         rho -0.748692587 0.0322489934 -23.2159986 3.138829e-119
+#>  9:           h -0.536253306 0.5182212112  -1.0347961  3.007641e-01
+#> 10:           h -0.207810839 0.4245275458  -0.4895108  6.244801e-01
 #>            type
 #>  1:       fixed
 #>  2:       fixed
 #>  3:       fixed
-#>  4: transformed
+#>  4:       fixed
 #>  5: transformed
 #>  6: transformed
-#>  7:      random
-#>  8:      random
+#>  7: transformed
+#>  8: transformed
 #>  9:      random
 #> 10:      random
 
@@ -90,31 +93,64 @@ plot(opt, include_ci = TRUE)
 
 <img src="man/figures/README-example-1.png" width="100%" />
 
-## Benchmark
+## Comparison
 
-An comparison of `stochvol` and `stochvolTMB`:
+An comparison of `stochvol` and `stochvolTMB` shows about a 20 times
+speed up for the Gaussian model and 200 for the leverage model:
 
 ``` r
 library(stochvol)
+#> Warning: package 'stochvol' was built under R version 3.6.3
 #> Loading required package: coda
+#> Warning: package 'coda' was built under R version 3.6.1
 library(stochvolTMB)
 library(microbenchmark)
+#> Warning: package 'microbenchmark' was built under R version 3.6.3
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 3.6.2
+#> Warning: package 'ggplot2' was built under R version 3.6.3
 
 data(spy)
 
-# 
-# ct <- microbenchmark(
-#   stochvol_gauss = {mod1 <- svsample(spy$log_return, quiet = TRUE)},
-#   stochvol_lev = {mod1 <- svlsample(spy$log_return, quiet = TRUE)},
-#   stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
-#   stochvolTMB_gauss  = {mod2 <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
-#   times = 2L
-# )
-# 
-# autoplot(ct, log = FALSE) + stat_summary(fun.y = median, geom = 'point', size = 2)
+gaussian <- microbenchmark(
+  stochvol_gauss = {svsample(spy$log_return, quiet = T)},
+  stochvolTMB_gauss  = {estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
+  times = 3L
+)
+
+leverage <- microbenchmark(
+    stochvol_lev = {svlsample(spy$log_return, quiet = T)},
+    stochvolTMB_lev  = {estimate_parameters(spy$log_return, "leverage", silent = TRUE)},
+    times = 3L
+)
+
+gaussian
+#> Unit: seconds
+#>               expr       min       lq      mean    median        uq
+#>     stochvol_gauss 28.482321 28.57319 29.078721 28.664051 29.376921
+#>  stochvolTMB_gauss  1.258273  1.27137  1.318565  1.284466  1.348711
+#>        max neval
+#>  30.089791     3
+#>   1.412956     3
+autoplot(gaussian, log = FALSE) + stat_summary(fun = median, geom = 'point', size = 2) + ggtitle("Comparison of stochvolTMB and stochvol for Gaussian model")
+#> Coordinate system already present. Adding new coordinate system, which will replace the existing one.
 ```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+``` r
+leverage
+#> Unit: seconds
+#>             expr        min         lq       mean     median        uq
+#>     stochvol_lev 442.471718 443.570413 448.843639 444.669107 452.02960
+#>  stochvolTMB_lev   2.282377   2.298566   2.327099   2.314756   2.34946
+#>         max neval
+#>  459.390092     3
+#>    2.384165     3
+autoplot(leverage, log = FALSE) + stat_summary(fun = median, geom = 'point', size = 2) + ggtitle("Comparison of stochvolTMB and stochvol for leverage model")
+#> Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+```
+
+<img src="man/figures/README-unnamed-chunk-3-2.png" width="100%" />
 
 ## Shiny app
 

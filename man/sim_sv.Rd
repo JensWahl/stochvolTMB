@@ -31,7 +31,7 @@ data.table with columns \code{y} (observations) and \code{h} (latent log-volatil
 \code{sim_sv} simulate observations from a stochastic volatility model.
 }
 \details{
-This function draws the initial log-volatility  from its stationary distribution, meaning that \code{h_0}
+This function draws the initial log-volatility from its stationary distribution, meaning that \code{h_0}
 is drawn from a gaussian distribution with mean zero and \code{sigma_h} / \code{sqrt(1 - phi^2)}. \code{h_{t+1}} is then simulated
 from its conditional distibution given \code{h_t}, which is N(\code{phi*h_t}, \code{sigma_h}). Log-returns (\code{y_t}) is
 simulated from its conditional distribution given the latent process \code{h}. If \code{model} = "gaussian", then \code{y_t} given \code{h_t}

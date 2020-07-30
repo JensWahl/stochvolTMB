@@ -97,15 +97,15 @@ estimate_parameters <- function(data, model = "gaussian", opt.control = NULL, ..
   return(opt)
 }
   
-#' Calculate AIC of model
-#' @rdname AIC
-#' @param object A \code{stochvolTMB} object.
-#' @param k numeric, the penalty per parameter to be used; the default k = 2 is the classical AIC.
-#' @param ... Currently not used. 
-#' @return \code{AIC}: AIC of fitted model.
-#' @export 
 
-AIC.stochvolTMB <- function(object, ..., k = 2) 2 * object$fit$objective + k * length(object$fit$par)
+#' @export
+logLik.stochvolTMB <- function(object, ...) {
+  val <- -object$fit$objective
+  attr(val, "nobs") <- object$nobs
+  attr(val, "df") <- length(object$fit$par)
+  class(val) <- "logLik"
+  val
+}
 
 
 #' Summary tables of model parameters 
