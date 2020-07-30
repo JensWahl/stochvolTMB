@@ -9,7 +9,7 @@ estimate_parameters(data, model = "gaussian", opt.control = NULL, ...)
 \arguments{
 \item{data}{A vector of observations.}
 
-\item{model}{A character specifying the model. Must be one of the following: gaussian, t, leverage, skew_gaussian.}
+\item{model}{A character specifying the model. Must be one of the following: "gaussian", "t", "leverage", "skew_gaussian".}
 
 \item{opt.control}{An optional list of parameters for nlminb.}
 
@@ -19,18 +19,18 @@ estimate_parameters(data, model = "gaussian", opt.control = NULL, ...)
 Object of class \code{stochvolTMB}
 }
 \description{
-\code{estimate parameters} estimate the parameters of a stochastic volatility model with a latent log-volatility \code{h} that follows an 
+Estimate parameters of a stochastic volatility model with a latent log-volatility following an 
 autoregressive process of order one with normally distributed noise. The following distributions are implemented for the observed process: 
 
 \itemize{
 \item Gaussian distribution
 \item t-distribution
-\item Leverage: Gaussian distribution with leverage where the noise of the latent process \code{h} is correlated with the observational distribution
+\item Leverage: Gaussian distribution with leverage where the noise of the latent process is correlated with the observational distribution
 \item Skew gaussian distribution
 }
 
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is integrated out by applying the
-Laplace approximation
+Laplace approximation.
 }
 \examples{
 # load data

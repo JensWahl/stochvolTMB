@@ -68,36 +68,40 @@ head(estimates, 10)
 plot(opt, include_ci = TRUE)
 ```
 
-## Comparison 
+## Comparison of stochvolTMB and stochvol
 
-An comparison of `stochvol` and `stochvolTMB` shows about a 20 times speed up for the Gaussian model and 200 for the leverage model: 
+A quick comparison of `stochvolTMB` and `stochvol` shows that `stochvolTMB` is 10-50x times faster than `stochvol`: 
 
 ```{r}
 library(stochvol)
 library(stochvolTMB)
-library(microbenchmark)
-library(ggplot2)
 
+
+# load s&p500 data from 2005 to 2018
 data(spy)
 
-gaussian <- microbenchmark(
-  stochvol_gauss = {svsample(spy$log_return, quiet = T)},
-  stochvolTMB_gauss  = {estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
-  times = 3L
-)
+system.time(stochvol_gauss <- svsample(spy$log_return, quiet = T))
+system.time(stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE))
 
-leverage <- microbenchmark(
-    stochvol_lev = {svlsample(spy$log_return, quiet = T)},
-    stochvolTMB_lev  = {estimate_parameters(spy$log_return, "leverage", silent = TRUE)},
-    times = 3L
-)
-
-gaussian
-autoplot(gaussian, log = FALSE) + stat_summary(fun = median, geom = 'point', size = 2) + ggtitle("Comparison of stochvolTMB and stochvol for Gaussian model")
-leverage
-autoplot(leverage, log = FALSE) + stat_summary(fun = median, geom = 'point', size = 2) + ggtitle("Comparison of stochvolTMB and stochvol for leverage model")
+system.time(stochvol_lev <- svlsample(spy$log_return, quiet = T))
+system.time(stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE))
+   
 
 ```
+
+We can compare the parameter estimates of the two methods. Note that the parameter `exp(mu/2)` and `sigma` from `stochvol` is the same as `sigma_y` and `sigma_h` from `stochvolTMB`. Both methods give almost identical results. 
+
+
+```{r}
+
+stochvol_gauss$summary$para
+summary(stochvolTMB_gauss, report = "transformed")
+
+stochvol_lev$summary$para
+summary(stochvolTMB_lev, report = "transformed")
+
+```
+
 
 ## Shiny app 
 

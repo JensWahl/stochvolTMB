@@ -18,19 +18,18 @@ the standard deviation of the latent volatility process, \code{sigma_h}, the per
 parameter \code{alpha} must be specified and if \code{model} = "leverage", the correlation \code{rho} between the latent error
 term and the observational error has to be spesified.}
 
-\item{nobs}{Length of time series}
+\item{nobs}{Length of time series.}
 
-\item{seed}{Seed to reproduce simulation}
+\item{seed}{Seed to reproduce simulation.}
 
-\item{model}{Distribution of error term}
+\item{model}{Distribution of error term.}
 }
 \value{
-data.table with columns \code{y} (observations) and \code{h} (latent log-volatility)
+data.table with columns \code{y} (observations) and \code{h} (latent log-volatility).
 }
 \description{
 \code{sim_sv} simulate observations from a stochastic volatility model.
-}
-\details{
+
 This function draws the initial log-volatility from its stationary distribution, meaning that \code{h_0}
 is drawn from a gaussian distribution with mean zero and \code{sigma_h} / \code{sqrt(1 - phi^2)}. \code{h_{t+1}} is then simulated
 from its conditional distibution given \code{h_t}, which is N(\code{phi*h_t}, \code{sigma_h}). Log-returns (\code{y_t}) is

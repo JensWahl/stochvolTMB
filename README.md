@@ -56,7 +56,6 @@ AIC(estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE),
     estimate_parameters(spy$log_return, model = "t", silent = TRUE),
     estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE),
     estimate_parameters(spy$log_return, model = "leverage", silent = TRUE))
-#> [1] -23430.57
 
 # The leverage model stand out with an AIC for below the other models
 opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
@@ -64,93 +63,46 @@ opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 # get parameter estimates with standard error
 estimates <- summary(opt)
 head(estimates, 10)
-#>       parameter     estimate    std_error     z_value       p_value
-#>  1: log_sigma_y -4.786880902 0.0499293705 -95.8730474  0.000000e+00
-#>  2: log_sigma_h -1.296652044 0.0667927998 -19.4130512  5.986433e-84
-#>  3:   phi_logit  4.110208379 0.1375465458  29.8823090 3.341130e-196
-#>  4:   rho_logit -1.939946750 0.1467666528 -13.2178987  6.916940e-40
-#>  5:     sigma_y  0.008338425 0.0004163323  20.0282918  3.121840e-89
-#>  6:     sigma_h  0.273445746 0.0182642070  14.9716736  1.124552e-50
-#>  7:         phi  0.967720808 0.0043682334 221.5359687  0.000000e+00
-#>  8:         rho -0.748692587 0.0322489934 -23.2159986 3.138829e-119
-#>  9:           h -0.536253306 0.5182212112  -1.0347961  3.007641e-01
-#> 10:           h -0.207810839 0.4245275458  -0.4895108  6.244801e-01
-#>            type
-#>  1:       fixed
-#>  2:       fixed
-#>  3:       fixed
-#>  4:       fixed
-#>  5: transformed
-#>  6: transformed
-#>  7: transformed
-#>  8: transformed
-#>  9:      random
-#> 10:      random
 
 ## plot estimated volatility with 95 % confidence interval
 plot(opt, include_ci = TRUE)
 ```
 
-<img src="man/figures/README-example-1.png" width="100%" />
+## Comparison of stochvolTMB and stochvol
 
-## Comparison
-
-An comparison of `stochvol` and `stochvolTMB` shows about a 20 times
-speed up for the Gaussian model and 200 for the leverage model:
+A quick comparison of `stochvolTMB` and `stochvol` shows that
+`stochvolTMB` is 10-50x times faster than `stochvol`:
 
 ``` r
 library(stochvol)
-#> Warning: package 'stochvol' was built under R version 3.6.3
-#> Loading required package: coda
-#> Warning: package 'coda' was built under R version 3.6.1
 library(stochvolTMB)
 library(microbenchmark)
-#> Warning: package 'microbenchmark' was built under R version 3.6.3
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 3.6.3
 
+# load s&p500 data from 2005 to 2018
 data(spy)
 
-gaussian <- microbenchmark(
-  stochvol_gauss = {svsample(spy$log_return, quiet = T)},
-  stochvolTMB_gauss  = {estimate_parameters(spy$log_return, "gaussian", silent = TRUE)},
-  times = 3L
-)
+system.time(stochvol_gauss <- svsample(spy$log_return, quiet = T))
+system.time(stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE))
 
-leverage <- microbenchmark(
-    stochvol_lev = {svlsample(spy$log_return, quiet = T)},
-    stochvolTMB_lev  = {estimate_parameters(spy$log_return, "leverage", silent = TRUE)},
-    times = 3L
-)
-
-gaussian
-#> Unit: seconds
-#>               expr       min       lq      mean    median        uq
-#>     stochvol_gauss 28.482321 28.57319 29.078721 28.664051 29.376921
-#>  stochvolTMB_gauss  1.258273  1.27137  1.318565  1.284466  1.348711
-#>        max neval
-#>  30.089791     3
-#>   1.412956     3
-autoplot(gaussian, log = FALSE) + stat_summary(fun = median, geom = 'point', size = 2) + ggtitle("Comparison of stochvolTMB and stochvol for Gaussian model")
-#> Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+system.time(stochvol_lev <- svlsample(spy$log_return, quiet = T))
+system.time(stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE))
+   
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+We can compare the parameter estimates of the two methods. Note that the
+parameter `exp(mu/2)` and `sigma` from `stochvol` is the same as
+`sigma_y` and `sigma_h` from `stochvolTMB`. Both methods give almost
+identical results.
 
 ``` r
-leverage
-#> Unit: seconds
-#>             expr        min         lq       mean     median        uq
-#>     stochvol_lev 442.471718 443.570413 448.843639 444.669107 452.02960
-#>  stochvolTMB_lev   2.282377   2.298566   2.327099   2.314756   2.34946
-#>         max neval
-#>  459.390092     3
-#>    2.384165     3
-autoplot(leverage, log = FALSE) + stat_summary(fun = median, geom = 'point', size = 2) + ggtitle("Comparison of stochvolTMB and stochvol for leverage model")
-#> Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-```
 
-<img src="man/figures/README-unnamed-chunk-3-2.png" width="100%" />
+stochvol_gauss$summary$para
+summary(stochvolTMB_gauss, report = "transformed")
+
+stochvol_lev$summary$para
+summary(stochvolTMB_lev, report = "transformed")
+```
 
 ## Shiny app
 
