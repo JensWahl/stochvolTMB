@@ -21,9 +21,12 @@ LinkingTo:
     TMB
 Suggests: 
     testthat (>= 2.1.0),
-    shiny
+    shiny,
+    knitr,
+    rmarkdown
 URL: https://github.com/JensWahl/stochvolTMB
 BugReports: https://github.com/JensWahl/stochvolTMB/issues
 RoxygenNote: 7.1.0
 Encoding: UTF-8
 LazyData: true
+VignetteBuilder: knitr

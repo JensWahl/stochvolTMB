@@ -56,10 +56,6 @@ AIC(estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE),
     estimate_parameters(spy$log_return, model = "t", silent = TRUE),
     estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE),
     estimate_parameters(spy$log_return, model = "leverage", silent = TRUE))
-#> Warning in checkMatrixPackageVersion(): Package version inconsistency detected.
-#> TMB was built with Matrix version 1.2.18
-#> Current Matrix version is 1.2.17
-#> Please re-install 'TMB' from source using install.packages('TMB', type = 'source') or ask CRAN for a binary version of 'TMB' matching CRAN's 'Matrix' package
 #>                                                                             df
 #> estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)       3
 #> estimate_parameters(spy$log_return, model = "t", silent = TRUE)              4
@@ -113,7 +109,9 @@ A quick comparison of `stochvolTMB` and `stochvol` shows that
 
 ``` r
 library(stochvol)
+#> Warning: package 'stochvol' was built under R version 3.6.3
 #> Loading required package: coda
+#> Warning: package 'coda' was built under R version 3.6.1
 library(stochvolTMB)
 
 
@@ -122,17 +120,17 @@ data(spy)
 
 system.time(stochvol_gauss <- svsample(spy$log_return, quiet = T))
 #>    user  system elapsed 
-#>  20.333   2.716  27.139
+#>   30.87    0.63   31.81
 system.time(stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE))
 #>    user  system elapsed 
-#>   5.432   0.104   5.792
+#>    1.87    0.01    1.89
 
 system.time(stochvol_lev <- svlsample(spy$log_return, quiet = T))
 #>    user  system elapsed 
-#> 208.407   6.994 236.095
+#>  469.48    0.93  475.52
 system.time(stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE))
 #>    user  system elapsed 
-#>  12.046   0.293  13.965
+#>    2.75    0.10    2.88
 ```
 
 We can compare the parameter estimates of the two methods. Note that the
@@ -144,17 +142,17 @@ identical results.
 
 stochvol_gauss$summary$para
 #>                   mean           sd           5%          50%          95%
-#> mu        -9.612369978 0.1882305957 -9.914775270 -9.614371461 -9.301626207
-#> phi        0.978114436 0.0049302166  0.969390919  0.978434868  0.985729252
-#> sigma      0.230453924 0.0201704851  0.199187372  0.229672233  0.265333016
-#> exp(mu/2)  0.008215421 0.0007793415  0.007031272  0.008170822  0.009553831
-#> sigma^2    0.053515819 0.0093920028  0.039675609  0.052749334  0.070401609
+#> mu        -9.613774067 0.1887976806 -9.919777167 -9.612873806 -9.303358711
+#> phi        0.978069835 0.0047962765  0.969871990  0.978284777  0.985587489
+#> sigma      0.230799684 0.0187680662  0.202470027  0.229715121  0.263200697
+#> exp(mu/2)  0.008209773 0.0007782997  0.007013709  0.008176943  0.009545558
+#> sigma^2    0.053620699 0.0087771318  0.040994112  0.052769037  0.069274607
 #>                 ESS
-#> mu        7049.2730
-#> phi        352.0666
-#> sigma      168.1086
-#> exp(mu/2) 7049.2730
-#> sigma^2    168.1086
+#> mu        8475.0939
+#> phi        414.3222
+#> sigma      190.1301
+#> exp(mu/2) 8475.0939
+#> sigma^2    190.1301
 summary(stochvolTMB_gauss, report = "transformed")
 #>    parameter    estimate    std_error   z_value      p_value        type
 #> 1:   sigma_y 0.008185065 0.0007314678  11.18992 4.568554e-29 transformed
@@ -162,20 +160,20 @@ summary(stochvolTMB_gauss, report = "transformed")
 #> 3:       phi 0.979034580 0.0046594721 210.11706 0.000000e+00 transformed
 
 stochvol_lev$summary$para
-#>                   mean          sd           5%         50%          95%
-#> mu        -9.568223536 0.105255717 -9.744873801 -9.56470987 -9.395951612
-#> phi        0.966877192 0.004069966  0.959723754  0.96712169  0.973220120
-#> sigma      0.276640595 0.016872604  0.250343104  0.27581482  0.305919303
-#> rho       -0.722614648 0.031438025 -0.770007375 -0.72547112 -0.663230598
-#> exp(mu/2)  0.008373118 0.000440111  0.007654689  0.00837625  0.009113706
-#> sigma^2    0.076814675 0.009425402  0.062671670  0.07607382  0.093586620
+#>                   mean           sd           5%          50%          95%
+#> mu        -9.581612732 0.1006956129 -9.750712377 -9.580832515 -9.421615162
+#> phi        0.966302201 0.0045256724  0.958626126  0.966315014  0.973519345
+#> sigma      0.280883004 0.0177442908  0.252016393  0.280644327  0.312329615
+#> rho       -0.728086593 0.0331721006 -0.780385732 -0.728562579 -0.670205524
+#> exp(mu/2)  0.008316276 0.0004181262  0.007632375  0.008308998  0.008997508
+#> sigma^2    0.079210090 0.0100200038  0.063512262  0.078761238  0.097549789
 #>                 ESS
-#> mu        548.91425
-#> phi       175.79791
-#> sigma      62.11424
-#> rho        48.91482
-#> exp(mu/2) 548.91425
-#> sigma^2    62.11424
+#> mu        561.57975
+#> phi        93.55969
+#> sigma      52.57279
+#> rho        41.67896
+#> exp(mu/2) 561.57975
+#> sigma^2    52.57279
 summary(stochvolTMB_lev, report = "transformed")
 #>    parameter     estimate    std_error   z_value       p_value        type
 #> 1:   sigma_y  0.008338425 0.0004163323  20.02829  3.121840e-89 transformed
