@@ -1,5 +1,6 @@
 ---
 title: "stochvolTMB: Likelihood estimation of stochastic volatility"
+author: "Jens Christian Wahl"
 output: rmarkdown::html_vignette
 bibliography: ../inst/REFERENCES.bib
 vignette: >
@@ -11,7 +12,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 3
 )
 ```
 
@@ -30,7 +33,7 @@ The stochastic volatility model, introduced by @Taylor_SV_1982,  is defined by
 \end{equation}
 where $y_t$ is the observed log returns, $h_t$ is the logarithm of the variance on day $t$, $\eta_t \stackrel{\text{iid}}{\sim} \mathcal{N}(0,1)$ and $\epsilon_t \sim F$, where $F$ is specified below. To ensure stationarity for $h_t$, we assume $|\phi| < 1$. It can be shown that the unconditional distribution of $h_t$ is $\mathcal{N}(0,\sigma_h^2/(1 - \phi^2))$, and we assume $h_1 \sim \mathcal{N}(0,\sigma_h^2/(1-\phi^2))$. A interpretation of the latent process $\{h_t\}$ is that is represents the random and uneven flow of new information into the marked. For different time points, the variance will be dependent of this unobserved ``flow'' of information, i.e. conditioning on $h_t$, $\mathrm{Var}(y_t | h_t) = \sigma_x^2 e^{h_t}$.
 
-The original SV @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatilty, meaning that a drop in price tend to lead to an increase in volatilty. To take this features of financial time series into account `stochvolTMB` has implemented the following four distribution for the inovation: 
+The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatilty, meaning that a drop in price tend to lead to an increase in volatilty. To take these features of financial time series into account `stochvolTMB` has implemented the following four distribution for the innovationss: 
 
 * Gaussian: $\epsilon_t \sim \mathcal{N}(0,1)$
 * t: $\epsilon_t \sim t_\nu(0,1)$, where $\nu$ is the degrees of freedom. 
@@ -53,14 +56,21 @@ Function Name                 Description
 `summary.stochvolTMB`         Extract parameter estimates and volatility with uncertainty.
 ----------------------------- --------------------------------------------------
 
-  Estimating parameters in a SV model is easy. As an example we investigate the daily log-returns of the S&P500 from 2005 to 2018. We fit all four distributions: 
+  Estimating parameters in a SV model is easy with `stochvolTMB`. As an example we investigate the daily log-returns of the S&P500 from 2005 to 2018. A quick look at the data:
+  
+```{r}
+plot(spy$date, spy$log_return, type = "l", xlab = "", ylab = "log-returns")
+plot(spy$date, spy$price, type = "l", xlab = "", ylab = "price")
+```
+
+  
+We fit all four distributions: 
   
   
 ```{r warning=FALSE}
-library(stochvolTMB)
 data(spy)
 
-guassian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
+gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
 t_dist = estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
@@ -84,7 +94,7 @@ and leverage (`rho`)
 ```{r}
 summary(leverage, report = "transformed")
 ```
-There is clear evidence for both asymetric returns and a negative correlation (of 0.74!) between log-returns and the volatility. To find the model that fits the data best, we can compare the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of out models and pick the smallest. 
+There is clear evidence for both asymetric returns and a negative correlation (of -0.74!) between log-returns and the volatility. To find the model that fits the data best, we can compare the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of out models and pick the smallest. 
 
 ```{r}
 
@@ -95,5 +105,58 @@ AIC(gaussian,
 
 ```
 
+
+Clearly the leverage model outperforms the others and is our preferred model for this dataset. Lastly, we can also plot the estimated log-volatility and percentage volatility
+
+```{r}
+plot(leverage, include_ci = TRUE, plot_log = TRUE, dates = spy$date)
+plot(leverage, include_ci = TRUE, plot_log = FALSE, dates = spy$date)
+
+```
+
+
+# Estimation 
+
+We use the R-package `TMB` (@TMB_2016) to implement our models for maximum likelihood estimation, since \textbf{TMB} lets us estimate parameters in models with a high number of latent variables
+
+Parameter estimation of stochastic volatility models is hard due to the fact the likelihood function is expressed as a high dimensional integral over the latent variables that cannot be evaluated analytically. If $\boldsymbol{y} = (y_1, \ldots, y_T)$ denotes our observations, $\boldsymbol{h} = (h_1, \ldots, h_T)$ our latent variables and $\boldsymbol{\theta}$ the parameters of interest, the likelihood of $\boldsymbol{\theta}$ is given by 
+
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}) = \int f_{\boldsymbol{y}}(\boldsymbol{y}|\boldsymbol{h})f_{\boldsymbol{h}}(\boldsymbol{h}) \, d\boldsymbol{h},
+\end{equation}
+
+The conditional density of our observations given $\boldsymbol{h}$ is denoted by $f_{\boldsymbol{y}}(\boldsymbol{y|u})$, and $f_{\boldsymbol{h}}(\boldsymbol{h})$ denotes the marginal density of $\boldsymbol{h}$
+
+## Laplace Approximation 
+
+Let $\boldsymbol{y}$ be a vector of observations, $\boldsymbol{\theta}$ our parameters of interest and $\boldsymbol{h}$ be a random vector of latent variables. Let $g(\boldsymbol{h},\boldsymbol{\theta})$ denote the negative joint log-likelihood. The likelihood of $\boldsymbol{\theta}$ is given by
+
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}) = \int f(\boldsymbol{y},\boldsymbol{h}) \, d\boldsymbol{h} = \int f_{\boldsymbol{y}}(\boldsymbol{y|u}) f_{\boldsymbol{h}}(\boldsymbol{h}) \, d\boldsymbol{h} = \int \exp \{-g(\boldsymbol{h},\boldsymbol{\theta})\} \, d\boldsymbol{h}.
+\end{equation}
+
+We assume that $g$ has a global minimum at $\boldsymbol{\hat{u}}$ for a given $\boldsymbol{\theta}$, i.e. $\boldsymbol{\hat{u}} = \text{argmin}_{\boldsymbol{h}} g(\boldsymbol{h},\boldsymbol{\theta})$, and that $g$ is twice differentiable. The solution $\hat{\boldsymbol{h}}$ is known as the *Empirical Bayes* (EB) estimate. A second order Taylor expansion around $\boldsymbol{\hat{u}}$ yields
+
+\begin{equation}
+    g(\boldsymbol{h},\boldsymbol{\theta}) \approx g(\boldsymbol{\hat{u}},\boldsymbol{\theta}) + \nabla g(\boldsymbol{\hat{u}},\boldsymbol{\theta})(\boldsymbol{h} - \boldsymbol{\hat{u}}) + \frac{1}{2}(\boldsymbol{h} - \boldsymbol{\hat{u}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{u}})
+\end{equation}
+
+Since $\boldsymbol{\hat{u}}$ is a minimum, $\nabla g(\boldsymbol{\hat{u}},\boldsymbol{\theta}) = 0$. Therefore
+
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}) \approx \exp \{-g(\boldsymbol{\hat{u}},\boldsymbol{\theta})\} \int \exp \bigg \{-\frac{1}{2}(\boldsymbol{h} - \boldsymbol{\hat{u}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{u}}) \bigg \} d\boldsymbol{h}
+\end{equation}
+
+We can observe that the integrand is the kernel of a multivariate normal density with covariance matrix $\mathbb{H}^{-1}$. The approximation is therefore given by 
+
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}) \approx \exp \{-g(\boldsymbol{\hat{u}},\boldsymbol{\theta})\} (2\pi)^{\text{dim}(\boldsymbol{h})/2} \text{det}(\mathbb{H})^{-1/2},
+\end{equation}
+
+where we have used the fact that $\text{det}(\mathbb{H}^{-1}) = \text{det}(\mathbb{H})^{-1}$. The corresponding negative log-likelihood is 
+
+\begin{equation}
+    -l(\boldsymbol{\theta}) = -\frac{\text{dim}(\boldsymbol{h})}{2} \log (2\pi) + \frac{1}{2} \log \text{det}(\mathbb{H}) + g(\boldsymbol{\hat{u}},\boldsymbol{\theta})
+\end{equation}
 
 # References
