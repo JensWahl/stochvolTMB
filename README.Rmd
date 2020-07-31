@@ -52,10 +52,13 @@ library(stochvolTMB, warn.conflicts = FALSE)
 data(spy)
 
 # find the best model using AIC 
-AIC(estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE),
-    estimate_parameters(spy$log_return, model = "t", silent = TRUE),
-    estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE),
-    estimate_parameters(spy$log_return, model = "leverage", silent = TRUE))
+
+gaussian <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
+t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
+skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
+leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
+
+AIC(gaussian, t_dist, skew_gaussian, leverage)
 
 # The leverage model stand out with an AIC for below the other models
 opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
@@ -65,7 +68,7 @@ estimates <- summary(opt)
 head(estimates, 10)
 
 ## plot estimated volatility with 95 % confidence interval
-plot(opt, include_ci = TRUE)
+plot(opt, include_ci = TRUE, dates = spy$date)
 ```
 
 ## Comparison of stochvolTMB and stochvol
@@ -76,7 +79,6 @@ A quick comparison of `stochvolTMB` and `stochvol` shows that `stochvolTMB` is 1
 library(stochvol)
 library(stochvolTMB)
 
-
 # load s&p500 data from 2005 to 2018
 data(spy)
 
@@ -86,7 +88,6 @@ system.time(stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian"
 system.time(stochvol_lev <- svlsample(spy$log_return, quiet = T))
 system.time(stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE))
    
-
 ```
 
 We can compare the parameter estimates of the two methods. Note that the parameter `exp(mu/2)` and `sigma` from `stochvol` is the same as `sigma_y` and `sigma_h` from `stochvolTMB`. Both methods give almost identical results. 
@@ -94,11 +95,11 @@ We can compare the parameter estimates of the two methods. Note that the paramet
 
 ```{r}
 
-stochvol_gauss$summary$para
-summary(stochvolTMB_gauss, report = "transformed")
+knitr::kable(stochvol_gauss$summary$para[, 1:2])
+knitr::kable(summary(stochvolTMB_gauss, report = "transformed"))
 
-stochvol_lev$summary$para
-summary(stochvolTMB_lev, report = "transformed")
+knitr::kable(stochvol_lev$summary$para)
+knitr::kable(summary(stochvolTMB_lev, report = "transformed"))
 
 ```
 

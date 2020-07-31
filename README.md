@@ -52,24 +52,22 @@ library(stochvolTMB, warn.conflicts = FALSE)
 data(spy)
 
 # find the best model using AIC 
-AIC(estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE),
-    estimate_parameters(spy$log_return, model = "t", silent = TRUE),
-    estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE),
-    estimate_parameters(spy$log_return, model = "leverage", silent = TRUE))
+
+gaussian <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
 #> Warning in checkMatrixPackageVersion(): Package version inconsistency detected.
 #> TMB was built with Matrix version 1.2.18
 #> Current Matrix version is 1.2.17
 #> Please re-install 'TMB' from source using install.packages('TMB', type = 'source') or ask CRAN for a binary version of 'TMB' matching CRAN's 'Matrix' package
-#>                                                                             df
-#> estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)       3
-#> estimate_parameters(spy$log_return, model = "t", silent = TRUE)              4
-#> estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)  4
-#> estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)       4
-#>                                                                                   AIC
-#> estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)      -23430.57
-#> estimate_parameters(spy$log_return, model = "t", silent = TRUE)             -23451.69
-#> estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE) -23440.87
-#> estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)      -23608.85
+t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
+skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
+leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
+
+AIC(gaussian, t_dist, skew_gaussian, leverage)
+#>               df       AIC
+#> gaussian       3 -23430.57
+#> t_dist         4 -23451.69
+#> skew_gaussian  4 -23440.87
+#> leverage       4 -23608.85
 
 # The leverage model stand out with an AIC for below the other models
 opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
@@ -101,7 +99,7 @@ head(estimates, 10)
 #> 10:      random
 
 ## plot estimated volatility with 95 % confidence interval
-plot(opt, include_ci = TRUE)
+plot(opt, include_ci = TRUE, dates = spy$date)
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
@@ -116,23 +114,22 @@ library(stochvol)
 #> Loading required package: coda
 library(stochvolTMB)
 
-
 # load s&p500 data from 2005 to 2018
 data(spy)
 
 system.time(stochvol_gauss <- svsample(spy$log_return, quiet = T))
 #>    user  system elapsed 
-#>  20.333   2.716  27.139
+#>  22.026   2.859  31.908
 system.time(stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE))
 #>    user  system elapsed 
-#>   5.432   0.104   5.792
+#>   5.965   0.164   7.321
 
 system.time(stochvol_lev <- svlsample(spy$log_return, quiet = T))
 #>    user  system elapsed 
-#> 208.407   6.994 236.095
+#> 200.417   6.142 221.042
 system.time(stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE))
 #>    user  system elapsed 
-#>  12.046   0.293  13.965
+#>  11.060   0.183  11.532
 ```
 
 We can compare the parameter estimates of the two methods. Note that the
@@ -142,47 +139,51 @@ identical results.
 
 ``` r
 
-stochvol_gauss$summary$para
-#>                   mean           sd           5%          50%          95%
-#> mu        -9.612369978 0.1882305957 -9.914775270 -9.614371461 -9.301626207
-#> phi        0.978114436 0.0049302166  0.969390919  0.978434868  0.985729252
-#> sigma      0.230453924 0.0201704851  0.199187372  0.229672233  0.265333016
-#> exp(mu/2)  0.008215421 0.0007793415  0.007031272  0.008170822  0.009553831
-#> sigma^2    0.053515819 0.0093920028  0.039675609  0.052749334  0.070401609
-#>                 ESS
-#> mu        7049.2730
-#> phi        352.0666
-#> sigma      168.1086
-#> exp(mu/2) 7049.2730
-#> sigma^2    168.1086
-summary(stochvolTMB_gauss, report = "transformed")
-#>    parameter    estimate    std_error   z_value      p_value        type
-#> 1:   sigma_y 0.008185065 0.0007314678  11.18992 4.568554e-29 transformed
-#> 2:   sigma_h 0.222436260 0.0190054225  11.70383 1.218261e-31 transformed
-#> 3:       phi 0.979034580 0.0046594721 210.11706 0.000000e+00 transformed
-
-stochvol_lev$summary$para
-#>                   mean          sd           5%         50%          95%
-#> mu        -9.568223536 0.105255717 -9.744873801 -9.56470987 -9.395951612
-#> phi        0.966877192 0.004069966  0.959723754  0.96712169  0.973220120
-#> sigma      0.276640595 0.016872604  0.250343104  0.27581482  0.305919303
-#> rho       -0.722614648 0.031438025 -0.770007375 -0.72547112 -0.663230598
-#> exp(mu/2)  0.008373118 0.000440111  0.007654689  0.00837625  0.009113706
-#> sigma^2    0.076814675 0.009425402  0.062671670  0.07607382  0.093586620
-#>                 ESS
-#> mu        548.91425
-#> phi       175.79791
-#> sigma      62.11424
-#> rho        48.91482
-#> exp(mu/2) 548.91425
-#> sigma^2    62.11424
-summary(stochvolTMB_lev, report = "transformed")
-#>    parameter     estimate    std_error   z_value       p_value        type
-#> 1:   sigma_y  0.008338425 0.0004163323  20.02829  3.121840e-89 transformed
-#> 2:   sigma_h  0.273445746 0.0182642070  14.97167  1.124552e-50 transformed
-#> 3:       phi  0.967720808 0.0043682334 221.53597  0.000000e+00 transformed
-#> 4:       rho -0.748692587 0.0322489934 -23.21600 3.138829e-119 transformed
+knitr::kable(stochvol_gauss$summary$para[, 1:2])
 ```
+
+|           |        mean |        sd |
+| --------- | ----------: | --------: |
+| mu        | \-9.6097634 | 0.1882512 |
+| phi       |   0.9778929 | 0.0048834 |
+| sigma     |   0.2322102 | 0.0195871 |
+| exp(mu/2) |   0.0082261 | 0.0007778 |
+| sigma^2   |   0.0543052 | 0.0092344 |
+
+``` r
+knitr::kable(summary(stochvolTMB_gauss, report = "transformed"))
+```
+
+| parameter |  estimate | std\_error |  z\_value | p\_value | type        |
+| :-------- | --------: | ---------: | --------: | -------: | :---------- |
+| sigma\_y  | 0.0081851 |  0.0007315 |  11.18992 |        0 | transformed |
+| sigma\_h  | 0.2224363 |  0.0190054 |  11.70383 |        0 | transformed |
+| phi       | 0.9790346 |  0.0046595 | 210.11706 |        0 | transformed |
+
+``` r
+
+knitr::kable(stochvol_lev$summary$para)
+```
+
+|           |        mean |        sd |          5% |         50% |         95% |       ESS |
+| --------- | ----------: | --------: | ----------: | ----------: | ----------: | --------: |
+| mu        | \-9.5711917 | 0.1006060 | \-9.7414524 | \-9.5724753 | \-9.4104730 | 479.41675 |
+| phi       |   0.9667975 | 0.0044653 |   0.9591423 |   0.9670062 |   0.9736509 | 145.40795 |
+| sigma     |   0.2777112 | 0.0186322 |   0.2453792 |   0.2779335 |   0.3097675 |  38.19010 |
+| rho       | \-0.7242179 | 0.0343941 | \-0.7681707 | \-0.7291629 | \-0.6635408 |  39.89568 |
+| exp(mu/2) |   0.0083597 | 0.0004203 |   0.0076678 |   0.0083438 |   0.0090478 | 479.41675 |
+| sigma^2   |   0.0774707 | 0.0103764 |   0.0602109 |   0.0772470 |   0.0959559 |  38.19010 |
+
+``` r
+knitr::kable(summary(stochvolTMB_lev, report = "transformed"))
+```
+
+| parameter |    estimate | std\_error |   z\_value | p\_value | type        |
+| :-------- | ----------: | ---------: | ---------: | -------: | :---------- |
+| sigma\_y  |   0.0083384 |  0.0004163 |   20.02829 |        0 | transformed |
+| sigma\_h  |   0.2734457 |  0.0182642 |   14.97167 |        0 | transformed |
+| phi       |   0.9677208 |  0.0043682 |  221.53597 |        0 | transformed |
+| rho       | \-0.7486926 |  0.0322490 | \-23.21600 |        0 | transformed |
 
 ## Shiny app
 
