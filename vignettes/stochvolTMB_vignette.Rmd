@@ -58,7 +58,7 @@ Function Name                 Description
 `summary.stochvolTMB`         Extract parameter estimates and volatility with uncertainty.
 ----------------------------- --------------------------------------------------
 
-`estimate_parameters` returns an object of class `stochvolTMB`. The `summary` function returns a `data.table` with estimated parameters, log-volatility and transformed parameters along with uncertainties, p-values and z-values. The argument `report = "fixed"` returns the parameters on the scale they were estimated. This means that the standard deviations $\sigma_y, \sigma_h$ are given on the log scale. This is done to ensure a positive estimate and $\phi$ is given on logit scale to ensure $|\phi| < 1$. If `report = c("fixed", "transfored")`, parameter estimates transformed back to their original scale is also returned. If you want to extract the estimated log-volatility you can use `report = "random"`. 
+`estimate_parameters` returns an object of class `stochvolTMB`. The `summary` function returns a `data.table` with estimated parameters, log-volatility and transformed parameters along with uncertainties, p-values and z-values. The argument `report = "fixed"` returns the parameters on the scale they were estimated. This means that the standard deviations $\sigma_y, \sigma_h$ are given on the log scale. This is done to ensure a positive estimate and $\phi$ is given on logit scale to ensure $|\phi| < 1$. If `report = c("fixed", "transformed")`, parameter estimates transformed back to their original scale is also returned. If you want to extract the estimated log-volatility you can use `report = "random"`. 
 
 # Example 
 
