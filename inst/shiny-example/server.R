@@ -9,7 +9,6 @@
 
 library(shiny)
 library(ggplot2)
-library(gridExtra)
 library(stochvolTMB)
 
 # Define server logic required to draw a histogram
@@ -79,7 +78,7 @@ shinyServer(function(input, output) {
         h_est <- summary(estimate(), report = "random")
         
         data <- data()[, .(estimated = h_est$estimate, true = h, time = 1:.N)]
-        data <- melt(data, id.vars = "time")
+        data <- data.table::melt(data, id.vars = "time")
      
 
 
@@ -94,15 +93,5 @@ shinyServer(function(input, output) {
 
 
     })
-    # output$distPlot <- renderPlot({
-    # 
-    #     # generate bins based on input$bins from ui.R
-    #     x    <- faithful[, 2]
-    #     bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    # 
-    #     # draw the histogram with the specified number of bins
-    #     hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    # 
-    # })
 
 })

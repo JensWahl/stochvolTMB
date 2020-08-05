@@ -43,7 +43,6 @@ opt <- estimate_parameters(spy$log_return, model = "gaussian")
 estimates <- summary(opt)
 
 # plot estimated volatility with 95 \% confidence interval
-\dontrun{
 plot(opt, include_ci = TRUE)
-}
+
 }

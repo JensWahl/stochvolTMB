@@ -16,29 +16,31 @@ knitr::opts_chunk$set(
   fig.width = 7,
   fig.height = 3
 )
-```
-
-```{r setup}
 library(stochvolTMB)
 ```
 
+
 # The stochastic volatility model
 
-The stochastic volatility model, introduced by @Taylor_SV_1982,  is defined by
+The stochastic volatility model, introduced by @Taylor_SV_1982, is defined by
 \begin{equation}
     \begin{aligned}
         y_t &= \sigma_y e^{h_t/2} \epsilon_t, \quad t = 1, \dots, T, \\
-        h_{t+1} &= \phi h_{t} + \sigma_h \eta_t, \quad t = 1, \dots, T-1,
+        h_{t+1} &= \phi h_{t} + \sigma_h \eta_t, \quad t = 1, \dots, T-1, \\
+        \eta_t &\stackrel{\text{iid}}{\sim} \mathcal{N}(0,1), \\
+        \epsilon_t &\stackrel{\text{iid}} {\sim}  F
     \end{aligned}
 \end{equation}
-where $y_t$ is the observed log returns, $h_t$ is the logarithm of the variance on day $t$, $\eta_t \stackrel{\text{iid}}{\sim} \mathcal{N}(0,1)$ and $\epsilon_t \sim F$, where $F$ is specified below. To ensure stationarity for $h_t$, we assume $|\phi| < 1$. It can be shown that the unconditional distribution of $h_t$ is $\mathcal{N}(0,\sigma_h^2/(1 - \phi^2))$, and we assume $h_1 \sim \mathcal{N}(0,\sigma_h^2/(1-\phi^2))$. A interpretation of the latent process $\{h_t\}$ is that is represents the random and uneven flow of new information into the marked. For different time points, the variance will be dependent of this unobserved ``flow'' of information, i.e. conditioning on $h_t$, $\mathrm{Var}(y_t | h_t) = \sigma_x^2 e^{h_t}$.
+where $y_t$ is the observed log returns, $h_t$ is the logarithm of the variance on day $t$. The distribution of the innovations $\epsilon_t$ is specified below. To ensure stationarity for $h_t$, we assume $|\phi| < 1$. It can be shown that the unconditional distribution of $h_t$ is $\mathcal{N}(0,\sigma_h^2/(1 - \phi^2))$, and we assume $h_1 \sim \mathcal{N}(0,\sigma_h^2/(1-\phi^2))$. An interpretation of the latent process $\{h_t\}$ is that is represents the random and uneven flow of new information into the marked. For different time points, the variance will be dependent of this unobserved ``flow'' of information, i.e. conditioning on $h_t$, $\mathrm{Var}(y_t | h_t) = \sigma_x^2 e^{h_t}$.
 
-The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatilty, meaning that a drop in price tend to lead to an increase in volatilty. To take these features of financial time series into account `stochvolTMB` has implemented the following four distribution for the innovationss: 
+The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatility, meaning that a drop in price tend to lead to an increase in volatility To take these features of financial time series into account `stochvolTMB` has implemented the following four distribution for the innovations: 
 
 * Gaussian: $\epsilon_t \sim \mathcal{N}(0,1)$
 * t: $\epsilon_t \sim t_\nu(0,1)$, where $\nu$ is the degrees of freedom. 
-* Skew-Gaussian: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$, with zero mean, unit variance and skrewness parameter $\alpha$. 
+* Skew-Gaussian: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$, with zero mean, unit variance and skewness parameter $\alpha$. 
 * Leverage: $\epsilon_t \sim \mathcal{N}(0,1)$ and $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$
+
+`stochvol` is inspired by the package [stochvol](https://github.com/gregorkastner/stochvol) (@kastner2016), but `stochvolTMB` obtain parameter estimates through maximum likelihood estimation and not Markov Chain Monte Carlo. 
 
 # Usage
 
@@ -51,30 +53,30 @@ Function Name                 Description
 
 `sim_sv`                      Simulate data from a stochastic volatility model.
 
-`plot-stochvolTMB`            Plot estimated volatility (with confidence intervalls).
+`plot.stochvolTMB`            Plot estimated volatility (with confidence intervals).
 
 `summary.stochvolTMB`         Extract parameter estimates and volatility with uncertainty.
 ----------------------------- --------------------------------------------------
 
-  Estimating parameters in a SV model is easy with `stochvolTMB`. As an example we investigate the daily log-returns of the S&P500 from 2005 to 2018. A quick look at the data:
+`estimate_parameters` returns an object of class `stochvolTMB`. The `summary` function returns a `data.table` with estimated parameters, log-volatility and transformed parameters along with uncertainties, p-values and z-values. The argument `report = "fixed"` returns the parameters on the scale they were estimated. This means that the standard deviations $\sigma_y, \sigma_h$ are given on the log scale. This is done to ensure a positive estimate and $\phi$ is given on logit scale to ensure $|\phi| < 1$. If `report = c("fixed", "transfored")`, parameter estimates transformed back to their original scale is also returned. If you want to extract the estimated log-volatility you can use `report = "random"`. 
+
+# Example 
+
+Estimating parameters in a SV model is easy with `stochvolTMB`. As an example we investigate the daily log-returns of the S&P500 from 2005 to 2018. A quick look at the data:
   
 ```{r}
-plot(spy$date, spy$log_return, type = "l", xlab = "", ylab = "log-returns")
-plot(spy$date, spy$price, type = "l", xlab = "", ylab = "price")
+data(spy)
+plot(spy$date, spy$log_return, type = "l", xlab = "", ylab = "", main = "Log-returns of S&P500")
+plot(spy$date, spy$price, type = "l", xlab = "", ylab = "", main = "Price of S&P500")
 ```
 
-  
 We fit all four distributions: 
   
-  
 ```{r warning=FALSE}
-data(spy)
-
 gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
 t_dist = estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
-
 ```
 
 We can investigate the estimate for the degrees of freedom (`df`) to see if the returns are heavy-tailed
@@ -83,7 +85,7 @@ We can investigate the estimate for the degrees of freedom (`df`) to see if the 
 summary(t_dist, report = "fixed")
 ```
 
-Clearly the returns are more heavy tailed than Gaussian, even when controlling for the stochastic volatility. We can also check for asymetric returns
+Clearly the returns are more heavy tailed than Gaussian, even when controlling for the stochastic volatility. We can also check for asymmetric returns
 
 ```{r}
 summary(skew_gaussian, report = "fixed")
@@ -94,7 +96,7 @@ and leverage (`rho`)
 ```{r}
 summary(leverage, report = "transformed")
 ```
-There is clear evidence for both asymetric returns and a negative correlation (of -0.74!) between log-returns and the volatility. To find the model that fits the data best, we can compare the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of out models and pick the smallest. 
+There is clear evidence for both asymmetric returns and a negative correlation (of -0.74!) between log-returns and the volatility. To find the model that fits the data best, we can compare the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of out models and pick the smallest. 
 
 ```{r}
 
@@ -111,13 +113,39 @@ Clearly the leverage model outperforms the others and is our preferred model for
 ```{r}
 plot(leverage, include_ci = TRUE, plot_log = TRUE, dates = spy$date)
 plot(leverage, include_ci = TRUE, plot_log = FALSE, dates = spy$date)
-
 ```
 
 
+# Comparison to stochvol
+
+The R-package `stochvol` (@kastner2016) provides a Bayesian framework for inference using Markov Chain Monte Carlo. An advantage of `stochvolTMB` is that optimization can be a lot faster than MCMC. We here compare the leverage and the gaussian model. 
+
+```{r}
+library(stochvol)
+
+system.time(stochvol_gauss <- svsample(spy$log_return, quiet = T))
+system.time(stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE))
+
+system.time(stochvol_lev <- svlsample(spy$log_return, quiet = T))
+system.time(stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE))
+```
+
+We can compare the parameter estimates of the two methods. Note that the parameter `exp(mu/2)` and `sigma` from `stochvol` is the same as `sigma_y` and `sigma_h` from `stochvolTMB`. Both methods give almost identical results. 
+
+
+```{r}
+
+stochvol_gauss$summary$para[, 1:2]
+summary(stochvolTMB_gauss, report = "transformed")
+
+stochvol_lev$summary$para
+summary(stochvolTMB_lev, report = "transformed")
+
+```
+
 # Estimation 
 
-We use the R-package `TMB` (@TMB_2016) to implement our models for maximum likelihood estimation, since \textbf{TMB} lets us estimate parameters in models with a high number of latent variables
+The R-package `TMB` (@TMB_2016) is used to implement our models for maximum likelihood estimation, since \textbf{TMB} lets us estimate parameters in models with a high number of latent variables.
 
 Parameter estimation of stochastic volatility models is hard due to the fact the likelihood function is expressed as a high dimensional integral over the latent variables that cannot be evaluated analytically. If $\boldsymbol{y} = (y_1, \ldots, y_T)$ denotes our observations, $\boldsymbol{h} = (h_1, \ldots, h_T)$ our latent variables and $\boldsymbol{\theta}$ the parameters of interest, the likelihood of $\boldsymbol{\theta}$ is given by 
 
@@ -135,28 +163,29 @@ Let $\boldsymbol{y}$ be a vector of observations, $\boldsymbol{\theta}$ our para
     \mathcal{L}(\boldsymbol{\theta}) = \int f(\boldsymbol{y},\boldsymbol{h}) \, d\boldsymbol{h} = \int f_{\boldsymbol{y}}(\boldsymbol{y|u}) f_{\boldsymbol{h}}(\boldsymbol{h}) \, d\boldsymbol{h} = \int \exp \{-g(\boldsymbol{h},\boldsymbol{\theta})\} \, d\boldsymbol{h}.
 \end{equation}
 
-We assume that $g$ has a global minimum at $\boldsymbol{\hat{u}}$ for a given $\boldsymbol{\theta}$, i.e. $\boldsymbol{\hat{u}} = \text{argmin}_{\boldsymbol{h}} g(\boldsymbol{h},\boldsymbol{\theta})$, and that $g$ is twice differentiable. The solution $\hat{\boldsymbol{h}}$ is known as the *Empirical Bayes* (EB) estimate. A second order Taylor expansion around $\boldsymbol{\hat{u}}$ yields
+We assume that $g$ has a global minimum at $\boldsymbol{\hat{h}}$ for a given $\boldsymbol{\theta}$, i.e. $\boldsymbol{\hat{h}} = \text{argmin}_{\boldsymbol{h}} g(\boldsymbol{h},\boldsymbol{\theta})$, and that $g$ is twice differentiable. The solution $\hat{\boldsymbol{h}}$ is known as the *Empirical Bayes* (EB) estimate. A second order Taylor expansion around $\boldsymbol{\hat{h}}$ yields
 
 \begin{equation}
-    g(\boldsymbol{h},\boldsymbol{\theta}) \approx g(\boldsymbol{\hat{u}},\boldsymbol{\theta}) + \nabla g(\boldsymbol{\hat{u}},\boldsymbol{\theta})(\boldsymbol{h} - \boldsymbol{\hat{u}}) + \frac{1}{2}(\boldsymbol{h} - \boldsymbol{\hat{u}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{u}})
+    g(\boldsymbol{h},\boldsymbol{\theta}) \approx g(\boldsymbol{\hat{h}},\boldsymbol{\theta}) + \nabla g(\boldsymbol{\hat{h}},\boldsymbol{\theta})(\boldsymbol{h} - \boldsymbol{\hat{h}}) + \frac{1}{2}(\boldsymbol{h} - \boldsymbol{\hat{h}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{h}})
 \end{equation}
 
-Since $\boldsymbol{\hat{u}}$ is a minimum, $\nabla g(\boldsymbol{\hat{u}},\boldsymbol{\theta}) = 0$. Therefore
+Since $\boldsymbol{\hat{h}}$ is a minimum, $\nabla g(\boldsymbol{\hat{h}},\boldsymbol{\theta}) = 0$. Therefore
 
 \begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}) \approx \exp \{-g(\boldsymbol{\hat{u}},\boldsymbol{\theta})\} \int \exp \bigg \{-\frac{1}{2}(\boldsymbol{h} - \boldsymbol{\hat{u}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{u}}) \bigg \} d\boldsymbol{h}
+    \mathcal{L}(\boldsymbol{\theta}) \approx \exp \{-g(\boldsymbol{\hat{h}},\boldsymbol{\theta})\} \int \exp \bigg \{-\frac{1}{2}(\boldsymbol{h} - \boldsymbol{\hat{h}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{h}}) \bigg \} d\boldsymbol{h}
 \end{equation}
 
 We can observe that the integrand is the kernel of a multivariate normal density with covariance matrix $\mathbb{H}^{-1}$. The approximation is therefore given by 
 
 \begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}) \approx \exp \{-g(\boldsymbol{\hat{u}},\boldsymbol{\theta})\} (2\pi)^{\text{dim}(\boldsymbol{h})/2} \text{det}(\mathbb{H})^{-1/2},
+    \mathcal{L}(\boldsymbol{\theta}) \approx \exp \{-g(\boldsymbol{\hat{h}},\boldsymbol{\theta})\} (2\pi)^{\text{dim}(\boldsymbol{h})/2} \text{det}(\mathbb{H})^{-1/2},
 \end{equation}
 
 where we have used the fact that $\text{det}(\mathbb{H}^{-1}) = \text{det}(\mathbb{H})^{-1}$. The corresponding negative log-likelihood is 
 
 \begin{equation}
-    -l(\boldsymbol{\theta}) = -\frac{\text{dim}(\boldsymbol{h})}{2} \log (2\pi) + \frac{1}{2} \log \text{det}(\mathbb{H}) + g(\boldsymbol{\hat{u}},\boldsymbol{\theta})
+    -l(\boldsymbol{\theta}) = -\frac{\text{dim}(\boldsymbol{h})}{2} \log (2\pi) + \frac{1}{2} \log \text{det}(\mathbb{H}) + g(\boldsymbol{\hat{h}},\boldsymbol{\theta}).
 \end{equation}
+
 
 # References

@@ -31,7 +31,7 @@ test_that("Test summary.R", {
 # Tests -------------------------------------------------------------------
   
   expect_is(srep, "data.table")
-  expect_equal(srep[, unique(type)], c("fixed", "transformed", "random"))
+  expect_equal(srep[, unique(type)], c("transformed", "fixed", "random"))
   
 
 # Data only random --------------------------------------------------------

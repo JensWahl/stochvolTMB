@@ -71,39 +71,6 @@ head(estimates, 10)
 plot(opt, include_ci = TRUE, dates = spy$date)
 ```
 
-## Comparison of stochvolTMB and stochvol
-
-A quick comparison of `stochvolTMB` and `stochvol` shows that `stochvolTMB` is 10-50x times faster than `stochvol`: 
-
-```{r}
-library(stochvol)
-library(stochvolTMB)
-
-# load s&p500 data from 2005 to 2018
-data(spy)
-
-system.time(stochvol_gauss <- svsample(spy$log_return, quiet = T))
-system.time(stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE))
-
-system.time(stochvol_lev <- svlsample(spy$log_return, quiet = T))
-system.time(stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE))
-   
-```
-
-We can compare the parameter estimates of the two methods. Note that the parameter `exp(mu/2)` and `sigma` from `stochvol` is the same as `sigma_y` and `sigma_h` from `stochvolTMB`. Both methods give almost identical results. 
-
-
-```{r}
-
-knitr::kable(stochvol_gauss$summary$para[, 1:2])
-knitr::kable(summary(stochvolTMB_gauss, report = "transformed"))
-
-knitr::kable(stochvol_lev$summary$para)
-knitr::kable(summary(stochvolTMB_lev, report = "transformed"))
-
-```
-
-
 ## Shiny app 
 
 By running `demo()` you start a shiny application where you can visually inspect the effect of choosing different models and parameter configurations 

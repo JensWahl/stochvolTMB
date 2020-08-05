@@ -4,7 +4,8 @@
 \alias{summary.stochvolTMB}
 \title{Summary tables of model parameters}
 \usage{
-\method{summary}{stochvolTMB}(object, ..., report = c("all", "fixed", "transformed", "random"))
+\method{summary}{stochvolTMB}(object, ..., report = c("all", "fixed",
+  "transformed", "random"))
 }
 \arguments{
 \item{object}{A \code{stochvolTMB} object.}

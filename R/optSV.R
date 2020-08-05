@@ -64,9 +64,8 @@ get_nll <- function(data, model = "gaussian", ...){
 #' estimates <- summary(opt)
 #'
 #' # plot estimated volatility with 95 % confidence interval
-#' \dontrun{
 #' plot(opt, include_ci = TRUE)
-#' }
+#' 
 
 estimate_parameters <- function(data, model = "gaussian", opt.control = NULL, ...){
   
@@ -157,7 +156,7 @@ summary.stochvolTMB <- function(object, ..., report = c("all", "fixed", "transfo
   }
   
   
-  srep <- rbindlist(list(srep_fixed, srep_report, srep_random))
+  srep <- rbindlist(list(srep_report, srep_fixed, srep_random))
   
   if (nrow(srep) == 0){
     warning("no or empty summary selected via 'report = %s'", 

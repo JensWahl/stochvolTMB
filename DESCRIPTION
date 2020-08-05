@@ -1,7 +1,7 @@
 Package: stochvolTMB
 Type: Package
 Title: Likelihood Estimation of Stochastic Volatility Models
-Version: 1.0
+Version: 0.1.0
 Date: 2020-07-20
 Author: Jens Christian Wahl <jens.c.wahl@gmail.com>
 Maintainer: Jens Christian Wahl <jens.c.wahl@gmail.com>
@@ -23,7 +23,8 @@ Suggests:
     testthat (>= 2.1.0),
     shiny,
     knitr,
-    rmarkdown
+    rmarkdown,
+    stochvol
 URL: https://github.com/JensWahl/stochvolTMB
 BugReports: https://github.com/JensWahl/stochvolTMB/issues
 RoxygenNote: 7.1.0
