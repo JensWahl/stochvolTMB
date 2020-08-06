@@ -4,7 +4,7 @@
 #' \code{sim_sv} simulate observations from a stochastic volatility model.
 #'
 #' This function draws the initial log-volatility from its stationary distribution, meaning that \code{h_0}
-#' is drawn from a gaussian distribution with mean zero and \code{sigma_h} / \code{sqrt(1 - phi^2)}. \code{h_{t+1}} is then simulated
+#' is drawn from a gaussian distribution with mean zero and standard deviation \code{sigma_h} / \code{sqrt(1 - phi^2)}. \code{h_{t+1}} is then simulated
 #' from its conditional distribution given \code{h_t}, which is N(\code{phi*h_t}, \code{sigma_h}). Log-returns (\code{y_t}) is
 #' simulated from its conditional distribution given the latent process \code{h}. If \code{model} = "gaussian", then \code{y_t} given \code{h_t}
 #' is gaussian with mean zero and standard deviation equal to \code{sigma_y*exp(h_t / 2)}. Heavy tail returns can be obtained by simulating from

@@ -109,7 +109,7 @@ logLik.stochvolTMB <- function(object, ...) {
 
 #' Summary tables of model parameters 
 #' 
-#' Extract parameters, transformed parameters and latent log volatility along with standard error and p-value 
+#' Extract parameters, transformed parameters and latent log volatility along with standard error, z-value and p-value 
 #' 
 #' @rdname summary
 #' @param object A \code{stochvolTMB} object.
@@ -118,7 +118,7 @@ logLik.stochvolTMB <- function(object, ...) {
 #' report the parameters on the scale they were estimated, for example are all standard deviations are estimated on log scale. "transformed" 
 #' report all transformed parameters, for example estimated standard deviations transformed from log scale by taking the exponential. Lastly, "random"
 #' report the estimated latent log-volatility. 
-#' @return \code{data.table} with parameter estimates, standard error and approximated p-value.
+#' @return \code{data.table} with parameter estimates, standard error, z-value and approximated p-value.
 #' @export 
 
 summary.stochvolTMB <- function(object, ..., report = c("all", "fixed", "transformed", "random")){
