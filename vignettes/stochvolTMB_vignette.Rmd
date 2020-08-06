@@ -40,7 +40,7 @@ The original SV model from @Taylor_SV_1982 assumed normally distributed innovati
 * Skew-Gaussian: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$, with zero mean, unit variance and skewness parameter $\alpha$. 
 * Leverage: $\epsilon_t \sim \mathcal{N}(0,1)$ and $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$
 
-`stochvol` is inspired by the package [stochvol](https://github.com/gregorkastner/stochvol) (@kastner2016), but `stochvolTMB` obtain parameter estimates through maximum likelihood estimation and not Markov Chain Monte Carlo. 
+`stochvolTMB` is inspired by the package [stochvol](https://github.com/gregorkastner/stochvol) (@kastner2016), but `stochvolTMB` obtain parameter estimates through maximum likelihood estimation and not Markov Chain Monte Carlo. 
 
 # Usage
 
@@ -145,7 +145,7 @@ summary(stochvolTMB_lev, report = "transformed")
 
 # Estimation 
 
-The R-package `TMB` (@TMB_2016) is used to implement our models for maximum likelihood estimation, since \textbf{TMB} lets us estimate parameters in models with a high number of latent variables.
+The R-package `TMB` (@TMB_2016) is used to implement our models for maximum likelihood estimation, since `TMB` lets us estimate parameters in models with a high number of latent variables.
 
 Parameter estimation of stochastic volatility models is hard due to the fact the likelihood function is expressed as a high dimensional integral over the latent variables that cannot be evaluated analytically. If $\boldsymbol{y} = (y_1, \ldots, y_T)$ denotes our observations, $\boldsymbol{h} = (h_1, \ldots, h_T)$ our latent variables and $\boldsymbol{\theta}$ the parameters of interest, the likelihood of $\boldsymbol{\theta}$ is given by 
 
@@ -153,7 +153,7 @@ Parameter estimation of stochastic volatility models is hard due to the fact the
     \mathcal{L}(\boldsymbol{\theta}) = \int f_{\boldsymbol{y}}(\boldsymbol{y}|\boldsymbol{h})f_{\boldsymbol{h}}(\boldsymbol{h}) \, d\boldsymbol{h},
 \end{equation}
 
-The conditional density of our observations given $\boldsymbol{h}$ is denoted by $f_{\boldsymbol{y}}(\boldsymbol{y|u})$, and $f_{\boldsymbol{h}}(\boldsymbol{h})$ denotes the marginal density of $\boldsymbol{h}$
+The conditional density of our observations given $\boldsymbol{h}$ is denoted by $f_{\boldsymbol{y}}(\boldsymbol{y|u})$, and $f_{\boldsymbol{h}}(\boldsymbol{h})$ denotes the marginal density of $\boldsymbol{h}$. To approximate this integral we apply the Laplace approximation. 
 
 ## Laplace Approximation 
 
