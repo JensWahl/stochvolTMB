@@ -18,4 +18,4 @@ There are currently no downstream dependencies for this package.
 
 ## Submitter's comment: The feedback from last submission has been adressed:
 
-Remove `dontrun
+Fix runtime if vignette
