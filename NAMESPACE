@@ -2,6 +2,7 @@
 
 S3method(logLik,stochvolTMB)
 S3method(plot,stochvolTMB)
+S3method(print,stochvolTMB)
 S3method(summary,stochvolTMB)
 export(demo)
 export(estimate_parameters)

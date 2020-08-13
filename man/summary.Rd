@@ -4,8 +4,7 @@
 \alias{summary.stochvolTMB}
 \title{Summary tables of model parameters}
 \usage{
-\method{summary}{stochvolTMB}(object, ..., report = c("all", "fixed",
-  "transformed", "random"))
+\method{summary}{stochvolTMB}(object, ..., report = c("all", "fixed", "transformed", "random"))
 }
 \arguments{
 \item{object}{A \code{stochvolTMB} object.}
@@ -18,8 +17,8 @@ report all transformed parameters, for example estimated standard deviations tra
 report the estimated latent log-volatility.}
 }
 \value{
-\code{data.table} with parameter estimates, standard error and approximated p-value.
+\code{data.table} with parameter estimates, standard error, z-value and approximated p-value.
 }
 \description{
-Extract parameters, transformed parameters and latent log volatility along with standard error and p-value
+Extract parameters, transformed parameters and latent log volatility along with standard error, z-value and p-value
 }

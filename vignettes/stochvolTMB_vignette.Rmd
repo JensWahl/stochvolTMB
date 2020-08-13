@@ -118,16 +118,24 @@ plot(leverage, include_ci = TRUE, plot_log = FALSE, dates = spy$date)
 
 # Comparison to stochvol
 
-The R-package `stochvol` (@kastner2016) provides a Bayesian framework for inference using Markov Chain Monte Carlo. An advantage of `stochvolTMB` is that optimization can be a lot faster than MCMC. We here compare the leverage and the gaussian model. 
+The R-package `stochvol` (@kastner2016) provides a Bayesian framework for inference using Markov Chain Monte Carlo. An advantage of `stochvolTMB` is that optimization can be a lot faster than MCMC. We here compare the leverage and the gaussian model. Depending on your machine you can expect a speed up of 20-200x. 
 
-```{r}
+
+```{r include=FALSE}
+stochvol_gauss <- readRDS("stochvol_gauss.rds")
+stochvol_lev <- readRDS("stochvol_lev.rds")
+stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)
+stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE)
+```
+
+```{r eval=FALSE}
 library(stochvol)
 
-system.time(stochvol_gauss <- svsample(spy$log_return, quiet = T))
-system.time(stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE))
+stochvol_gauss <- svsample(spy$log_return, quiet = T)
+stochvolTMB_gauss  <- estimate_parameters(spy$log_return, "gaussian", silent = TRUE)
 
-system.time(stochvol_lev <- svlsample(spy$log_return, quiet = T))
-system.time(stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE))
+stochvol_lev <- svlsample(spy$log_return, quiet = T)
+stochvolTMB_lev  <- estimate_parameters(spy$log_return, "leverage", silent = TRUE)
 ```
 
 We can compare the parameter estimates of the two methods. Note that the parameter `exp(mu/2)` and `sigma` from `stochvol` is the same as `sigma_y` and `sigma_h` from `stochvolTMB`. Both methods give almost identical results. 
@@ -135,10 +143,9 @@ We can compare the parameter estimates of the two methods. Note that the paramet
 
 ```{r}
 
-stochvol_gauss$summary$para[, 1:2]
+stochvol_gauss$para
 summary(stochvolTMB_gauss, report = "transformed")
-
-stochvol_lev$summary$para
+stochvol_lev$para
 summary(stochvolTMB_lev, report = "transformed")
 
 ```

@@ -3,7 +3,7 @@
   # CRAN Note avoidance
   utils::globalVariables(
     c(
-      ".N", "type", "Estimate","Std. Error", "z value", "Pr(>|z^2|)"
+      ".N", "type", "Estimate","Std. Error", "z value", "Pr(>|z^2|)", "parameter", "estimate"
     )
   )
   invisible()

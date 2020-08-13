@@ -11,7 +11,7 @@ get_nll <- function(data, model = "gaussian", ...){
   param <- list(log_sigma_y = 0,
                 log_sigma_h = 0, 
                 phi_logit = 2,
-                df = if (model== "t") {2} else {numeric(0)},
+                df = if (model== "t") {4} else {numeric(0)},
                 alpha = if (model%in% c("skew_gaussian")) {0} else {numeric(0)},
                 rho_logit = if (model%in% c("leverage")) {0} else {numeric(0)},
                 h = rep(0, length(data)))
@@ -167,5 +167,26 @@ summary.stochvolTMB <- function(object, ..., report = c("all", "fixed", "transfo
   
   
 }
+
+
+
+
+#' @export
+print.stochvolTMB <- function(x, ...) {
+  rep <- summary(x, report = c("fixed", "transformed"))
+  
+  cat("\nMaximum likelihood estimates for ", x$model, " model based on ", x$nobs, " observations.\n\n", sep = "")
+  cat("Parameters:\n")
+  cat("standard deviation of latent variable           sigma_h = ", rep[parameter == "sigma_h", estimate], "\n", sep = "")
+  cat("persistence of latent variable                  phi = ", rep[parameter == "phi", estimate], "\n", sep = "")
+  cat("standard deviation of observed variable         sigma_y = ", rep[parameter == "sigma_y", estimate], "\n", sep="")
+  if ("df" %in% rep[, parameter])
+    cat("degrees of freedom for observed variable        df =", rep[parameter == "df", estimate], "\n")
+  if ("rho"%in% rep[, parameter]) 
+    cat("leverage effect                                 rho =", rep[parameter == "rho", estimate], "\n")
+  if ("alpha" %in% rep[, parameter]) 
+    cat("skewness of observed variable                   alpha = ", rep[parameter == "alpha", estimate], "\n", sep = "")
+}
+
 
 

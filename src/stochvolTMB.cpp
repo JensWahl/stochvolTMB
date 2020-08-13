@@ -82,7 +82,8 @@ Type objective_function<Type>::operator()(){
     // Centered t-distibution
     // last term is contribution from jacobian of linear transformation y = a * x
     case 1:{
-      nll -= keep(i) * dt(y(i) / (exp(h(i) / 2) * sigma_y), df(0), true) - log((exp(h(i) / 2) * sigma_y));
+      Type normalization = exp(h(i) / 2) * sigma_y * (df(0) - 2) / df(0); 
+      nll -= keep(i) * dt(y(i) / normalization, df(0), true) - log(normalization);
       break; 
       }
     
