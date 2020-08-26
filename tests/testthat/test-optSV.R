@@ -16,7 +16,7 @@ test_that("Test estimate_parameters.R", {
     expect_s3_class(opt[[model]], "stochvolTMB")
   }
   
-  expect_known_value(opt, file = "test_objects/estimate_parameters.rds")
+  expect_known_value(opt, file = "test_objects/estimate_parameters.rds", tolerance = 1e-05)
   
   
   
