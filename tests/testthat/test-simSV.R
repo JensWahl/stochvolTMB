@@ -12,7 +12,7 @@ test_that("Test sim_sv", {
   nobs <- 1000
   models <- c("gaussian", "t", "leverage", "skew_gaussian")
   
-  for(model in models){
+  for (model in models) {
     
     data <- sim_sv(param = param, nobs = nobs, model = model)
     
@@ -27,9 +27,7 @@ test_that("Test sim_sv", {
     
   }
   
-  expect_error(sim_sv(param = c(1,2,3)))
+  expect_error(sim_sv(param = c(1, 2, 3)))
   expect_error(sim_sv(model = "tmp"))
   
 })
-  
-

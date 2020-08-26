@@ -10,8 +10,8 @@ test_that("Test estimate_parameters.R", {
   models <- c("gaussian", "t", "leverage", "skew_gaussian")
 
 # Tests -------------------------------------------------------------------
-  opt = list()
-  for(model in models){
+  opt <- list()
+  for (model in models) {
     opt[[model]] <- estimate_parameters(data = results[[model]]$y, model = model, silent = TRUE)
     expect_s3_class(opt[[model]], "stochvolTMB")
   }
@@ -48,7 +48,3 @@ test_that("Test summary.R", {
   
   
 })
-
-
-
-
