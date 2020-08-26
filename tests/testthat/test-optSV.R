@@ -12,8 +12,7 @@ test_that("Test estimate_parameters.R", {
 # Tests -------------------------------------------------------------------
   opt <- list()
   for (model in models) {
-    opt[[model]] <- estimate_parameters(data = results[[model]]$y, model = model, silent = TRUE)
-    expect_s3_class(opt[[model]], "stochvolTMB")
+    opt[[model]] <- estimate_parameters(data = results[[model]]$y, model = model, silent = TRUE)$fit
   }
   
   expect_known_value(opt, file = "test_objects/estimate_parameters.rds", tolerance = 1e-05)
