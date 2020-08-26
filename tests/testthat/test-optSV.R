@@ -10,13 +10,15 @@ test_that("Test estimate_parameters.R", {
   models <- c("gaussian", "t", "leverage", "skew_gaussian")
 
 # Tests -------------------------------------------------------------------
-  
+  opt = list()
   for(model in models){
-    opt <- estimate_parameters(data = results[[model]]$y, model = model, silent = TRUE)
-    expect_s3_class(opt, "stochvolTMB")
-    expect_equal(opt$fit$par, results[[model]]$par, tolerance = 1e-05)
-    expect_equal(opt$fit$objective, results[[model]]$objective, tolerance = 1e-05)
+    opt[[model]] <- estimate_parameters(data = results[[model]]$y, model = model, silent = TRUE)
+    expect_s3_class(opt[[model]], "stochvolTMB")
   }
+  
+  expect_known_value(opt, file = "test_objects/estimate_parameters.rds")
+  
+  
   
 })
 

@@ -66,13 +66,15 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
   y <- rep(NA, nobs)
   
   if (model == "gaussian") {
+    
     y <- exp(h / 2) * stats::rnorm(nobs, 0, sigma_y)
+    
   } else if (model == "t") {
 
     # parameter specific for the t-distribution
     df <- param$df
-
-    y <- exp(h / 2) * sigma_y * (df - 2) / df * stats::rt(nobs, df = df)
+    y <- exp(h / 2) * sqrt(sigma_y * (df - 2) / df) * stats::rt(nobs, df = df)
+    
   } else if (model == "skew_gaussian") {
 
     # parameter specific for the skew normal distribution
@@ -86,6 +88,7 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     # remove attributes specific for rsn
     attr(y, "family") <- NULL
     attr(y, "parameters") <- NULL
+    
   } else if (model == "leverage") {
     
     if (abs(param$rho) >= 1){
@@ -106,7 +109,6 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
   dt_sim <- data.table(y = y, h = h)
   attr(dt_sim, "param") <- param
   attr(dt_sim, "model") <- model
-  
   
   return(dt_sim)
 }
