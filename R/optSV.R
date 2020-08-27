@@ -58,6 +58,7 @@ get_nll <- function(data, model = "gaussian", ...) {
 #' @export 
 #' 
 #' @examples
+#' \donttest{
 #' # load data
 #' data("spy")
 #'
@@ -69,6 +70,7 @@ get_nll <- function(data, model = "gaussian", ...) {
 #'
 #' # plot estimated volatility with 95 % confidence interval
 #' plot(opt, include_ci = TRUE)
+#' }
 #' 
 
 estimate_parameters <- function(data, model = "gaussian", opt.control = NULL, ...) {
