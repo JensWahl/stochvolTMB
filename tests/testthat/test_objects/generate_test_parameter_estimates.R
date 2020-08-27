@@ -1,7 +1,7 @@
 library(testthat)
 library(stochvolTMB)
 
-l = list()
+l <- list()
 
 seed <- 1234
 nobs <- 1000

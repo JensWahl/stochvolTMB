@@ -194,5 +194,10 @@ where we have used the fact that $\text{det}(\mathbb{H}^{-1}) = \text{det}(\math
     -l(\boldsymbol{\theta}) = -\frac{\text{dim}(\boldsymbol{h})}{2} \log (2\pi) + \frac{1}{2} \log \text{det}(\mathbb{H}) + g(\boldsymbol{\hat{h}},\boldsymbol{\theta}).
 \end{equation}
 
+Finding the optimal value of $\boldsymbol{\theta}$ can be viewed as a nested optimization problem. To
+find $\boldsymbol{h} (\boldsymbol{\theta})$ and $\mathbb{H}(\boldsymbol{\theta})$ we fix $\boldsymbol{\theta}$ and optimize using a quasi-Newton algorithm or a limited
+memory Newton method. The Laplace approximation is then optimized w.r.t. $\boldsymbol{\theta}$ using
+the quasi-Newton algorithm. 
+
 
 # References

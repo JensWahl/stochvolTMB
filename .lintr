@@ -1,12 +1,28 @@
 linters: with_defaults(
-        line_length_linter = lintr::line_length_linter(120),
-        object_name_linter = NULL,
-        object_usage_linter = NULL,
-        seq_linter = NULL
-    )
+    trailing_whitespace_linter = NULL, # 156
+    line_length_linter =lintr::line_length_linter(125), # 79
+    object_name_linter = NULL,
+    object_usage_linter = NULL,
+    seq_linter = NULL
+  )
 exclusions: list(
-        "inst/shiny-example/server.R",
-        "inst/shiny-example/ut.R",
-        "R/RcppExports.R",
-        "R/zzz.R"
-    )
+    "data/spy.RData",
+    "inst/REFERENCES.bib",
+    "inst/shiny-example/server.R",
+    "inst/shiny-example/ui.R",
+    "man/demo.Rd",
+    "man/estimate_parameters.Rd",
+    "man/figures/README-example-1.png",
+    "man/figures/README-unnamed-chunk-3-1.png",
+    "man/figures/README-unnamed-chunk-3-2.png",
+    "man/figures/shinyApp.png",
+    "man/get_nll.Rd",
+    "man/plot.stochvolTMB.Rd",
+    "man/residuals.Rd",
+    "man/sim_sv.Rd",
+    "man/spy.Rd",
+    "man/summary.Rd",
+    "vignettes/stochvol_gauss.rds",
+    "vignettes/stochvol_lev.rds",
+    "vignettes/stochvolTMB_vignette.Rmd"
+  )
