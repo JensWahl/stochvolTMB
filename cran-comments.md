@@ -8,10 +8,20 @@
 
 There were no ERRORs or WARNINGs.
 
-There was 1 NOTE:
-    installed size is 15.5Mb
+There was 2 NOTES:
+
+checking installed package size ... NOTE
+    installed size is 13.9Mb
     sub-directories of 1Mb or more:
-      libs  14.7Mb
+      libs  13.2Mb
+
+checking for future file timestamps ... NOTE
+  unable to verify current time
+
+checking examples ... NOTE
+  Examples with CPU (user + system) or elapsed time > 5s
+                       user system elapsed
+  estimate_parameters 6.642  0.218   6.734
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
@@ -19,3 +29,6 @@ There are currently no downstream dependencies for this package.
 ## Submitter's comment: The feedback from last submission has been adressed:
 
 Fix runtime if vignette
+
+Put examples in donttest since it takes more than 5 seconds
+
