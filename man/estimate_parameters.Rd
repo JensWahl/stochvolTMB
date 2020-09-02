@@ -37,6 +37,7 @@ The parameters is estimated by minimizing the negative log-likelihood (nll) and 
 integrated out by applying the Laplace approximation.
 }
 \examples{
+\donttest{
 # load data
 data("spy")
 
@@ -48,5 +49,5 @@ estimates <- summary(opt)
 
 # plot estimated volatility with 95 \% confidence interval
 plot(opt, include_ci = TRUE)
-
+}
 }

@@ -14,9 +14,9 @@ sim_sv(
 \arguments{
 \item{param}{List of parameters. This includes the standard deviation of the observations, \code{sigma_y},
 the standard deviation of the latent volatility process, \code{sigma_h}, the persistence parameter \code{phi}. If
-\code{model} = "t", the degree of freedom \code{df} must be specified. If \code{model} = "skew_gaussian", the skewness
-parameter \code{alpha} must be specified and if \code{model} = "leverage", the correlation \code{rho} between the latent error
-term and the observational error has to be specified.}
+\code{model} = "t", the degree of freedom \code{df} must be specified. If \code{model} = "skew_gaussian", 
+the skewness parameter \code{alpha} must be specified and if \code{model} = "leverage", 
+the correlation \code{rho} between the latent error term and the observational error has to be specified.}
 
 \item{nobs}{Length of time series.}
 
@@ -31,12 +31,15 @@ data.table with columns \code{y} (observations) and \code{h} (latent log-volatil
 \code{sim_sv} simulate observations from a stochastic volatility model.
 
 This function draws the initial log-volatility from its stationary distribution, meaning that \code{h_0}
-is drawn from a gaussian distribution with mean zero and standard deviation \code{sigma_h} / \code{sqrt(1 - phi^2)}. \code{h_{t+1}} is then simulated
-from its conditional distribution given \code{h_t}, which is N(\code{phi*h_t}, \code{sigma_h}). Log-returns (\code{y_t}) is
-simulated from its conditional distribution given the latent process \code{h}. If \code{model} = "gaussian", then \code{y_t} given \code{h_t}
-is gaussian with mean zero and standard deviation equal to \code{sigma_y*exp(h_t / 2)}. Heavy tail returns can be obtained by simulating from
-the t-distribution by setting \code{model} = "t". How heavy of a tail is specified by the degree of freedom parameter \code{df}.
-Asymmetric returns is obtained from the "skew_gaussian" model. How asymmetric is governed by the skewness parameter \code{alpha}. The so called leverage
-model, where we allow for correlation between log-returns and volatility can be simulated by setting \code{model} to "leverage" and specifying the
+is drawn from a gaussian distribution with mean zero and standard deviation \code{sigma_h} / \code{sqrt(1 - phi^2)}.
+\code{h_{t+1}} is then simulated from its conditional distribution given \code{h_t}, 
+which is N(\code{phi*h_t}, \code{sigma_h}). Log-returns (\code{y_t}) is
+simulated from its conditional distribution given the latent process \code{h}. If \code{model} = "gaussian", 
+then \code{y_t} given \code{h_t} is gaussian with mean zero and standard deviation equal to
+\code{sigma_y*exp(h_t / 2)}. Heavy tail returns can be obtained by simulating from
+the t-distribution by setting \code{model} = "t". How heavy of a tail is specified by the degree of freedom 
+parameter \code{df}. Asymmetric returns is obtained from the "skew_gaussian" model. How asymmetric is governed by
+the skewness parameter \code{alpha}. The so called leverage model, where we allow for correlation between 
+log-returns and volatility can be simulated by setting \code{model} to "leverage" and specifying the
 correlation parameter \code{rho}.
 }
