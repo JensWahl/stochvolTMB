@@ -33,7 +33,7 @@ Type objective_function<Type>::operator()(){
   // Data-----------------
   DATA_VECTOR(y);
   DATA_INTEGER(model);
-  DATA_VECTOR_INDICATOR(keep, y);  // For one-s|tep predictions
+  DATA_VECTOR_INDICATOR(keep, y);  // For one-step predictions
   
   
   // Parameters-----------------
@@ -76,7 +76,7 @@ Type objective_function<Type>::operator()(){
       
     // Gaussian
     case 0:
-      nll -= keep(i) * dnorm(y(i), Type(0), exp(h(i) / 2) * sigma_y, true);
+      nll -= keep(i) * dnorm(y(i), Type(0), exp(h(i) / Type(2)) * sigma_y, true);
       break;
     
     // Centered t-distibution
