@@ -10,7 +10,7 @@
 template<class Type> 
 Type skew_norm(Type x, Type alpha, Type omega, Type xi, bool give_log){
   
-  Type dens = log(2) + dnorm(x, xi, omega, true) + log(0.00001 + pnorm(alpha * (x - xi) / omega));
+  Type dens = log(Type(2)) + dnorm(x, xi, omega, true) + log(Type(0.00001) + pnorm(alpha * (x - xi) / omega));
   
   if(give_log) return dens;
   else return exp(dens);
@@ -82,7 +82,7 @@ Type objective_function<Type>::operator()(){
     // Centered t-distibution
     // last term is contribution from jacobian of linear transformation y = a * x
     case 1:{
-      Type normalization = exp(h(i) / 2) * sigma_y * sqrt((df(0) - 2) / df(0)); 
+      Type normalization = exp(h(i) / 2) * sigma_y * sqrt((df(0) - Type(2)) / df(0)); 
       nll -= keep(i) * dt(y(i) / normalization, df(0), true) - log(normalization);
       break; 
       }
@@ -90,10 +90,10 @@ Type objective_function<Type>::operator()(){
     // Skew normal distribution
     case 2:{
       
-      Type scale = sigma_y * exp(h(i) / 2);
+      Type scale = sigma_y * exp(h(i) / Type(2));
       Type delta = alpha(0) / sqrt(1 + alpha(0) * alpha(0)); 
-      Type omega = scale / sqrt(1 - 2 * delta * delta / M_PI); 
-      Type xi = - omega * delta * sqrt(2 / M_PI);
+      Type omega = scale / sqrt(Type(1) - Type(2) * delta * delta / M_PI); 
+      Type xi = - omega * delta * sqrt(Type(2) / M_PI);
       
       nll -= keep(i) * skew_norm(y(i), alpha(0), omega, xi, true);
       break;
@@ -109,7 +109,7 @@ Type objective_function<Type>::operator()(){
       if(i < (N - 1)){
 
         Type eta = (h(i + 1) - phi * h(i)) / sigma_h; 
-        nll -= keep(i) * dnorm(y(i), sigma_y * exp(h(i) / 2) * rho * eta, sigma_y * exp(h(i) / 2) * sqrt(1 - rho * rho), true); 
+        nll -= keep(i) * dnorm(y(i), sigma_y * exp(h(i) / Type(2)) * rho * eta, sigma_y * exp(h(i) / Type(2)) * sqrt(Type(1) - rho * rho), true); 
         
         
       }
