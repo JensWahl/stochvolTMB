@@ -4,7 +4,7 @@
 # stochvolTMB
 
 <!-- badges: start -->
-
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version-last-release/stochvolTMB)](https://cran.r-project.org/package=stochvolTMB)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![License: GPL
