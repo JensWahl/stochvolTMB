@@ -36,12 +36,23 @@ Four distributions for the observational error are implemented:
 
 
 ## Installation
+To install the current stable release from CRAN, use
 
-You can install `stochvolTMB` from github by running 
+```{r eval = FALSE}
+install.packages("stochvolTMB")
+```
+
+To install the current development version, use
 
 ``` {r eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("JensWahl/stochvolTMB")
+```
+
+If you would also like to build and view the vignette locally, use
+
+```{r, eval = FALSE}
+remotes::install_github("JensWahl/stochvolTMB", dependencies = TRUE, build_vignettes = TRUE)
 ```
 
 
@@ -56,23 +67,20 @@ library(stochvolTMB, warn.conflicts = FALSE)
 data(spy)
 
 # find the best model using AIC 
-
 gaussian <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
 t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 
 AIC(gaussian, t_dist, skew_gaussian, leverage)
-
 # The leverage model stand out with an AIC for below the other models
-opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 
 # get parameter estimates with standard error
-estimates <- summary(opt)
+estimates <- summary(leverage)
 head(estimates, 10)
 
 ## plot estimated volatility with 95 % confidence interval
-plot(opt, include_ci = TRUE, dates = spy$date)
+plot(leverage, include_ci = TRUE, dates = spy$date)
 ```
 
 ## Shiny app 
