@@ -79,7 +79,7 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
 
     # parameter specific for the t-distribution
     df <- param$df
-    y <- exp(h / 2) * sqrt(sigma_y * (df - 2) / df) * stats::rt(nobs, df = df)
+    y <- exp(h / 2) * sigma_y * sqrt((df - 2) / df) * stats::rt(nobs, df = df)
     
   } else if (model == "skew_gaussian") {
 
