@@ -52,7 +52,7 @@ If you would also like to build and view the vignette locally,
 use
 
 ``` r
-remotes::install_github("JensWahl/stochvolTMB", dependencies = TRUE, build_vignettes = TRUE)
+devtools::install_github("JensWahl/stochvolTMB", dependencies = TRUE, build_vignettes = TRUE)
 ```
 
 ## Example
