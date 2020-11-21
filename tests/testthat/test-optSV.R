@@ -47,3 +47,22 @@ test_that("Test summary.R", {
   
   
 })
+
+
+test_that("Test predict.R", {
+  
+
+# Data ------------------------------------------------------------------------------------------------------------
+
+  opt <- readRDS("test_objects/test_summary.rds")
+  expect_error(predict(opt, steps = 0))
+
+  
+
+# Tests -----------------------------------------------------------------------------------------------------------
+  steps = 10; nsim = 1000
+  pred = predict(opt, steps = steps, nsim = nsim)
+  expect_named(pred, c("y", "h"))
+  expect_equal(dim(pred$y), c(steps, nsim))
+  expect_equal(dim(pred$h), c(steps, nsim))
+})
