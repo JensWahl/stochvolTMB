@@ -15,7 +15,8 @@ Imports:
     ggplot2,
     sn,
     stats,
-    data.table
+    data.table,
+    MASS
 LinkingTo:
     RcppEigen,
     TMB
