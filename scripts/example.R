@@ -7,12 +7,14 @@ nobs <- 2000
 # Gaussian case
 param <- list(phi = 0.9, sigma_h = 0.1, sigma_y = 0.2, alpha = -2, rho = -0.7, df = 5)
 
-model <- "t"
+model <- "leverage"
 # model <- 'skew_gaussian' model <- 't'
-dat <- stochvolTMB::sim_sv(param = param, nobs = nobs, model = model, seed = 123)
+dat <- stochvolTMB::sim_sv(param = param, nobs = nobs, model = model, seed = 12)
 #dat = svsim(2000, mu = -4, phi = 0.9, nu = 5, sigma = 0.2)
 obj <- stochvolTMB::get_nll(dat$y, model = "t")
 opt <- stochvolTMB::estimate_parameters(dat$y, model = model, silent = TRUE)
+opt2 <- stochvolTMB::estimate_parameters(dat$y, model = "t", silent = TRUE)
+
 
 steps = 100
 set.seed(123)
@@ -26,9 +28,9 @@ lines(est$h - 2 * sd$h, col = "red")
 
 pred_mean = apply(pred$h, 1, mean)
 pred_95 = apply(pred$h, 1, quantile, probs = c(0.025, 0.975))
-lines((nobs+1):(nobs + steps), pred_mean, lty = 2)
-lines((nobs+1):(nobs + steps), pred_95[1, ], lty = 2, col = "green")
-lines((nobs+1):(nobs + steps), pred_95[2, ], lty = 2, col = "green")
+lines((nobs+1):(nobs + steps), pred_mean, lty = 2, col = "red")
+lines((nobs+1):(nobs + steps), pred_95[1, ], lty = 2, col = "red")
+lines((nobs+1):(nobs + steps), pred_95[2, ], lty = 2, col = "red")
 
 
 plot(1:nobs, dat$y, ylim = c(-1, 1), xlim = c(1950, nobs + steps), type = "l")
