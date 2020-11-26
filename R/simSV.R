@@ -158,7 +158,7 @@ simulate_parameters <- function(object, nsim = 1000){
   par_sim[, grepl("log_df_minus_two", colnames(par_sim))] <- exp(par_sim[, grepl("log_df_minus_two", colnames(par_sim))]) + 2 
   
   colnames(par_sim) <- gsub("log_sigma", "sigma", colnames(par_sim))
-  colnames(par_sim) <- gsub("_logit", "", colnames(par_sim))
+  colnames(par_sim) <- gsub("logit_", "", colnames(par_sim))
   colnames(par_sim) <- gsub("log_df_minus_two", "df", colnames(par_sim))
   
   return(par_sim)
