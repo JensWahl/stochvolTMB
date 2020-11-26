@@ -10,10 +10,10 @@ get_nll <- function(data, model = "gaussian", ...) {
   # Starting values for parameters
   param <- list(log_sigma_y = 0,
                 log_sigma_h = 0, 
-                phi_logit = 2,
-                df = if (model == "t") 4 else numeric(0),
+                logit_phi = 2,
+                log_df_minus_two = if (model == "t") 0.3 else numeric(0),
                 alpha = if (model %in% c("skew_gaussian")) 0 else numeric(0),
-                rho_logit = if (model %in% c("leverage")) 0 else numeric(0),
+                logit_rho = if (model %in% c("leverage")) 0 else numeric(0),
                 h = rep(0, length(data)))
   
   data <- list(y = data,
@@ -221,9 +221,12 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_paramet
     stop("`object` has to be of class `stochvolTMB`")
   }
   
-  if(steps < 1) {
+  if (steps < 1) {
     stop("`steps` has to be greater or equal to 1")
   }
+  
+  # We need an extra step for the volatility to predict the last log-return
+  if (object$model == "leverage") steps <- steps + 1
   
   # Get parameter estimates 
   rep <- summary(object)
@@ -234,7 +237,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_paramet
     sim_parameters <- simulate_parameters(object, nsim = nsim)
     if (object$model != "leverage") rho <- 0 else rho <- sim_parameters[, which(colnames(sim_parameters) == "rho")]
     if (object$model != "t") df <- Inf else df <-  sim_parameters[, which(colnames(sim_parameters) == "df")]
-    if (object$model != "skew_gaussian") alpha <- 0 else df <-  sim_parameters[, which(colnames(sim_parameters) == "alpha")]
+    if (object$model != "skew_gaussian") alpha <- 0 else alpha <-  sim_parameters[, which(colnames(sim_parameters) == "alpha")]
     sigma_y <-  sim_parameters[, which(colnames(sim_parameters) == "sigma_y")]
     sigma_h <- sim_parameters[, which(colnames(sim_parameters) == "sigma_h")]
     phi <- sim_parameters[, which(colnames(sim_parameters) == "phi")]
@@ -257,13 +260,15 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_paramet
   h_start <- stats::rnorm(nsim, h_last$estimate, h_last$std_error)
   
   # Predict volatility 
-  for(i in 2:steps){
+  for(i in 1:steps){
     if (i == 1) {
       h_pred[i, ] <- stats::rnorm(nsim, phi * h_start, sigma_h)
     } else {
       h_pred[i, ] <- stats::rnorm(nsim, phi * h_pred[i - 1, ], sigma_h)
     }
   }  
+  
+  if (object$model == "leverage") steps <- steps - 1
   
   # Predict log-returns
   for(i in 1:steps){
@@ -281,7 +286,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_paramet
 
     } else if (object$model == "leverage") {
       
-      y_pred[i, ] <- sigma_y * exp(h_pred[i, ] / 2) * (rho / sigma_h * (h[i + 1, ] - phi * h[i, ]) + sqrt(1 - rho^2) * stats::rnorm(nsim))
+      y_pred[i, ] <- sigma_y * exp(h_pred[i, ] / 2) * (rho / sigma_h * (h_pred[i + 1, ] - phi * h_pred[i, ]) + sqrt(1 - rho^2) * stats::rnorm(nsim))
       
     } else {
       
@@ -289,6 +294,8 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_paramet
       
     }
   }
+  
+  if (object$model == "leverage") h_pred <- h_pred[1:steps, ]; y_pred <- y_pred[1:steps, ]
   
   rownames(y_pred) <- paste0("step_", 1:steps)
   rownames(h_pred) <- paste0("step_", 1:steps)
