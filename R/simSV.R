@@ -118,3 +118,49 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
   
   return(dt_sim)
 }
+
+#' Logit transformation from the real line to (-1, 1). 
+#' @param x double 
+#' @return double
+#' @export
+logit = function(x) (exp(x) -1)/(1 + exp(x))
+
+
+#' Simulate from the asymptotic distribution of the parameter estimates 
+#' 
+#' Sampling is done on the scale the parameters were estimated. The standard deviations are simulated on log-scale 
+#' and the persistence is simulated on logit scale. The same is true for the correlation parameter in the leverage model. 
+#' 
+#' @param object A \code{stochvolTMB} object.
+#' @param nsim Number of simulations.
+#' @return matrix of simulated values. 
+#' @export
+simulate_parameters <- function(object, nsim = 1000){
+  
+  # Get covariance matrix
+  cov_mat <- object$rep$cov.fixed  
+  par_est <- object$fit$par
+  
+  if (!all(names(par_est) %in% colnames(cov_mat))) {
+    stop("The name of the estimated parameters is not the same as in the covariance matrix.")
+  }
+  
+  if (!all(names(par_est) == colnames(cov_mat))) {
+    # Get same order in mean vector and covariance matrix
+    par_est <- par_est[match(names(par_est), colnames(cov_mat))]
+  }
+  
+  par_sim <- MASS::mvrnorm(nsim, mu = par_est, Sigma = cov_mat)
+  
+  # Transform sample to their original scale 
+  par_sim[, grepl("log_sigma", colnames(par_sim))] <- exp(par_sim[, grepl("log_sigma", colnames(par_sim))]) 
+  par_sim[, grepl("logit", colnames(par_sim))] <- logit(par_sim[, grepl("logit", colnames(par_sim))]) 
+  par_sim[, grepl("log_df_minus_two", colnames(par_sim))] <- exp(par_sim[, grepl("log_df_minus_two", colnames(par_sim))]) + 2 
+  
+  colnames(par_sim) <- gsub("log_sigma", "sigma", colnames(par_sim))
+  colnames(par_sim) <- gsub("logit_", "", colnames(par_sim))
+  colnames(par_sim) <- gsub("log_df_minus_two", "df", colnames(par_sim))
+  
+  return(par_sim)
+  
+}
