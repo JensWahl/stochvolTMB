@@ -1,18 +1,25 @@
 #' Plot estimated latent volatility process
-#' 
-#' Displays the estimated latent volatility process over time. 
-#' 
-#' @param x A \code{stochvolTMB} object returned form \link{estimate_parameters}.
-#' @param ... Currently not used. 
-#' @param include_ci logical value indicating if volatility should be plotted with approximately 95 \% confidence interval. 
-#' @param plot_log logical value indicating if the estimated should be plotted on log or original scale. 
-#' If \code{plot_log = TRUE} the process h is plotted. 
-#' If \code{plot_log = FALSE} 100 \code{sigma_y} exp(\code{h} / 2) is plotted. 
-#' @param dates vector of length ncol(x$nobs), providing optional dates for labeling the x-axis. 
-#' The default value is NULL; in this case, the axis will be labeled with numbers.
+#'
+#' Displays the estimated latent volatility process over time.
+#'
+#' @param x A \code{stochvolTMB} object returned form
+#'   \link{estimate_parameters}.
+#' @param ... Currently not used.
+#' @param include_ci logical value indicating if volatility should be plotted
+#'   with approximately 95 \% confidence interval.
+#' @param plot_log logical value indicating if the estimated should be plotted
+#'   on log or original scale. If \code{plot_log = TRUE} the process h is
+#'   plotted. If \code{plot_log = FALSE} 100 \code{sigma_y} exp(\code{h} / 2) is
+#'   plotted.
+#' @param dates vector of length ncol(x$nobs), providing optional dates for
+#'   labeling the x-axis. The default value is NULL; in this case, the axis will
+#'   be labeled with numbers.
+#' @param predict Object of class \code{summary.stochvolTMB} returned from \code{predict}. 
+#' @param plot_mean logical value indicating of the mean prediction should be plotted. Only used if {predict != NULL}
+#' @param plot_quantiles A vector of quantiles to be plotted.
 #' @return ggplot object with plot of estimated estimated volatility.
-#' @export 
-plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates = NULL) {
+#' @export
+plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates = NULL, predict = NULL) {
   
   parameter <- estimate <- type <- h_upper <- h_lower <- n <- std_error <- volatility <- NULL
   volatility_upper <- volatility_lower <- time <- NULL
