@@ -53,12 +53,12 @@ library(stochvolTMB, warn.conflicts = FALSE)
 data(spy)
 
 # find the best model using AIC 
-
 gaussian <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
 t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 
+# the leverage model stand out with an AIC far below the other models
 AIC(gaussian, t_dist, skew_gaussian, leverage)
 #>               df       AIC
 #> gaussian       3 -23430.57
@@ -66,11 +66,8 @@ AIC(gaussian, t_dist, skew_gaussian, leverage)
 #> skew_gaussian  4 -23440.87
 #> leverage       4 -23608.85
 
-# The leverage model stand out with an AIC for below the other models
-opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
-
 # get parameter estimates with standard error
-estimates <- summary(opt)
+estimates <- summary(leverage)
 head(estimates, 10)
 #>       parameter     estimate    std_error     z_value       p_value        type
 #>  1:     sigma_y  0.008338412 0.0004163314  20.0283029  3.121144e-89 transformed
@@ -84,11 +81,25 @@ head(estimates, 10)
 #>  9:           h -0.536254072 0.5182192669  -1.0348015  3.007616e-01      random
 #> 10:           h -0.207811236 0.4245258952  -0.4895137  6.244781e-01      random
 
-## plot estimated volatility with 95 % confidence interval
-plot(opt, include_ci = TRUE, dates = spy$date)
+# plot estimated volatility with 95 % confidence interval
+plot(leverage, include_ci = TRUE, dates = spy$date)
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
+
+``` r
+
+# plot predicted volatility with 0.025 and 0.975 quantiles
+plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
+  ggplot2::xlim(c(spy[.N, date] - 150, spy[.N, date] + 50))
+#> Warning: Removed 3419 row(s) containing missing values (geom_path).
+
+#> Warning: Removed 3419 row(s) containing missing values (geom_path).
+
+#> Warning: Removed 3419 row(s) containing missing values (geom_path).
+```
+
+<img src="man/figures/README-example-2.png" width="100%" />
 
 ## Shiny app
 

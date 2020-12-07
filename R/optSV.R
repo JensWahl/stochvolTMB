@@ -306,7 +306,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
   }
     
   
-  h_exp <- 100 * sigma_y * exp(h_pred / 2) 
+  h_exp <- sigma_y * exp(h_pred / 2) 
 
   res <- list(y = y_pred, h = h_pred, h_exp = h_exp)
   attr(res, "steps") <- steps
@@ -317,7 +317,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
 }
 
 #' Calculate quantiles based on predictions from the predictive distribution
-#' @param object A \code{stochvolTMB.summary} object.
+#' @param object A \code{stochvolTMB_summary} object.
 #' @param ... Not used. 
 #' @param quantiles A numeric vector specifying which quantiles to calculate. 
 #' @param predict_mean bool. Should the mean be predicted? 
@@ -329,7 +329,7 @@ summary.stochvolTMB_predict <- function(object, ..., quantiles = c(0.025, 0.975)
   time <- NULL
   
   if (!inherits(object, "stochvolTMB_predict")) {
-    stop("`object` should be of class stochvolTMB.predict")
+    stop("`object` should be of class stochvolTMB_predict")
   }
   
   if (length(quantiles) < 1) {

@@ -55,6 +55,9 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     stop("`nobs` has to be greater than 1")
   }
   
+  # We need an extra observation to simulate the last y
+  if (model == "leverage") nobs = nobs + 1
+  
   # Set seed if specified
   if (!is.null(seed)) set.seed(seed)
 
@@ -112,8 +115,10 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     for (i in 1:(nobs - 1)) {
       y[i] <- sigma_y * exp(h[i] / 2) * (rho / sigma_h * (h[i + 1] - phi * h[i]) + sqrt(1 - rho^2) * stats::rnorm(1))
     }
-    # set last value (not used) to zero
-    y[nobs] <- 0
+    # Remove the last value
+    y <- y[-nobs]
+    h <- h[-nobs]
+    
   } else {
     stop(paste0("The model ", model, " has not been implemented"))
   }

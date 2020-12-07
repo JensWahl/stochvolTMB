@@ -102,9 +102,9 @@ plot.stochvolTMB <- function(x, ...,
  
   } else {
     # Transform from log volatility
-    report[, ":=" (volatility = 100 * sigma_y * exp(estimate / 2),
-                   volatility_upper =  100 * sigma_y * exp(h_upper / 2),
-                   volatility_lower =  100 * sigma_y * exp(h_lower / 2))]
+    report[, ":=" (volatility = sigma_y * exp(estimate / 2),
+                   volatility_upper =  sigma_y * exp(h_upper / 2),
+                   volatility_lower =  sigma_y * exp(h_lower / 2))]
     
     p <- ggplot2::ggplot(report, ggplot2::aes(time, volatility)) + ggplot2::geom_line(size = 0.8, color = "black") + 
       ggplot2::ggtitle("Estimated volatility") + 

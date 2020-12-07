@@ -80,13 +80,13 @@ Type objective_function<Type>::operator()(){
       nll -= keep(i) * dnorm(y(i), Type(0), exp(h(i) / Type(2)) * sigma_y, true);
       break;
     
-    // Centered t-distibution
+    // Centered t-distribution
     // last term is contribution from jacobian of linear transformation y = a * x
     case 1:{
       Type df = exp(log_df_minus_two(0)) + Type(2); // To assure that the variance exist
       if(i == 0) ADREPORT(df); 
       Type normalization = exp(h(i) / 2) * sigma_y * sqrt((df - Type(2)) / df); 
-      nll -= keep(i) * dt(y(i) / normalization, df, true) - log(normalization);
+      nll -= keep(i) * (dt(y(i) / normalization, df, true) - log(normalization));
       break; 
       }
     
