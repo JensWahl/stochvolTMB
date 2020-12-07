@@ -30,4 +30,16 @@ test_that("Test sim_sv", {
   expect_error(sim_sv(param = c(1, 2, 3)))
   expect_error(sim_sv(model = "tmp"))
   
+  # Check error if parameters are outside their domain
+  param$phi <- 1.1
+  expect_error(sim_sv(param, model = "gaussian"))
+  
+  param$phi <- 0.9
+  param$df <- 1.9
+  expect_error(sim_sv(param, model = "t"))
+  
+  param$rho <- -1.2
+  expect_error(sim_sv(param, model = "leverage"))
+  
+  
 })

@@ -10,8 +10,8 @@ get_nll <- function(data, model = "gaussian", ...) {
   # Starting values for parameters
   param <- list(log_sigma_y = 0,
                 log_sigma_h = 0, 
-                logit_phi = 2,
-                log_df_minus_two = if (model == "t") 0.3 else numeric(0),
+                logit_phi = 3,
+                log_df_minus_two = if (model == "t") 2 else numeric(0),
                 alpha = if (model %in% c("skew_gaussian")) 0 else numeric(0),
                 logit_rho = if (model %in% c("leverage")) 0 else numeric(0),
                 h = rep(0, length(data)))
@@ -192,11 +192,13 @@ print.stochvolTMB <- function(x, ...) {
   cat("persistence of latent variable                  phi = ", rep[parameter == "phi", estimate], "\n", sep = "")
   cat("standard deviation of observed variable         sigma_y = ", rep[parameter == "sigma_y", estimate], "\n", sep = "")
   if ("df" %in% rep[, parameter])
-    cat("degrees of freedom for observed variable        df =", rep[parameter == "df", estimate], "\n")
+    cat("degrees of freedom of observed variable        df =", rep[parameter == "df", estimate], "\n")
   if ("rho" %in% rep[, parameter]) 
     cat("leverage effect                                 rho =", rep[parameter == "rho", estimate], "\n")
   if ("alpha" %in% rep[, parameter]) 
     cat("skewness of observed variable                   alpha = ", rep[parameter == "alpha", estimate], "\n", sep = "")
+  
+  return(invisible(x))
 }
 
 
@@ -212,10 +214,13 @@ print.stochvolTMB <- function(x, ...) {
 #' multivariate normal with inverse hessian as covariance matrix. 
 #' @param ... Not is use. 
 #' @return list of simulated values from the predictive distribution of the latent volatilities and log-returns.
-#' 
+#' @method predict stochvolTMB
 #' @export
 
-predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_parameters = FALSE, ...){
+predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parameters = TRUE, ...) {
+  
+  time <- std_error <- NULL
+  
   
   if (!inherits(object, "stochvolTMB")) {
     stop("`object` has to be of class `stochvolTMB`")
@@ -254,13 +259,13 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_paramet
   }
   
   # Get last estimated volatility and simulate from its distribution to get nsim starting points
-  h_last <- rep[.N, .(estimate, std_error)]
+  h_last <- rep[.N, list(estimate, std_error)]
   h_pred <- matrix(0, nrow = steps, ncol = nsim)
   y_pred <- matrix(0, nrow = steps, ncol = nsim)
   h_start <- stats::rnorm(nsim, h_last$estimate, h_last$std_error)
   
   # Predict volatility 
-  for(i in 1:steps){
+  for (i in 1:steps) {
     if (i == 1) {
       h_pred[i, ] <- stats::rnorm(nsim, phi * h_start, sigma_h)
     } else {
@@ -271,7 +276,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_paramet
   if (object$model == "leverage") steps <- steps - 1
   
   # Predict log-returns
-  for(i in 1:steps){
+  for (i in 1:steps) {
     
     if (object$model == "skew_gaussian") {
       
@@ -295,13 +300,67 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 1000, include_paramet
     }
   }
   
-  if (object$model == "leverage") h_pred <- h_pred[1:steps, ]; y_pred <- y_pred[1:steps, ]
+  if (object$model == "leverage") {
+    h_pred <- h_pred[1:steps, , drop = FALSE] 
+    y_pred <- y_pred[1:steps, , drop = FALSE]
+  }
+    
   
-  rownames(y_pred) <- paste0("step_", 1:steps)
-  rownames(h_pred) <- paste0("step_", 1:steps)
-  colnames(y_pred) <- paste0("sim_", 1:nsim)
-  colnames(h_pred) <- paste0("sim_", 1:nsim)
-  res <- list(y = y_pred, h = h_pred)
-  class(res) <- "stochvolTMB.predict"
+  h_exp <- 100 * sigma_y * exp(h_pred / 2) 
+
+  res <- list(y = y_pred, h = h_pred, h_exp = h_exp)
+  attr(res, "steps") <- steps
+  attr(res, "nsim") <- nsim
+  class(res) <- "stochvolTMB_predict"
+  
   return(res)
+}
+
+#' Calculate quantiles based on predictions from the predictive distribution
+#' @param object A \code{stochvolTMB.summary} object.
+#' @param ... Not used. 
+#' @param quantiles A numeric vector specifying which quantiles to calculate. 
+#' @param predict_mean bool. Should the mean be predicted? 
+#' @return A list of \code{data.table}s. One for \code{y} and \code{h}. 
+#' @method summary stochvolTMB_predict
+#' @export
+summary.stochvolTMB_predict <- function(object, ..., quantiles = c(0.025, 0.975), predict_mean = TRUE) {
+  
+  time <- NULL
+  
+  if (!inherits(object, "stochvolTMB_predict")) {
+    stop("`object` should be of class stochvolTMB.predict")
+  }
+  
+  if (length(quantiles) < 1) {
+    stop("`quantiles` has to be of length 1 or greater")
+  }
+  
+  if (!all(quantiles <= 1 & quantiles >= 0)) {
+    stop("All elements of `quantiles` have to be between 0 and 1")
+  }
+  
+  # If quantile has length 1 it returns a vector, not a matrix. When cast to matrix it will be a one column matrix
+  # and should not be transposed
+  res_quant <- lapply(object, function(x) {
+    
+    if (length(quantiles) == 1) {
+      data.table(as.matrix(apply(x, 1, stats::quantile, probs = quantiles)))
+    } else {
+      data.table(t(apply(x, 1, stats::quantile, probs = quantiles)))
+    }
+  })
+  
+  lapply(res_quant, setnames, new = paste0("quantile_", quantiles))
+  lapply(res_quant, function(x) x[, time := 1:.N])
+  lapply(res_quant, data.table::setcolorder, "time")
+  
+  
+  if (predict_mean) {
+    res_mean <- lapply(object, function(x) apply(x, 1, mean))
+    lapply(1:length(res_quant), function(x) res_quant[[x]][, mean := res_mean[[x]]])
+  }
+  
+  return(res_quant)
+  
 }

@@ -14,15 +14,18 @@
 #' @param dates vector of length ncol(x$nobs), providing optional dates for
 #'   labeling the x-axis. The default value is NULL; in this case, the axis will
 #'   be labeled with numbers.
-#' @param predict Object of class \code{summary.stochvolTMB} returned from \code{predict}. 
-#' @param plot_mean logical value indicating of the mean prediction should be plotted. Only used if {predict != NULL}
-#' @param plot_quantiles A vector of quantiles to be plotted.
+#' @param forecast Integer specifying number of steps to forecast. 
 #' @return ggplot object with plot of estimated estimated volatility.
 #' @export
-plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates = NULL, predict = NULL) {
+plot.stochvolTMB <- function(x, ..., 
+                             include_ci = TRUE, 
+                             plot_log = TRUE, 
+                             dates = NULL, 
+                             forecast = NULL
+                             ) {
   
   parameter <- estimate <- type <- h_upper <- h_lower <- n <- std_error <- volatility <- NULL
-  volatility_upper <- volatility_lower <- time <- NULL
+  volatility_upper <- volatility_lower <- time <- quantile_0.025 <- quantile_0.975 <- NULL
   
   
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
@@ -52,6 +55,15 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates =
   
   if (!is.null(dates)) report[, time := dates]
   
+  if (!is.null(forecast)) {
+    
+    pred <- predict(x, steps = forecast, include_parameters = TRUE)
+    pred_summary <- summary(pred, quantiles = c(0.025, 0.975), predict_mean = TRUE)
+    
+    last_date <- report[.N, time]
+    lapply(pred_summary, function(x) x[, time := seq(last_date + 1, last_date + forecast, 1)])
+  }
+  
   # set theme 
   ggplot2::theme_set(ggplot2::theme_bw())
   
@@ -70,7 +82,24 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates =
         ggplot2::geom_ribbon(ggplot2::aes(time, ymax = h_upper, ymin = h_lower), fill = "grey", alpha = 0.1) + 
         ggplot2::ggtitle("Estimated log volatility with 95 % confidence interval")
       
-    } 
+      
+      if (!is.null(forecast)) {
+        p <- p + ggplot2::geom_line(data = pred_summary$h, 
+                                    ggplot2::aes(x = time, y = quantile_0.025), 
+                                    size = 0.3, linetype = 2, col = "grey") + 
+          ggplot2::geom_line(data = pred_summary$h, 
+                             ggplot2::aes(x = time, y = quantile_0.975), size = 0.3, linetype = 2, col = "grey") + 
+          ggplot2::geom_line(data = pred_summary$h, 
+                           ggplot2::aes(x = time, y = mean), size = 0.8, linetype = 2, col = "black")
+      }
+    }
+    
+    if (!is.null(forecast)) {
+      p <- plot_forecast(p, pred_summary$h, include_ci = include_ci)
+    }
+   
+    
+ 
   } else {
     # Transform from log volatility
     report[, ":=" (volatility = 100 * sigma_y * exp(estimate / 2),
@@ -86,13 +115,48 @@ plot.stochvolTMB <- function(x, ..., include_ci = TRUE, plot_log = TRUE, dates =
       p <- p + 
         ggplot2::geom_line(ggplot2::aes(time, volatility_upper), color = "grey", size = 0.3) + 
         ggplot2::geom_line(ggplot2::aes(time, volatility_lower), color = "grey", size = 0.3) + 
-        ggplot2::geom_ribbon(ggplot2::aes(time, ymax = volatility_upper, ymin = volatility_lower), fill = "grey", alpha = 0.1) + 
+        ggplot2::geom_ribbon(ggplot2::aes(time, ymax = volatility_upper, ymin = volatility_lower), 
+                             fill = "grey", alpha = 0.1) + 
         ggplot2::ggtitle("Estimated volatility with 95 % confidence interval")
       
     } 
+    
+    if (!is.null(forecast)) {
+      p <- plot_forecast(p, pred_summary$h_exp, include_ci = include_ci)
+    }
+    
   }
   
   return(p)
+}
+
+#' Add predicted volatility. 
+#' 
+#' Adds predicted volatility to the volatility plot. 
+#' 
+#' @param p ggplot object 
+#' @param forecast data.table 
+#' @param include_ci bool. Should 95 percent confidence interval be plotted? 
+#' @return ggplot object 
+#' @keywords internal
+#' @export
+
+plot_forecast <- function(p, forecast, include_ci = TRUE) {
   
+  time <- quantile_0.025 <- quantile_0.975 <- NULL
   
+  p <-  p + 
+   ggplot2::geom_line(data = forecast, ggplot2::aes(x = time, y = mean), size = 0.8, linetype = 2, col = "black")
+ 
+ 
+ if (include_ci) {
+  p <- p + 
+    ggplot2::geom_line(data = forecast, ggplot2::aes(x = time, y = quantile_0.025), 
+                       size = 0.8, linetype = 2, col = "grey") + 
+    ggplot2::geom_line(data = forecast, ggplot2::aes(x = time, y = quantile_0.975),
+                       size = 0.8, linetype = 2, col = "grey") 
+ }
+  
+ return(p)
+ 
 }

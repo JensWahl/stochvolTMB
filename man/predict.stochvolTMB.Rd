@@ -4,7 +4,7 @@
 \alias{predict.stochvolTMB}
 \title{Predict future returns and future volatilities}
 \usage{
-\method{predict}{stochvolTMB}(object, steps = 1L, nsim = 1000, include_parameters = FALSE, ...)
+\method{predict}{stochvolTMB}(object, steps = 1L, nsim = 10000, include_parameters = TRUE, ...)
 }
 \arguments{
 \item{object}{A \code{stochvolTMB} object returned from \code{\link{estimate_parameters}}.}

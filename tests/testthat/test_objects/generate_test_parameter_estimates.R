@@ -14,6 +14,7 @@ l$seed <- seed
 model <- "gaussian"
 data <- sim_sv(param = param, nobs = nobs, seed = seed, model = model)
 opt <- estimate_parameters(data$y, model = model)
+saveRDS(opt, "tests/testthat/test_objects/test_summary.rds")
 l[[model]]$par <- opt$fit$par
 l[[model]]$objective <- opt$fit$objective
 l[[model]]$y <- data$y
