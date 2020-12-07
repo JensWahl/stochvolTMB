@@ -60,9 +60,11 @@ test_that("Test predict.R", {
   
 
 # Tests -----------------------------------------------------------------------------------------------------------
-  steps = 10; nsim = 1000
-  pred = predict(opt, steps = steps, nsim = nsim)
-  expect_named(pred, c("y", "h"))
+  set.seed(123)
+  steps <- 10; nsim <- 10000
+  pred <- predict(opt, steps = steps, nsim = nsim, include_parameters = FALSE)
+  expect_named(pred, c("y", "h", "h_exp"))
   expect_equal(dim(pred$y), c(steps, nsim))
   expect_equal(dim(pred$h), c(steps, nsim))
+  
 })

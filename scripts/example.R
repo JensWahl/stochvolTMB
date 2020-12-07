@@ -2,19 +2,23 @@ devtools::load_all()
 library(tidyverse)
 library(stochvol)
 library(TMB)
-nobs <- 2000
+nobs <- 6000
 
 # Gaussian case
-param <- list(phi = 0.9, sigma_h = 0.1, sigma_y = 0.2, alpha = -2, rho = -0.7, df = 5)
+param <- list(phi = 0.9, sigma_h = 0.1, sigma_y = 0.05, alpha = -2, rho = -0.7, df = 30)
 
-model <- "leverage"
+model <- "t"
+
 # model <- 'skew_gaussian' model <- 't'
-dat <- stochvolTMB::sim_sv(param = param, nobs = nobs, model = model, seed = 12)
+dat <- stochvolTMB::sim_sv(param = param, nobs = nobs, model = model, seed = 124)
 #dat = svsim(2000, mu = -4, phi = 0.9, nu = 5, sigma = 0.2)
 obj <- stochvolTMB::get_nll(dat$y, model = "t")
 opt <- stochvolTMB::estimate_parameters(dat$y, model = model, silent = TRUE)
-opt2 <- stochvolTMB::estimate_parameters(dat$y, model = "t", silent = TRUE)
+opt2 <- stochvolTMB::estimate_parameters(dat$y, model = "gaussian", silent = TRUE)
 
+
+
+opt3 = nlminb(obj$par, obj$fn, obj$gr, control = list(trace = 1))
 
 steps = 100
 set.seed(123)

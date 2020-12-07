@@ -27,7 +27,7 @@
 #' @return data.table with columns \code{y} (observations) and \code{h} (latent log-volatility).
 #' @export
 sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4, alpha = -2, rho = -0.7),
-                   nobs = 1000, 
+                   nobs = 1000L, 
                    seed = NULL, 
                    model = "gaussian") {
 
@@ -36,19 +36,23 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
   }
   
   if (param$sigma_y < 0) {
-    stop("The standard deviation sigma_y is negative")
+    stop("The standard deviation `sigma_y` is negative")
   }
   
   if (param$sigma_h < 0) {
-    stop("The standard deviation sigma_h is negative")
+    stop("The standard deviation `sigma_h` is negative")
+  }
+  
+  if (abs(param$phi) >= 1) {
+    stop("Persistence parameter `phi` is not between -1 and 1")
   }
   
   if (!is.numeric(nobs)) {
-    stop("nobs has to be numeric")
+    stop("`nobs` has to be numeric")
   }
   
   if (nobs < 2) {
-    stop("nobs has to be greater than 1")
+    stop("`nobs` has to be greater than 1")
   }
   
   # Set seed if specified
@@ -77,6 +81,9 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     
   } else if (model == "t") {
 
+    if (param$df <= 2) {
+      stop("Degrees of freedom parameter `df` has to be greater than 2")
+    }
     # parameter specific for the t-distribution
     df <- param$df
     y <- exp(h / 2) * sigma_y * sqrt((df - 2) / df) * stats::rt(nobs, df = df)
@@ -98,7 +105,7 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
   } else if (model == "leverage") {
     
     if (abs(param$rho) >= 1) {
-      stop("Correlation parameter rho is not between -1 and 1")
+      stop("Correlation parameter `rho` is not between -1 and 1")
     }
     # parameter specific for leverage model
     rho <- param$rho
@@ -123,7 +130,7 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
 #' @param x double 
 #' @return double
 #' @export
-logit = function(x) (exp(x) -1)/(1 + exp(x))
+logit <- function(x) (exp(x) - 1) / (1 + exp(x))
 
 
 #' Simulate from the asymptotic distribution of the parameter estimates 
@@ -135,7 +142,7 @@ logit = function(x) (exp(x) -1)/(1 + exp(x))
 #' @param nsim Number of simulations.
 #' @return matrix of simulated values. 
 #' @export
-simulate_parameters <- function(object, nsim = 1000){
+simulate_parameters <- function(object, nsim = 1000) {
   
   # Get covariance matrix
   cov_mat <- object$rep$cov.fixed  

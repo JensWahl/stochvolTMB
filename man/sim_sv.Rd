@@ -6,7 +6,7 @@
 \usage{
 sim_sv(
   param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4, alpha = -2, rho = -0.7),
-  nobs = 1000,
+  nobs = 1000L,
   seed = NULL,
   model = "gaussian"
 )
