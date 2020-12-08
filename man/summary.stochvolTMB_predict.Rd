@@ -7,7 +7,7 @@
 \method{summary}{stochvolTMB_predict}(object, ..., quantiles = c(0.025, 0.975), predict_mean = TRUE)
 }
 \arguments{
-\item{object}{A \code{stochvolTMB.summary} object.}
+\item{object}{A \code{stochvolTMB_summary} object.}
 
 \item{...}{Not used.}
 

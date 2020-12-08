@@ -7,11 +7,11 @@
 get_nll(data, model = "gaussian", ...)
 }
 \arguments{
-\item{data}{vector of observations.}
+\item{data}{Vector of observations.}
 
-\item{model}{string specifying distribution of error term in observational equation.}
+\item{model}{String specifying distribution of error term in observational equation.}
 
-\item{...}{additional arguments passed to \link[TMB]{MakeADFun}.}
+\item{...}{Additional arguments passed to \link[TMB]{MakeADFun}.}
 }
 \value{
 List of components returned from \link[TMB]{MakeADFun}.

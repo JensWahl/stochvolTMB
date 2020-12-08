@@ -1,7 +1,7 @@
 #' Construct objective function with derivatives using \link[TMB]{MakeADFun}
-#'@param data vector of observations.
-#'@param model string specifying distribution of error term in observational equation.
-#'@param ... additional arguments passed to \link[TMB]{MakeADFun}.
+#'@param data Vector of observations.
+#'@param model String specifying distribution of error term in observational equation.
+#'@param ... Additional arguments passed to \link[TMB]{MakeADFun}.
 #'@return List of components returned from \link[TMB]{MakeADFun}.
 #'@export
 #'@keywords internal
@@ -208,13 +208,13 @@ print.stochvolTMB <- function(x, ...) {
 #' and future log-returns. 
 #' 
 #' @param object A \code{stochvolTMB} object returned from \code{\link{estimate_parameters}}.
-#' @param steps integer specifying number of steps to predict. 
+#' @param steps Integer specifying number of steps to predict. 
 #' @param nsim Number of draws from the predictive distribution.
-#' @param include_parameters bool. Should fixed parameters be simulated from their asymptotic distribution, i.e. 
+#' @param include_parameters  Logical value indicating if fixed parameters 
+#' should be simulated from their asymptotic distribution, i.e. 
 #' multivariate normal with inverse hessian as covariance matrix. 
 #' @param ... Not is use. 
-#' @return list of simulated values from the predictive distribution of the latent volatilities and log-returns.
-#' @method predict stochvolTMB
+#' @return List of simulated values from the predictive distribution of the latent volatilities and log-returns.
 #' @export
 
 predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parameters = TRUE, ...) {
@@ -322,7 +322,6 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
 #' @param quantiles A numeric vector specifying which quantiles to calculate. 
 #' @param predict_mean bool. Should the mean be predicted? 
 #' @return A list of \code{data.table}s. One for \code{y} and \code{h}. 
-#' @method summary stochvolTMB_predict
 #' @export
 summary.stochvolTMB_predict <- function(object, ..., quantiles = c(0.025, 0.975), predict_mean = TRUE) {
   

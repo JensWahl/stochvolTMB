@@ -1,9 +1,7 @@
 #' Simulate data from the stochastic volatility model
 #'
 #' @description 
-#' \code{sim_sv} simulate observations from a stochastic volatility model.
-#'
-#' This function draws the initial log-volatility from its stationary distribution, meaning that \code{h_0}
+#' This function draws the initial log-volatility (\code{h_t}) from its stationary distribution, meaning that \code{h_0}
 #' is drawn from a gaussian distribution with mean zero and standard deviation \code{sigma_h} / \code{sqrt(1 - phi^2)}.
 #' \code{h_{t+1}} is then simulated from its conditional distribution given \code{h_t}, 
 #' which is N(\code{phi*h_t}, \code{sigma_h}). Log-returns (\code{y_t}) is

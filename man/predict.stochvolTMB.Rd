@@ -9,17 +9,18 @@
 \arguments{
 \item{object}{A \code{stochvolTMB} object returned from \code{\link{estimate_parameters}}.}
 
-\item{steps}{integer specifying number of steps to predict.}
+\item{steps}{Integer specifying number of steps to predict.}
 
 \item{nsim}{Number of draws from the predictive distribution.}
 
-\item{include_parameters}{bool. Should fixed parameters be simulated from their asymptotic distribution, i.e. 
+\item{include_parameters}{Logical value indicating if fixed parameters 
+should be simulated from their asymptotic distribution, i.e. 
 multivariate normal with inverse hessian as covariance matrix.}
 
 \item{...}{Not is use.}
 }
 \value{
-list of simulated values from the predictive distribution of the latent volatilities and log-returns.
+List of simulated values from the predictive distribution of the latent volatilities and log-returns.
 }
 \description{
 Takes a \code{stochvolTMB} object and produces draws from the predictive distribution of the latent volatility 
