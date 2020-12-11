@@ -7,8 +7,7 @@
 \method{plot}{stochvolTMB}(x, ..., include_ci = TRUE, plot_log = TRUE, dates = NULL, forecast = NULL)
 }
 \arguments{
-\item{x}{A \code{stochvolTMB} object returned form
-\link{estimate_parameters}.}
+\item{x}{A \code{stochvolTMB} object returned from \link{estimate_parameters}.}
 
 \item{...}{Currently not used.}
 

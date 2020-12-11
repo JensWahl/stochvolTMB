@@ -54,7 +54,7 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
   }
   
   # We need an extra observation to simulate the last y
-  if (model == "leverage") nobs = nobs + 1
+  if (model == "leverage") nobs <- nobs + 1
   
   # Set seed if specified
   if (!is.null(seed)) set.seed(seed)

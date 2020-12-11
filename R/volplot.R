@@ -2,8 +2,7 @@
 #'
 #' Displays the estimated latent volatility process over time.
 #'
-#' @param x A \code{stochvolTMB} object returned form
-#'   \link{estimate_parameters}.
+#' @param x A \code{stochvolTMB} object returned from \link{estimate_parameters}.
 #' @param ... Currently not used.
 #' @param include_ci Logical value indicating if volatility should be plotted
 #'   with approximately 95 \% confidence interval.

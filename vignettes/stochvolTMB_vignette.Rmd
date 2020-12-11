@@ -106,7 +106,6 @@ AIC(gaussian,
     t_dist, 
     skew_gaussian, 
     leverage)
-
 ```
 
 

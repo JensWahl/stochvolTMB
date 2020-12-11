@@ -4,13 +4,15 @@
 \alias{residuals}
 \title{Calculate one-step-ahead (OSA) residuals for stochastic volatility model.}
 \usage{
-residuals(object)
+residuals(object, conditional = 1:(object$nobs - 100), ...)
 }
 \arguments{
 \item{object}{A \code{stochvolTMB} object.}
+
+\item{...}{Currently not used.}
 }
 \value{
-vector of one-step-ahead residuals of length \code{T}, where \code{T} is the number of observations.
+Vector of one-step-ahead residuals. If the model is correctly specified, these should be standard normal.
 }
 \description{
 Calculate one-step-ahead (OSA) residuals for stochastic volatility model.
