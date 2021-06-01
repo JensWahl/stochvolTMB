@@ -62,7 +62,6 @@ jobs:
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
-          if (R.Version()$major == "3") remotes::install_version("mnormt", version = "1.5-5", repos = "http://cran.us.r-project.org")
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 
