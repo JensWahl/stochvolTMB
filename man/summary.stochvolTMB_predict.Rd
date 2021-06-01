@@ -16,7 +16,7 @@
 \item{predict_mean}{bool. Should the mean be predicted?}
 }
 \value{
-A list of \code{data.table}s. One for \code{y} and \code{h}.
+A list of \code{data.table}s. One for \code{y}, \code{h} and \code{h_exp}.
 }
 \description{
 Calculate quantiles based on predictions from the predictive distribution

@@ -2,7 +2,7 @@
 % Please edit documentation in R/simSV.R
 \name{sim_sv}
 \alias{sim_sv}
-\title{Simulate data from the stochastic volatility model}
+\title{Simulate log-returns from a stochastic volatility model}
 \usage{
 sim_sv(
   param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4, alpha = -2, rho = -0.7),
@@ -36,7 +36,8 @@ simulated from its conditional distribution given the latent process \code{h}. I
 then \code{y_t} given \code{h_t} is gaussian with mean zero and standard deviation equal to
 \code{sigma_y*exp(h_t / 2)}. Heavy tail returns can be obtained by simulating from
 the t-distribution by setting \code{model} = "t". How heavy of a tail is specified by the degree of freedom 
-parameter \code{df}. Asymmetric returns is obtained from the "skew_gaussian" model. How asymmetric is governed by
+parameter \code{df}. Note that the observations are scaled by \code{sqrt((df-2)/2)} so that the error term has 
+variance equal to one. Asymmetric returns are obtained from the "skew_gaussian" model. How asymmetric is governed by
 the skewness parameter \code{alpha}. The so called leverage model, where we allow for correlation between 
 log-returns and volatility can be simulated by setting \code{model} to "leverage" and specifying the
 correlation parameter \code{rho}.
