@@ -1,0 +1,144 @@
+@article{Taylor1982,
+author="Taylor, S. J.",
+title="Financial returns modelled by the product of two stochastic processes-A study of the daily sugar prices 1961-75",
+journal="Time Series Analysis : Theory and Practice",
+ISSN="",
+publisher="North-Holland",
+year="1982",
+month="",
+volume="1",
+number="",
+pages="203-226",
+URL="https://ci.nii.ac.jp/naid/10018822959/en/",
+DOI="",
+}
+
+@article{TMB2016,
+   author = {Kasper Kristensen and Anders Nielsen and Casper Berg and Hans Skaug and Bradley Bell},
+   title = {TMB: Automatic Differentiation and Laplace Approximation},
+   journal = {Journal of Statistical Software, Articles},
+   volume = {70},
+   number = {5},
+   year = {2016},
+   keywords = {automatic differentiation; AD; random effects; latent variables; C++ templates; R},
+   abstract = {TMB is an open source R package that enables quick implementation of complex nonlinear random effects (latent variable) models in a manner similar to the established AD Model Builder package (ADMB, http://admb-project.org/; Fournier et al. 2011). In addition, it offers easy access to parallel computations. The user defines the joint likelihood for the data and the random effects as a C++ template function, while all the other operations are done in R; e.g., reading in the data. The package evaluates and maximizes the Laplace approximation of the marginal likelihood where the random effects are automatically integrated out. This approximation, and its derivatives, are obtained using automatic differentiation (up to order three) of the joint likelihood. The computations are designed to be fast for problems with many random effects (≈ 106 ) and parameters (≈ 103 ). Computation times using ADMB and TMB are compared on a suite of examples ranging from simple models to large spatial models where the random effects are a Gaussian random field. Speedups ranging from 1.5 to about 100 are obtained with increasing gains for large problems. The package and examples are available at http://tmb-project.org/.},
+   issn = {1548-7660},
+   pages = {1--21},
+   doi = {10.18637/jss.v070.i05},
+   url = {https://www.jstatsoft.org/v070/i05}
+   }
+   
+@Article{Kastner2016,
+  title = {Dealing with Stochastic Volatility in Time Series Using the {R} Package {stochvol}},
+  author = {Gregor Kastner},
+  journal = {Journal of Statistical Software},
+  year = {2016},
+  volume = {69},
+  number = {5},
+  pages = {1--30},
+  doi = {10.18637/jss.v069.i05},
+}
+
+@article{Liesenfeld2006,
+author = { Roman   Liesenfeld  and  Jean-François   Richard },
+title = {Classical and Bayesian Analysis of Univariate and Multivariate Stochastic Volatility Models},
+journal = {Econometric Reviews},
+volume = {25},
+number = {2-3},
+pages = {335-360},
+year  = {2006},
+publisher = {Taylor & Francis},
+doi = {10.1080/07474930600713424},
+URL = {https://doi.org/10.1080/07474930600713424},
+eprint = {https://doi.org/10.1080/07474930600713424}
+}
+
+
+
+@ARTICLE{Harvey1994,
+title = {Multivariate Stochastic Variance Models},
+author = {Harvey, Andrew and Ruiz, Esther and Shephard, Neil},
+year = {1994},
+journal = {Review of Economic Studies},
+volume = {61},
+number = {2},
+pages = {247-264},
+abstract = {Changes in variance, or volatility, over time can be modelled using the approach based on autoregressive conditional heteroscedasticity (ARCH). However, the generalizations to multivariate series can be difficult to estimate and interpret. Another approach is to model variance as an unobserved stochastic process. Although it is not easy to obtain the exact likelihood function for such stochastic variance models, they tie in closely with developments in finance theory and have certain statistical attractions. This article sets up a multivariate model, discusses its statistical treatment and shows how it can be modified to capture common movements in volatility in a very natural way. The model is then fitted to daily observations on exchange rates.},
+url = {http://EconPapers.repec.org/RePEc:oup:restud:v:61:y:1994:i:2:p:247-264.}
+}
+
+@incollection {Shepard1998,
+    AUTHOR = {Pitt, Michael K. and Shephard, Neil},
+     TITLE = {Time-varying covariances: a factor stochastic volatility
+              approach},
+ BOOKTITLE = {Bayesian statistics, 6 ({A}lcoceber, 1998)},
+     PAGES = {547--570},
+ PUBLISHER = {Oxford Univ. Press, New York},
+      YEAR = {1999},
+   MRCLASS = {62P20 (62M10 91B28)},
+  MRNUMBER = {1724873},
+}
+
+ @Manual{datatableRpackage,
+    title = {{data.table}: Extension of `data.frame`},
+    author = {Matt Dowle and Arun Srinivasan},
+    year = {2019},
+    note = {R package version 1.12.2},
+    url = {https://CRAN.R-project.org/package=data.table},
+  }
+  
+    @Book{ggplot2,
+    author = {Hadley Wickham},
+    title = {ggplot2: Elegant Graphics for Data Analysis},
+    publisher = {Springer-Verlag New York},
+    year = {2016},
+    isbn = {978-3-319-24277-4},
+    url = {https://ggplot2.tidyverse.org},
+  }
+  
+  @incollection{akaike1998,
+  title={Information theory and an extension of the maximum likelihood principle},
+  author={Akaike, Hirotogu},
+  booktitle={Selected Papers of Hirotugu Akaike},
+  pages={199--213},
+  year={1998},
+  publisher={Springer}
+}
+
+@article{Skaug2014,
+title = {A flexible and automated likelihood based framework for inference in stochastic volatility models},
+journal = {Computational Statistics & Data Analysis},
+volume = {76},
+pages = {642-654},
+year = {2014},
+note = {CFEnetwork: The Annals of Computational and Financial Econometrics},
+issn = {0167-9473},
+doi = {https://doi.org/10.1016/j.csda.2013.10.005},
+url = {https://www.sciencedirect.com/science/article/pii/S0167947313003587},
+author = {Hans J. Skaug and Jun Yu},
+keywords = {Empirical Bayes, Laplace approximation, Automatic differentiation, AD Model Builder, Simulated maximum likelihood, Importance sampling},
+abstract = {The Laplace approximation is used to perform maximum likelihood estimation of univariate and multivariate stochastic volatility (SV) models. It is shown that the implementation of the Laplace approximation is greatly simplified by the use of a numerical technique known as automatic differentiation (AD). Several algorithms are proposed and compared with some existing maximum likelihood methods using both simulated data and actual data. It is found that the new methods match the statistical efficiency of the existing methods while significantly reducing the coding effort. Also proposed are simple methods for obtaining the filtered, smoothed and predictive values for the latent variable. The new methods are implemented using the open source software AD Model Builder, which with its latent variable module (ADMB-RE) facilitates the formulation and fitting of SV models. To illustrate the flexibility of the new algorithms, several univariate and multivariate SV models are fitted using exchange rate and equity data.}
+}
+
+ @MISC{Eigen2010,
+  author = {Ga\"{e}l Guennebaud and Beno\^{i}t Jacob and others},
+  title = {Eigen v3},
+  howpublished = {http://eigen.tuxfamily.org},
+  year = {2010}
+ }
+
+
+ @MISC{CppAD2005,
+  author = {Brad Bell},
+  title = {CppAD: A Package for C++ Algorithmic Differentiation},
+  howpublished = {http://www.coin-or.org/CppAD},
+  year = {2005}
+ }
+ 
+   @Manual{rCore,
+    title = {R: A language and environment for statistical computing},
+    author = {{R Core Team}},
+    organization = {R foundation for statistical computing},
+    year = {2019},
+    url = {https://www.R-project.org/},
+  }
