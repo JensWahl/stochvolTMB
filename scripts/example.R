@@ -14,6 +14,10 @@ dat <- stochvolTMB::sim_sv(param = param, nobs = nobs, model = model, seed = 124
 #dat = svsim(2000, mu = -4, phi = 0.9, nu = 5, sigma = 0.2)
 obj <- stochvolTMB::get_nll(dat$y, model = "t")
 opt <- stochvolTMB::estimate_parameters(dat$y, model = "gaussian", silent = TRUE)
+opt_true <- stochvolTMB::estimate_parameters(dat$y, model = "t", silent = TRUE)
+
+res = residuals(opt)
+res_true = residuals(opt_true)
 plot(opt)
 
 
