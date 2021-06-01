@@ -321,7 +321,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
 #' @param ... Not used. 
 #' @param quantiles A numeric vector specifying which quantiles to calculate. 
 #' @param predict_mean bool. Should the mean be predicted? 
-#' @return A list of \code{data.table}s. One for \code{y} and \code{h}. 
+#' @return A list of \code{data.table}s. One for \code{y}, \code{h} and \code{h_exp}. 
 #' @export
 summary.stochvolTMB_predict <- function(object, ..., quantiles = c(0.025, 0.975), predict_mean = TRUE) {
   

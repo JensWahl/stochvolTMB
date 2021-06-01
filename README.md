@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/stochvolTMB)](https://cran.r-project.org/package=stochvolTMB)
+[![CRAN RStudio mirror
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/stochvolTMB?color=blue)](https://r-pkg.org/pkg/stochvolTMB)
 [![R build
 status](https://github.com/JensWahl/stochvolTMB/workflows/R-CMD-check/badge.svg)](https://github.com/JensWahl/stochvolTMB/actions)
 [![License: GPL
@@ -35,11 +37,23 @@ Four distributions for the observational error are implemented:
 
 ## Installation
 
-You can install `stochvolTMB` from github by running
+To install the current stable release from CRAN, use
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("JensWahl/stochvolTMB")
+install.packages("stochvolTMB")
+```
+
+To install the current development version, use
+
+``` r
+# install.packages("remotes")
+remotes::install_github("JensWahl/stochvolTMB")
+```
+
+If you would also like to build and view the vignette locally, use
+
+``` r
+remotes::install_github("JensWahl/stochvolTMB", dependencies = TRUE, build_vignettes = TRUE)
 ```
 
 ## Example
@@ -58,7 +72,7 @@ t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 
-# the leverage model stand out with an AIC far below the other models
+# the leverage model stands out with an AIC far below the other models
 AIC(gaussian, t_dist, skew_gaussian, leverage)
 #>               df       AIC
 #> gaussian       3 -23430.57
@@ -87,7 +101,55 @@ plot(leverage, include_ci = TRUE, dates = spy$date)
 
 <img src="man/figures/README-example-1.png" width="100%" />
 
+Given the estimated parameters we can simulate future volatility and
+log-returns using `predict`.
+
 ``` r
+# simulate future prices with or without parameter uncertainty
+pred = predict(leverage, steps = 10)
+
+# Calculate the mean, 2.5% and 97.5% quantiles from the simulations
+pred_summary = summary(pred, quantiles = c(0.025, 0.975), predict_mean = TRUE)
+
+print(pred_summary)
+#> $y
+#>     time quantile_0.025 quantile_0.975          mean
+#>  1:    1    -0.03792896     0.03742887  2.072472e-04
+#>  2:    2    -0.03748488     0.03645084 -3.431301e-04
+#>  3:    3    -0.03746311     0.03633886  1.255391e-04
+#>  4:    4    -0.03693781     0.03782909 -1.055144e-04
+#>  5:    5    -0.03528594     0.03500939 -1.614092e-04
+#>  6:    6    -0.03458396     0.03616648  9.886540e-06
+#>  7:    7    -0.03493663     0.03590065  6.885370e-05
+#>  8:    8    -0.03753197     0.03454554 -3.175841e-04
+#>  9:    9    -0.03456872     0.03497310 -4.030600e-05
+#> 10:   10    -0.03538816     0.03519581 -2.657298e-05
+#> 
+#> $h
+#>     time quantile_0.025 quantile_0.975     mean
+#>  1:    1     0.40558262       2.492355 1.451337
+#>  2:    2     0.26050719       2.544859 1.404325
+#>  3:    3     0.13074645       2.584482 1.362353
+#>  4:    4    -0.01445801       2.606267 1.316425
+#>  5:    5    -0.10706302       2.638917 1.273088
+#>  6:    6    -0.20904907       2.671116 1.232641
+#>  7:    7    -0.32222593       2.677699 1.191645
+#>  8:    8    -0.41123402       2.674930 1.149329
+#>  9:    9    -0.46939519       2.662629 1.116894
+#> 10:   10    -0.55207077       2.685185 1.082989
+#> 
+#> $h_exp
+#>     time quantile_0.025 quantile_0.975       mean
+#>  1:    1    0.010106017     0.02940513 0.01789279
+#>  2:    2    0.009420776     0.03001063 0.01756154
+#>  3:    3    0.008826481     0.03083894 0.01738033
+#>  4:    4    0.008289648     0.03092446 0.01705702
+#>  5:    5    0.007793484     0.03156538 0.01683281
+#>  6:    6    0.007432055     0.03161709 0.01658070
+#>  7:    7    0.007031060     0.03182367 0.01627510
+#>  8:    8    0.006718431     0.03174260 0.01596813
+#>  9:    9    0.006563086     0.03168827 0.01580734
+#> 10:   10    0.006247761     0.03212004 0.01557391
 
 # plot predicted volatility with 0.025 and 0.975 quantiles
 plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
@@ -99,7 +161,7 @@ plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
 #> Warning: Removed 3419 row(s) containing missing values (geom_path).
 ```
 
-<img src="man/figures/README-example-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 ## Shiny app
 

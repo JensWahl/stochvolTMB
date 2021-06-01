@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version-last-release/stochvolTMB)](https://cran.r-project.org/package=stochvolTMB)
+[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/stochvolTMB?color=blue)](https://r-pkg.org/pkg/stochvolTMB)
 [![R build
 status](https://github.com/JensWahl/stochvolTMB/workflows/R-CMD-check/badge.svg)](https://github.com/JensWahl/stochvolTMB/actions)
 [![License: GPL
@@ -36,14 +37,24 @@ Four distributions for the observational error are implemented:
 
 
 ## Installation
+To install the current stable release from CRAN, use
 
-You can install `stochvolTMB` from github by running 
-
-``` {r eval = FALSE}
-# install.packages("devtools")
-devtools::install_github("JensWahl/stochvolTMB")
+```{r eval = FALSE}
+install.packages("stochvolTMB")
 ```
 
+To install the current development version, use
+
+``` {r eval = FALSE}
+# install.packages("remotes")
+remotes::install_github("JensWahl/stochvolTMB")
+```
+
+If you would also like to build and view the vignette locally, use
+
+```{r, eval = FALSE}
+remotes::install_github("JensWahl/stochvolTMB", dependencies = TRUE, build_vignettes = TRUE)
+```
 
 ## Example
 
@@ -61,7 +72,7 @@ t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 
-# the leverage model stand out with an AIC far below the other models
+# the leverage model stands out with an AIC far below the other models
 AIC(gaussian, t_dist, skew_gaussian, leverage)
 
 # get parameter estimates with standard error
@@ -70,6 +81,19 @@ head(estimates, 10)
 
 # plot estimated volatility with 95 % confidence interval
 plot(leverage, include_ci = TRUE, dates = spy$date)
+
+
+```
+
+Given the estimated parameters we can simulate future volatility and log-returns using `predict`. 
+```{r}
+# simulate future prices with or without parameter uncertainty
+pred = predict(leverage, steps = 10)
+
+# Calculate the mean, 2.5% and 97.5% quantiles from the simulations
+pred_summary = summary(pred, quantiles = c(0.025, 0.975), predict_mean = TRUE)
+
+print(pred_summary)
 
 # plot predicted volatility with 0.025 and 0.975 quantiles
 plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
