@@ -1,7 +1,7 @@
 #' Construct objective function with derivatives using \link[TMB]{MakeADFun}
-#'@param data vector of observations.
-#'@param model string specifying distribution of error term in observational equation.
-#'@param ... additional arguments passed to \link[TMB]{MakeADFun}.
+#'@param data Vector of observations.
+#'@param model String specifying distribution of error term in observational equation.
+#'@param ... Additional arguments passed to \link[TMB]{MakeADFun}.
 #'@return List of components returned from \link[TMB]{MakeADFun}.
 #'@export
 #'@keywords internal
@@ -10,10 +10,10 @@ get_nll <- function(data, model = "gaussian", ...) {
   # Starting values for parameters
   param <- list(log_sigma_y = 0,
                 log_sigma_h = 0, 
-                phi_logit = 2,
-                df = if (model == "t") 4 else numeric(0),
+                logit_phi = 3,
+                log_df_minus_two = if (model == "t") 2 else numeric(0),
                 alpha = if (model %in% c("skew_gaussian")) 0 else numeric(0),
-                rho_logit = if (model %in% c("leverage")) 0 else numeric(0),
+                logit_rho = if (model %in% c("leverage")) 0 else numeric(0),
                 h = rep(0, length(data)))
   
   data <- list(y = data,
@@ -76,7 +76,7 @@ estimate_parameters <- function(data, model = "gaussian", opt.control = NULL, ..
   
   if (!is.vector(data)) stop("data needs to be a vector")
   if (!is.character(model)) stop("model has to be a character")
-  if (!(model %in% c("gaussian", "skew_gaussian", "t", "leverage"))) stop("This model not implemented")
+  if (!(model %in% c("gaussian", "skew_gaussian", "t", "leverage"))) stop("This model is not implemented")
   
   # create TMB object
   obj <- get_nll(data, model, ...)
@@ -86,15 +86,12 @@ estimate_parameters <- function(data, model = "gaussian", opt.control = NULL, ..
   
   # Calculate standard error for all parameters (including latent)
   rep <- TMB::sdreport(obj)
-
-  
   opt <- list()
   class(opt) <- "stochvolTMB"
 
   opt$rep <- rep
   opt$obj <- obj
   opt$fit <- fit
-
   opt$nobs <- length(data)
   opt$model <- model
 
@@ -195,9 +192,174 @@ print.stochvolTMB <- function(x, ...) {
   cat("persistence of latent variable                  phi = ", rep[parameter == "phi", estimate], "\n", sep = "")
   cat("standard deviation of observed variable         sigma_y = ", rep[parameter == "sigma_y", estimate], "\n", sep = "")
   if ("df" %in% rep[, parameter])
-    cat("degrees of freedom for observed variable        df =", rep[parameter == "df", estimate], "\n")
+    cat("degrees of freedom of observed variable        df =", rep[parameter == "df", estimate], "\n")
   if ("rho" %in% rep[, parameter]) 
     cat("leverage effect                                 rho =", rep[parameter == "rho", estimate], "\n")
   if ("alpha" %in% rep[, parameter]) 
     cat("skewness of observed variable                   alpha = ", rep[parameter == "alpha", estimate], "\n", sep = "")
+  
+  return(invisible(x))
+}
+
+
+#' Predict future returns and future volatilities
+#' 
+#' Takes a \code{stochvolTMB} object and produces draws from the predictive distribution of the latent volatility 
+#' and future log-returns. 
+#' 
+#' @param object A \code{stochvolTMB} object returned from \code{\link{estimate_parameters}}.
+#' @param steps Integer specifying number of steps to predict. 
+#' @param nsim Number of draws from the predictive distribution.
+#' @param include_parameters  Logical value indicating if fixed parameters 
+#' should be simulated from their asymptotic distribution, i.e. 
+#' multivariate normal with inverse hessian as covariance matrix. 
+#' @param ... Not is use. 
+#' @return List of simulated values from the predictive distribution of the latent volatilities and log-returns.
+#' @export
+
+predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parameters = TRUE, ...) {
+  
+  time <- std_error <- NULL
+  
+  
+  if (!inherits(object, "stochvolTMB")) {
+    stop("`object` has to be of class `stochvolTMB`")
+  }
+  
+  if (steps < 1) {
+    stop("`steps` has to be greater or equal to 1")
+  }
+  
+  # We need an extra step for the volatility to predict the last log-return
+  if (object$model == "leverage") steps <- steps + 1
+  
+  # Get parameter estimates 
+  rep <- summary(object)
+
+  # Simulate parameters
+  if (include_parameters) {
+    
+    sim_parameters <- simulate_parameters(object, nsim = nsim)
+    if (object$model != "leverage") rho <- 0 else rho <- sim_parameters[, which(colnames(sim_parameters) == "rho")]
+    if (object$model != "t") df <- Inf else df <-  sim_parameters[, which(colnames(sim_parameters) == "df")]
+    if (object$model != "skew_gaussian") alpha <- 0 else alpha <-  sim_parameters[, which(colnames(sim_parameters) == "alpha")]
+    sigma_y <-  sim_parameters[, which(colnames(sim_parameters) == "sigma_y")]
+    sigma_h <- sim_parameters[, which(colnames(sim_parameters) == "sigma_h")]
+    phi <- sim_parameters[, which(colnames(sim_parameters) == "phi")]
+    
+  } else {
+    
+    if (object$model != "leverage") rho <- 0 else rho <- rep[parameter == "rho", estimate]
+    if (object$model != "t") df <- Inf else df <- rep[parameter == "df", estimate]
+    if (object$model != "skew_gaussian") alpha <- 0 else df <- rep[parameter == "alpha", estimate]
+    sigma_y <- rep[parameter == "sigma_y", estimate]
+    sigma_h <- rep[parameter == "sigma_h", estimate]
+    phi <- rep[parameter == "phi", estimate]
+    
+  }
+  
+  # Get last estimated volatility and simulate from its distribution to get nsim starting points
+  h_last <- rep[.N, list(estimate, std_error)]
+  h_pred <- matrix(0, nrow = steps, ncol = nsim)
+  y_pred <- matrix(0, nrow = steps, ncol = nsim)
+  h_start <- stats::rnorm(nsim, h_last$estimate, h_last$std_error)
+  
+  # Predict volatility 
+  for (i in 1:steps) {
+    if (i == 1) {
+      h_pred[i, ] <- stats::rnorm(nsim, phi * h_start, sigma_h)
+    } else {
+      h_pred[i, ] <- stats::rnorm(nsim, phi * h_pred[i - 1, ], sigma_h)
+    }
+  }  
+  
+  if (object$model == "leverage") steps <- steps - 1
+  
+  # Predict log-returns
+  for (i in 1:steps) {
+    
+    if (object$model == "skew_gaussian") {
+      
+      delta <- alpha / sqrt(1 + alpha^2)
+      omega <- 1 / sqrt(1 - 2 * delta^2 / pi)
+      xi <- -omega * delta * sqrt(2 / pi)
+      y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * sn::rsn(n = nsim, alpha = alpha, xi = xi, omega = omega)
+      
+    } else if (object$model == "t") {
+      
+      y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * sqrt((df - 2) / df) * stats::rt(nsim, df = df)      
+
+    } else if (object$model == "leverage") {
+      
+      y_pred[i, ] <- sigma_y * exp(h_pred[i, ] / 2) * (rho / sigma_h * (h_pred[i + 1, ] - phi * h_pred[i, ]) + sqrt(1 - rho^2) * stats::rnorm(nsim))
+      
+    } else {
+      
+      y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * stats::rnorm(nsim)
+      
+    }
+  }
+  
+  if (object$model == "leverage") {
+    h_pred <- h_pred[1:steps, , drop = FALSE] 
+    y_pred <- y_pred[1:steps, , drop = FALSE]
+  }
+    
+  
+  h_exp <- sigma_y * exp(h_pred / 2) 
+
+  res <- list(y = y_pred, h = h_pred, h_exp = h_exp)
+  attr(res, "steps") <- steps
+  attr(res, "nsim") <- nsim
+  class(res) <- "stochvolTMB_predict"
+  
+  return(res)
+}
+
+#' Calculate quantiles based on predictions from the predictive distribution
+#' @param object A \code{stochvolTMB_summary} object.
+#' @param ... Not used. 
+#' @param quantiles A numeric vector specifying which quantiles to calculate. 
+#' @param predict_mean bool. Should the mean be predicted? 
+#' @return A list of \code{data.table}s. One for \code{y}, \code{h} and \code{h_exp}. 
+#' @export
+summary.stochvolTMB_predict <- function(object, ..., quantiles = c(0.025, 0.975), predict_mean = TRUE) {
+  
+  time <- NULL
+  
+  if (!inherits(object, "stochvolTMB_predict")) {
+    stop("`object` should be of class stochvolTMB_predict")
+  }
+  
+  if (length(quantiles) < 1) {
+    stop("`quantiles` has to be of length 1 or greater")
+  }
+  
+  if (!all(quantiles <= 1 & quantiles >= 0)) {
+    stop("All elements of `quantiles` have to be between 0 and 1")
+  }
+  
+  # If quantile has length 1 it returns a vector, not a matrix. When cast to matrix it will be a one column matrix
+  # and should not be transposed
+  res_quant <- lapply(object, function(x) {
+    
+    if (length(quantiles) == 1) {
+      data.table(as.matrix(apply(x, 1, stats::quantile, probs = quantiles)))
+    } else {
+      data.table(t(apply(x, 1, stats::quantile, probs = quantiles)))
+    }
+  })
+  
+  lapply(res_quant, setnames, new = paste0("quantile_", quantiles))
+  lapply(res_quant, function(x) x[, time := 1:.N])
+  lapply(res_quant, data.table::setcolorder, "time")
+  
+  
+  if (predict_mean) {
+    res_mean <- lapply(object, function(x) apply(x, 1, mean))
+    lapply(1:length(res_quant), function(x) res_quant[[x]][, mean := res_mean[[x]]])
+  }
+  
+  return(res_quant)
+  
 }

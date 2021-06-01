@@ -1,61 +1,74 @@
-compile("src/stochvolTMB.cpp")
-dyn.load(dynlib("src/stochvolTMB"))
-
-
 devtools::load_all()
 library(tidyverse)
-
-nobs <- 2000
+library(stochvol)
+library(TMB)
+nobs <- 3000
 
 # Gaussian case
-param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7, df = 5)
+param <- list(phi = 0.9, sigma_h = 0.1, sigma_y = 0.2, alpha = -2, rho = -0.7, df = 5)
 
 model <- "t"
+
 # model <- 'skew_gaussian' model <- 't'
-dat <- stochvolTMB::sim_sv(param = param, nobs = nobs, model = model, seed = 123)
-obj <- stochvolTMB::get_nll(dat$y, model = "gaussian", silent = TRUE, map = list(phi_logit = factor(NA)))
-opt <- stochvolTMB::estimate_parameters(dat$y, model = model, map = list(phi_logit = factor(NA)))
+dat <- stochvolTMB::sim_sv(param = param, nobs = nobs, model = model, seed = 124)
+#dat = svsim(2000, mu = -4, phi = 0.9, nu = 5, sigma = 0.2)
+obj <- stochvolTMB::get_nll(dat$y, model = "t")
+opt <- stochvolTMB::estimate_parameters(dat$y, model = "gaussian", silent = TRUE)
+opt_true <- stochvolTMB::estimate_parameters(dat$y, model = "t", silent = TRUE)
+
 res = residuals(opt)
-
-
+res_true = residuals(opt_true)
 plot(opt)
 
-h = summary(opt, report = "random")
 
-residuals = dat$y / exp(h$estimate / 2)
+opt3 = nlminb(obj$par, obj$fn, obj$gr, control = list(trace = 1))
 
+steps = 100
+set.seed(123)
+pred = predict(opt, steps = steps, nsim = 10000, include_parameters = TRUE)
 
-X = quantmod::getSymbols("^GSPC", env = NULL, src = "yahoo",
-                         from = as.Date("2005-01-01"), to = as.Date("2019-01-01"))
+est = as.list(sdreport(opt$obj), "Est")
+sd = as.list(sdreport(opt$obj), "Std")
+plot(1:nobs, est$h, ylim = c(-1, 1), xlim = c(1950, nobs + steps), type = "l")
+lines(est$h + 2 * sd$h, col = "red")
+lines(est$h - 2 * sd$h, col = "red")
 
-X = X$GSPC.Close
-
-X <- tibble(date = index(X), price = as.vector(X$GSPC.Close))
-X <- X %>% 
-  mutate(log_return = log(price) - log(lag(price))) %>% 
-  na.omit() %>% 
-  mutate(log_return = log_return - mean(log_return))
-spy <- X
-save(spy, file = "data/spy.RData")
-opt1 <- stochvolTMB::estimate_parameters(spy$log_return, model = "leverage")
-opt2 <- stochvolTMB::estimate_parameters(spy$log_return, model = "t")
-opt3 <- stochvolTMB::estimate_parameters(spy$log_return, model = "skew_gaussian")
-opt4 <- stochvolTMB::estimate_parameters(spy$log_return, model = "gaussian")
-
-AIC(opt1)
-AIC(opt2)
-AIC(opt3)
-AIC(opt4)
+pred_mean = apply(pred$h, 1, mean)
+pred_95 = apply(pred$h, 1, quantile, probs = c(0.025, 0.975))
+lines((nobs+1):(nobs + steps), pred_mean, lty = 2, col = "red")
+lines((nobs+1):(nobs + steps), pred_95[1, ], lty = 2, col = "red")
+lines((nobs+1):(nobs + steps), pred_95[2, ], lty = 2, col = "red")
 
 
-# load data
-data("spy")
+plot(1:nobs, dat$y, ylim = c(-1, 1), xlim = c(1950, nobs + steps), type = "l")
 
-# estimate parameters 
-opt <- estimate_parameters(spy$log_return, model = "gaussian")
+pred_mean = apply(pred$y, 1, mean)
+pred_95 = apply(pred$y, 1, quantile, probs = c(0.025, 0.975))
+lines((nobs+1):(nobs + steps), pred_mean, lty = 2)
+lines((nobs+1):(nobs + steps), pred_95[1, ], lty = 2, col = "red")
+lines((nobs+1):(nobs + steps), pred_95[2, ], lty = 2, col = "red")
 
-# get parameter estimates with standard error
-estimates <- summary(opt)
 
-# plot volatility
-plot(opt, include_ci = TRUE)
+
+mod2 = svtsample(dat$y)
+mod2 = svsample(dat$y)
+pred2 = predict(mod2, steps = steps)
+volplot(mod2)
+
+pred_mean = apply(pred2$y, 2, mean)
+pred_95 = apply(pred2$y, 2, quantile, probs = c(0.025, 0.975))
+lines((nobs+1):(nobs + steps), pred_mean, lty = 3, col = "blue")
+lines((nobs+1):(nobs + steps), pred_95[1, ], lty = 3, col = "blue")
+lines((nobs+1):(nobs + steps), pred_95[2, ], lty = 3, col = "blue")
+
+
+res = summary(opt, report = "random")
+ts.plot(res$estimate)
+lines(mod2$summary$latent[, 1] - mod2$summary$para[1,1], col = "red")
+
+plot(res$estimate, mod2$summary$latent[, 1] - mod2$summary$para[1,1])
+
+
+f = function(formula, dt) {
+  lm(formula, data = dt)
+}

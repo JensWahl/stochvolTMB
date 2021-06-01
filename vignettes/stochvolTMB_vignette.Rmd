@@ -53,12 +53,14 @@ Function Name                 Description
 
 `sim_sv`                      Simulate data from a stochastic volatility model.
 
-`plot.stochvolTMB`            Plot estimated volatility (with confidence intervals).
+`plot.stochvolTMB`            Plot estimated volatility and predicted (with confidence intervals).
 
 `summary.stochvolTMB`         Extract parameter estimates and volatility with uncertainty.
+
+`predict.stochvolTMB`         Predict future volatility and returns. 
 ----------------------------- --------------------------------------------------
 
-`estimate_parameters` returns an object of class `stochvolTMB`. The `summary` function returns a `data.table` with estimated parameters, log-volatility and transformed parameters along with uncertainties, p-values and z-values. The argument `report = "fixed"` returns the parameters on the scale they were estimated. This means that the standard deviations $\sigma_y, \sigma_h$ are given on the log scale. This is done to ensure a positive estimate and $\phi$ is given on logit scale to ensure $|\phi| < 1$. If `report = c("fixed", "transformed")`, parameter estimates transformed back to their original scale is also returned. If you want to extract the estimated log-volatility you can use `report = "random"`. 
+`estimate_parameters` returns an object of class `stochvolTMB`. The `summary` function returns a `data.table` with estimated parameters, estimated log-volatility and transformed parameters along with standard errors, p-values and z-values. The argument `report = "fixed"` returns the parameters on the scale they were estimated. This means that the standard deviations $\sigma_y, \sigma_h$ are given on the log scale; the degrees of freedom is one the scale $\log (\nu - 2)$ to ensure that $\nu > 2$ (i.e. the variance exists); and lastly that the persistence parameter $\phi$ and the correlation parameter $\rho$ are estimated on a logit scale to ensure that they are between -1 and 1. If `report = c("fixed", "transformed")`, parameter estimates transformed back to their original scale is also returned. If you want to extract the estimated log-volatility you can use `report = "random"`. 
 
 # Example 
 
@@ -82,7 +84,7 @@ leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE
 We can investigate the estimate for the degrees of freedom (`df`) to see if the returns are heavy-tailed
 
 ```{r}
-summary(t_dist, report = "fixed")
+summary(t_dist, report = "transformed")
 ```
 
 Clearly the returns are more heavy tailed than Gaussian, even when controlling for the stochastic volatility. We can also check for asymmetric returns
@@ -96,7 +98,7 @@ and leverage (`rho`)
 ```{r}
 summary(leverage, report = "transformed")
 ```
-There is clear evidence for both asymmetric returns and a negative correlation (of -0.74!) between log-returns and the volatility. To find the model that fits the data best, we can compare the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of out models and pick the smallest. 
+There is clear evidence for both asymmetric returns and a negative correlation (of -0.74!) between log-returns and the volatility. To find the model that fits the data best, we can compare the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of our models and pick the smallest. 
 
 ```{r}
 
@@ -104,7 +106,6 @@ AIC(gaussian,
     t_dist, 
     skew_gaussian, 
     leverage)
-
 ```
 
 
@@ -113,6 +114,17 @@ Clearly the leverage model outperforms the others and is our preferred model for
 ```{r}
 plot(leverage, include_ci = TRUE, plot_log = TRUE, dates = spy$date)
 plot(leverage, include_ci = TRUE, plot_log = FALSE, dates = spy$date)
+```
+
+We can simulate future returns with `predict`. This function returns three matrices of dimension $\#$ steps $\times$ \#$ simulations: (1) the latent log-volatility `h`; (2) one for the percentage volatility `100 * sigma_y * exp(0.5 * h)` and (3) future returns. If the argument `include_parameters` is set to `TRUE`, the fixed parameters are simulated from their asymptotic multivariate distribution. This usually leads to broader uncertainty bands. To summarize the output from `predict`, we use the `summary` function, that calculate the mean and different quantiles based on the sumulations. We use the leverage model as an example: 
+
+```{r}
+
+pred = predict(leverage, steps = 10, include_parameters = TRUE)
+summary(pred)
+
+# plot the forecast
+plot(leverage, forecast = 50) + ggplot2::xlim(3200, nrow(spy) + 50)
 ```
 
 

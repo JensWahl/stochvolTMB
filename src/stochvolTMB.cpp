@@ -39,17 +39,18 @@ Type objective_function<Type>::operator()(){
   // Parameters-----------------
   PARAMETER(log_sigma_y); 
   PARAMETER(log_sigma_h);
-  PARAMETER(phi_logit); 
-  PARAMETER_VECTOR(df); // Degrees of freedom in t-distribution
+  PARAMETER(logit_phi); 
+  PARAMETER_VECTOR(log_df_minus_two); // Degrees of freedom in t-distribution
   PARAMETER_VECTOR(alpha); // Skewness parameter in skew normal model
-  PARAMETER_VECTOR(rho_logit); // Correlation in leverage model
+  PARAMETER_VECTOR(logit_rho); // Correlation in leverage model
   PARAMETER_VECTOR(h); // Latent process 
   
   // Transform parameters------------------
   Type sigma_y = exp(log_sigma_y);
   Type sigma_h = exp(log_sigma_h); 
-  Type phi = f(phi_logit); 
+  Type phi = f(logit_phi); 
   
+
   ADREPORT(sigma_y); 
   ADREPORT(sigma_h); 
   ADREPORT(phi); 
@@ -79,11 +80,13 @@ Type objective_function<Type>::operator()(){
       nll -= keep(i) * dnorm(y(i), Type(0), exp(h(i) / Type(2)) * sigma_y, true);
       break;
     
-    // Centered t-distibution
+    // Centered t-distribution
     // last term is contribution from jacobian of linear transformation y = a * x
     case 1:{
-      Type normalization = exp(h(i) / 2) * sigma_y * sqrt((df(0) - Type(2)) / df(0)); 
-      nll -= keep(i) * dt(y(i) / normalization, df(0), true) - log(normalization);
+      Type df = exp(log_df_minus_two(0)) + Type(2); // To assure that the variance exist
+      if(i == 0) ADREPORT(df); 
+      Type normalization = exp(h(i) / 2) * sigma_y * sqrt((df - Type(2)) / df); 
+      nll -= keep(i) * (dt(y(i) / normalization, df, true) - log(normalization));
       break; 
       }
     
@@ -102,7 +105,7 @@ Type objective_function<Type>::operator()(){
     // Leverage model - normal distribution
     case 3:{
       
-      Type rho = f(rho_logit(0));
+      Type rho = f(logit_rho(0));
       if(i == 0){
       ADREPORT(rho); // only report once
       }
@@ -111,9 +114,7 @@ Type objective_function<Type>::operator()(){
         Type eta = (h(i + 1) - phi * h(i)) / sigma_h; 
         nll -= keep(i) * dnorm(y(i), sigma_y * exp(h(i) / Type(2)) * rho * eta, sigma_y * exp(h(i) / Type(2)) * sqrt(Type(1) - rho * rho), true); 
         
-        
       }
-      
       break;
     }
       
