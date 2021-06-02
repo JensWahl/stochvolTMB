@@ -8,14 +8,11 @@
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version-last-release/stochvolTMB)](https://cran.r-project.org/package=stochvolTMB)
 [![CRAN RStudio mirror
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/stochvolTMB?color=blue)](https://r-pkg.org/pkg/stochvolTMB)
-[![R build
-status](https://github.com/JensWahl/stochvolTMB/workflows/R-CMD-check/badge.svg)](https://github.com/JensWahl/stochvolTMB/actions)
-[![License: GPL
-v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![R build
-status](https://github.com/JensWahl/stochvolTMB/workflows/R-CMD-check/badge.svg)](https://github.com/JensWahl/stochvolTMB/actions)
+[![R
+buildstatus](https://github.com/JensWahl/stochvolTMB/workflows/R-CMD-check/badge.svg)](https://github.com/JensWahl/stochvolTMB/actions)
+[![License:
+GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Lifecycle:experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
 `stochvolTMB` is a package for fitting stochastic volatility (SV) models
@@ -116,42 +113,42 @@ pred_summary = summary(pred, quantiles = c(0.025, 0.975), predict_mean = TRUE)
 print(pred_summary)
 #> $y
 #>     time quantile_0.025 quantile_0.975          mean
-#>  1:    1    -0.03530596     0.03757225  3.300051e-04
-#>  2:    2    -0.03767249     0.03780191  8.017874e-06
-#>  3:    3    -0.03712980     0.03661862 -5.433106e-05
-#>  4:    4    -0.03640837     0.03654651 -7.468461e-05
-#>  5:    5    -0.03703312     0.03599856 -7.068530e-05
-#>  6:    6    -0.03645971     0.03538847 -1.403050e-04
-#>  7:    7    -0.03529392     0.03606813 -2.398350e-05
-#>  8:    8    -0.03555084     0.03557015  1.071788e-04
-#>  9:    9    -0.03534408     0.03496998 -3.276668e-04
-#> 10:   10    -0.03519005     0.03556894 -2.169624e-05
+#>  1:    1    -0.03811074     0.03725858 -1.605944e-04
+#>  2:    2    -0.03613254     0.03807427  3.905524e-04
+#>  3:    3    -0.03689599     0.03697331 -1.170203e-04
+#>  4:    4    -0.03578552     0.03655235  1.860492e-04
+#>  5:    5    -0.03547748     0.03626548  1.165658e-04
+#>  6:    6    -0.03661546     0.03555252 -1.898271e-04
+#>  7:    7    -0.03495112     0.03523121  1.582960e-04
+#>  8:    8    -0.03567302     0.03514370  3.110404e-05
+#>  9:    9    -0.03521115     0.03470416 -3.077596e-05
+#> 10:   10    -0.03391924     0.03442448 -3.941700e-05
 #> 
 #> $h
 #>     time quantile_0.025 quantile_0.975     mean
-#>  1:    1    0.405236349       2.480368 1.443921
-#>  2:    2    0.269916662       2.512637 1.394228
-#>  3:    3    0.125157945       2.542889 1.349591
-#>  4:    4   -0.001972121       2.577818 1.305138
-#>  5:    5   -0.121634732       2.619858 1.264353
-#>  6:    6   -0.198890223       2.648988 1.222401
-#>  7:    7   -0.303325082       2.661555 1.185383
-#>  8:    8   -0.394986458       2.684556 1.148738
-#>  9:    9   -0.460562584       2.690121 1.112372
-#> 10:   10   -0.541738912       2.696165 1.081266
+#>  1:    1    0.411180931       2.509780 1.450119
+#>  2:    2    0.255810550       2.557694 1.401863
+#>  3:    3    0.104986137       2.586031 1.354629
+#>  4:    4    0.004664263       2.619603 1.310351
+#>  5:    5   -0.120600217       2.660227 1.268050
+#>  6:    6   -0.209691395       2.670629 1.227245
+#>  7:    7   -0.306100384       2.657083 1.189820
+#>  8:    8   -0.392420025       2.711739 1.153733
+#>  9:    9   -0.469962600       2.714449 1.115334
+#> 10:   10   -0.537930702       2.720761 1.079353
 #> 
 #> $h_exp
 #>     time quantile_0.025 quantile_0.975       mean
-#>  1:    1    0.010031249     0.02899963 0.01777729
-#>  2:    2    0.009438124     0.02959231 0.01746646
-#>  3:    3    0.008884923     0.02984871 0.01718800
-#>  4:    4    0.008293327     0.03067192 0.01694098
-#>  5:    5    0.007875292     0.03116576 0.01672356
-#>  6:    6    0.007534590     0.03135049 0.01642636
-#>  7:    7    0.007113160     0.03177229 0.01622501
-#>  8:    8    0.006840445     0.03203538 0.01599191
-#>  9:    9    0.006597910     0.03216773 0.01576753
-#> 10:   10    0.006292585     0.03234347 0.01559918
+#>  1:    1    0.010082253     0.02956799 0.01790438
+#>  2:    2    0.009515924     0.03051188 0.01757710
+#>  3:    3    0.008796049     0.03044210 0.01725803
+#>  4:    4    0.008247518     0.03108103 0.01699651
+#>  5:    5    0.007821668     0.03170945 0.01673759
+#>  6:    6    0.007420323     0.03200784 0.01647688
+#>  7:    7    0.007167451     0.03213425 0.01628790
+#>  8:    8    0.006796787     0.03246457 0.01610369
+#>  9:    9    0.006584324     0.03277949 0.01578397
+#> 10:   10    0.006352601     0.03281460 0.01566125
 
 # plot predicted volatility with 0.025 and 0.975 quantiles
 plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
