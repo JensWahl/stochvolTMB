@@ -118,10 +118,9 @@ logLik.stochvolTMB <- function(object, ...) {
 #' @param ... Currently not used. 
 #' @param report Parameters to report with uncertainty estimates. Can be any subset of "fixed", "transformed" or 
 #' "random" (see \link[TMB]{summary.sdreport}). "fixed" 
-#' report the parameters on the scale they were estimated, for example are all standard deviations are estimated
-#' on log scale. "transformed" 
-#' report all transformed parameters, for example estimated standard deviations transformed from log scale by taking
-#'  the exponential. Lastly, "random"
+#' report the parameters on the scale they were estimated, for example are all standard deviations estimated on 
+#' log scale. "transformed" report all transformed parameters, for example estimated standard deviations 
+#' transformed from log scale by taking the exponential. Lastly, "random"
 #' report the estimated latent log-volatility. 
 #' @return \code{data.table} with parameter estimates, standard error, z-value and approximated p-value.
 #' @export 
