@@ -28,11 +28,17 @@ Stochastic volatility (SV) models are often used to model financial returns that
 variance. The first SV model was introduced by @Taylor1982 and models the logarithm of the variance as a latent autoregressive process of 
 order one. Parameter estimation of stochastic volatility models can be challenging and a variety of methods have been 
 proposed, such as simulated likelihood [@Liesenfeld2006], quasi-maximum likelihood [@Harvey1994] and 
-Markov Chain Monte Carlo methods (MCMC) [@Shepard1998; @Kastner2016]. `stochvolTMB` takes a frequentist approach and estimates
+Markov Chain Monte Carlo methods (MCMC) [@Shepard1998; @Kastner2016]. `stochvolTMB` estimates
 the parameters using maximum likelihood, similar to @Skaug2014. The latent variables are integrated out using the Laplace approximation. 
 The models are implemented in `C++` using the `R`-package [@rCore] `TMB` [@TMB2016] for fast and efficient estimation. `TMB` utilizes 
-the `Eigen` [@Eigen2010] library for numerical linear algebra and `CppAD` [@CppAD2005] for automatic differentiation of 
+the `Eigen` library [@Eigen2010] for numerical linear algebra and `CppAD` [@CppAD2005] for automatic differentiation of 
 the negative log-likelihood. This can lead to substantial speed-up compared to MCMC methods. 
+
+
+# Statement of need
+The `stochvolTMB` `R`-package makes it easy for the user to do inference, plotting and forecasting of volatility. The `R`-package `stochvol` [@Kastner2016] also performs inference for stochastic volatility models. but differs from `stochvolTMB` as it performs Bayesian inference using MCMC and not maximum likelihood. 
+By using optimization instead of simulation one can obtain substantial speed up, depending on the data, model, number of observations and number of MCMC samples.  
+
 
 # Implementation
 
@@ -47,9 +53,9 @@ the negative log-likelihood. This can lead to substantial speed-up compared to M
         h_1 &\sim \mathcal{N} \bigg (0, \frac{\sigma_h}{\sqrt{(1 - \phi^2)}} \bigg )
     \end{aligned}
 \end{equation}
-where $y_t$ is the observed log return for day $t$, $h_t$ is the logarithm of the conditional variance of day $t$ and $\boldsymbol{\theta} = (\phi, \sigma_y, \sigma_h)$ are the fixed parameters. 
+where $y_t$ is the observed log return for day $t$, $h_t$ is the logarithm of the conditional variance of day $t$, $\boldsymbol{\theta} = (\phi, \sigma_y, \sigma_h)$ is a vector of the fixed parameters and $F$ denotes the distribution of $\epsilon_t$. 
 Four distributions are implemented for $\epsilon_t$: (1) The standard normal distribution; (2) The t-distribution with $\nu$ degrees of freedom; 
-(3) The skew-normal distribution with skewness parameter $\alpha$; and (4) The leverage model where $(\epsilon_t, \eta_t)$ are multivariate normal with zero mean and correlation
+(3) The skew-normal distribution with skewness parameter $\alpha$; and (4) The leverage model where $(\epsilon_t, \eta_t)$ are both standard normal with correlation parameter
 coefficient $\rho$. The last three distributions add an additional fixed parameter to $\boldsymbol{\theta}$. `stochvolTMB` also supports generic functions such as `plot`, `summary`, `predict` and `AIC`. The plotting is 
 implemented using `ggplot2` (@ggplot2) and data processing utilizes the `R`-package `data.table` [@datatableRpackage]. 
 
@@ -83,9 +89,7 @@ Standard deviations for the log-volatility and the fixed parameters are obtained
 <!-- importance of having more flexible distributions, even after controlling for the volatility.  -->
 
 
-`stochvolTMB` different from `R`-package `stochvol` [@Kastner2016] as `stochvol` performs Bayesian inference using MCMC.
-By using optimization instead of simulation we are able to obtain a 5-10 times speed up, dependent on the data, model 
-and number of observations. 
+
 
 
 # References

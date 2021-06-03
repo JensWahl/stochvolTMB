@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (MiKTeX 20.7) (preloaded format=xelatex 2020.12.8)  15 DEC 2020 15:03
+This is XeTeX, Version 3.14159265-2.6-0.999992 (MiKTeX 20.7) (preloaded format=xelatex 2020.12.8)  2 JUN 2021 22:59
 entering extended mode
 **./paper.tex
 (paper.tex
@@ -1234,7 +1234,7 @@ Package hyperref Warning: Suppressing link with empty target on input line 219.
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 248
+LaTeX Font Info:    Trying to load font information for U+msa on input line 260
 .
 ("C:\Users\jcw\AppData\Local\Programs\MiKTeX 2.9\tex/latex/amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -1242,7 +1242,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 fg"
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 248
+LaTeX Font Info:    Trying to load font information for U+msb on input line 260
 .
 ("C:\Users\jcw\AppData\Local\Programs\MiKTeX 2.9\tex/latex/amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -1261,17 +1261,17 @@ We now make it that large for the rest of the document.
 This may cause the page layout to be inconsistent, however.
 
 LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <8> not available
-(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 281.
+(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 283.
 [1
 
 ]
-Underfull \hbox (badness 1237) in paragraph at lines 292--295
+Underfull \hbox (badness 1237) in paragraph at lines 298--301
 []\TU/lmr/m/n/10 Bell, Brad. 2005. “CppAD: A Package for C++ Algorithmic Differ
 entiation.”
  []
 
 
-Overfull \hbox (7.65742pt too wide) in paragraph at lines 300--303
+Overfull \hbox (7.65742pt too wide) in paragraph at lines 306--309
 [][]\TU/lmr/m/n/10 Guennebaud, Gaël, Benoît Jacob, and others. 2010. “Eigen V3.
 ” http://eigen.tuxfamily.org. 
  []
@@ -1281,13 +1281,13 @@ File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
 <C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
 urces/JOSS-logo.png>
 [2]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 353.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 353.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 360.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 360.
 (paper.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 353.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 353.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 360.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 360.
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: D01077E5ACE5401D38CF217A6AF493FC;141.
+(rerunfilecheck)             Checksum: FD80535C7834331DA96C6F534B1D920A;200.
 
 LaTeX Warning: There were undefined references.
 
@@ -1301,12 +1301,12 @@ Package logreq Info: Writing requests to 'paper.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 34951 strings out of 414448
- 689799 string characters out of 2901471
- 1439501 words of memory out of 3000000
- 51707 multiletter control sequences out of 15000+200000
+ 34952 strings out of 414448
+ 689818 string characters out of 2901471
+ 1439621 words of memory out of 3000000
+ 51708 multiletter control sequences out of 15000+200000
  540064 words of font info for 67 fonts, out of 3000000 for 9000
  1348 hyphenation exceptions out of 8191
- 60i,13n,75p,1196b,800s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 60i,12n,75p,1196b,800s stack positions out of 5000i,500n,10000p,200000b,50000s
 
 Output written on paper.pdf (2 pages).
