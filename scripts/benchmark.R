@@ -4,14 +4,19 @@ library(stochvol)
 
 data(spy)
 
-gauss = mark(iterations = 20, 
+gauss = mark(iterations = 2, 
              stochvolTMB = { # create TMB object
                obj <- get_nll(spy$log_return, model = "gaussian")
-               # Optimize nll 
                fit <- stats::nlminb(obj$par, obj$fn, obj$gr)},
-             stochvol = svsample(spy$log_return), 
+               stochvol = svsample(spy$log_return, draws = 20000), 
              check = FALSE)
 
+
+
+tmp = microbenchmark::microbenchmark(stochvolTMB = { # create TMB object
+  obj <- get_nll(spy$log_return, model = "gaussian")
+  fit <- stats::nlminb(obj$par, obj$fn, obj$gr)},
+  stochvol = svsample(spy$log_return, draws = 20000), times = 2)
 
 t_dist = mark(iterations = 20, 
                       stochvolTMB = estimate_parameters(spy$log_return, model = "t"), 
