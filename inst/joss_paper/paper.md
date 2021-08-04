@@ -12,8 +12,9 @@ authors:
 - name: Jens Christian Wahl
   orcid: 0000-0002-3812-5111
   affiliation: 1
-- name: Norwegian Computing Center
-  index: 1
+affiliations:
+ - name: Norwegian Computing Center
+   index: 1
 year: 2020
 formatted_doi: XX.XXXXX/joss.XXXXX
 bibliography: paper.bib
@@ -32,12 +33,12 @@ Markov Chain Monte Carlo methods (MCMC) [@Shepard1998; @Kastner2016]. `stochvolT
 the parameters using maximum likelihood, similar to @Skaug2014. The latent variables are integrated out using the Laplace approximation. 
 The models are implemented in `C++` using the `R`-package [@rCore] `TMB` [@TMB2016] for fast and efficient estimation. `TMB` utilizes 
 the `Eigen` library [@Eigen2010] for numerical linear algebra and `CppAD` [@CppAD2005] for automatic differentiation of 
-the negative log-likelihood. This can lead to substantial speed-up compared to MCMC methods. 
+the negative log-likelihood. 
 
 
 # Statement of need
 The `stochvolTMB` `R`-package makes it easy for the user to do inference, plotting and forecasting of volatility. The `R`-package `stochvol` [@Kastner2016] also performs inference for stochastic volatility models. but differs from `stochvolTMB` as it performs Bayesian inference using MCMC and not maximum likelihood. 
-By using optimization instead of simulation one can obtain substantial speed up, depending on the data, model, number of observations and number of MCMC samples.  
+By using optimization instead of simulation one can obtain substantial speed up depending on the data, model, number of observations and number of MCMC samples.  
 
 
 # Implementation
@@ -53,6 +54,7 @@ By using optimization instead of simulation one can obtain substantial speed up,
         h_1 &\sim \mathcal{N} \bigg (0, \frac{\sigma_h}{\sqrt{(1 - \phi^2)}} \bigg )
     \end{aligned}
 \end{equation}
+
 where $y_t$ is the observed log return for day $t$, $h_t$ is the logarithm of the conditional variance of day $t$, $\boldsymbol{\theta} = (\phi, \sigma_y, \sigma_h)$ is a vector of the fixed parameters and $F$ denotes the distribution of $\epsilon_t$. 
 Four distributions are implemented for $\epsilon_t$: (1) The standard normal distribution; (2) The t-distribution with $\nu$ degrees of freedom; 
 (3) The skew-normal distribution with skewness parameter $\alpha$; and (4) The leverage model where $(\epsilon_t, \eta_t)$ are both standard normal with correlation parameter
@@ -62,31 +64,62 @@ implemented using `ggplot2` (@ggplot2) and data processing utilizes the `R`-pack
 The parameter estimation is done in an iterative two-step procedure: (1) Optimize the joint negative log-likelihood 
 with respect to the latent log-volatility $\boldsymbol{h} = (h_1, \ldots, h_T)$ holding $\boldsymbol{\theta}$ fixed, and (2) Optimizing 
 the Laplace approximation of the joint negative log-likelihood w.r.t $\boldsymbol{\theta}$. This procedure is iterated until convergence. 
-Standard deviations for the log-volatility and the fixed parameters are obtained by the delta-method [@TMB2016].
+Standard deviations for the log-volatility and the fixed parameters are obtained using a generalized delta-method [@TMB2016].
 
 
-<!-- As an example we compare the different models on log-returns for the S&P index from 2005 to 2018: -->
+# Example 
 
-<!-- ```{r warning=FALSE, message=FALSE, } -->
-<!-- library(stochvolTMB) -->
-<!-- data(spy) -->
-<!-- gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE) -->
-<!-- t_dist = estimate_parameters(spy$log_return, model = "t", silent = TRUE) -->
-<!-- skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE) -->
-<!-- leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE) -->
-<!-- ``` -->
+As an example we compare the different models on log-returns for the S&P index from 2005 to 2018:
 
-<!-- To compare competing models we can use model selection tools such as AIC (@akaike1998): -->
 
-<!-- ```{r message=FALSE} -->
-<!-- AIC(gaussian,  -->
-<!--     t_dist,  -->
-<!--     skew_gaussian,  -->
-<!--     leverage) -->
-<!-- ``` -->
+```r
+library(stochvolTMB)
+data(spy)
+gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
+t_dist = estimate_parameters(spy$log_return, model = "t", silent = TRUE)
+skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
+leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
+```
 
-<!-- Clearly the leverage model is preferred in this example. Notice that the Gaussian model performs the worst and shows the  -->
-<!-- importance of having more flexible distributions, even after controlling for the volatility.  -->
+To compare competing models we can use model selection tools such as AIC (@akaike1998):
+
+
+```r
+AIC(gaussian,
+    t_dist,
+    skew_gaussian,
+    leverage)
+```
+
+```
+##               df       AIC
+## gaussian       3 -23430.57
+## t_dist         4 -23451.69
+## skew_gaussian  4 -23440.87
+## leverage       4 -23608.85
+```
+
+Clearly the leverage model is preferred in this example. Notice that the Gaussian model performs the worst and shows the
+importance of having more flexible distributions, even after controlling for the volatility. We can plot the estimated log-volatility with 95 % confidence interval
+
+
+```r
+plot(leverage, include_ci = TRUE, dates = spy$date)
+```
+
+![](paper_files/figure-latex/unnamed-chunk-3-1.pdf)<!-- --> 
+
+Future volatility can be simulated from the estimated model. Parameter uncertainty of the fixed effects are by default included and is obtained by simulating parameter values from the asymptotic distribution, i.e. 
+a multivariate normal distribution using the observed Fisher information matrix (inverse Hessian of the log-likelihood) as covariance matrix. 
+
+
+```r
+# plot predicted volatility with 95% confidence interval
+plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$date) +
+  ggplot2::xlim(c(tail(spy$date, 1) - 150, tail(spy$date, 1) + 50))
+```
+
+![](paper_files/figure-latex/unnamed-chunk-4-1.pdf)<!-- --> 
 
 
 
