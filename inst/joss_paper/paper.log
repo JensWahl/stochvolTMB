@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (MiKTeX 20.7) (preloaded format=xelatex 2020.12.8)  4 AUG 2021 16:07
+This is XeTeX, Version 3.14159265-2.6-0.999992 (MiKTeX 20.7) (preloaded format=xelatex 2020.12.8)  6 AUG 2021 08:23
 entering extended mode
 **./paper.tex
 (paper.tex
@@ -1284,7 +1284,7 @@ LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <8> not available
 
 ]
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 342.
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 343.
 File: paper_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 <use paper_files/figure-latex/unnamed-chunk-3-1.pdf>
 File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
@@ -1299,13 +1299,13 @@ File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
 <C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
 urces/JOSS-logo.png>
 [3]
-Underfull \hbox (badness 1237) in paragraph at lines 410--413
+Underfull \hbox (badness 1237) in paragraph at lines 444--447
 [][]\TU/lmr/m/n/10 Bell, Brad. 2005. “CppAD: A Package for C++ Algorithmic Diff
 erentiation.”
  []
 
 
-Overfull \hbox (7.65742pt too wide) in paragraph at lines 418--421
+Overfull \hbox (7.65742pt too wide) in paragraph at lines 452--455
 [][]\TU/lmr/m/n/10 Guennebaud, Gaël, Benoît Jacob, and others. 2010. “Eigen V3.
 ” http://eigen.tuxfamily.org. 
  []
@@ -1315,11 +1315,16 @@ File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
 <C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
 urces/JOSS-logo.png>
 [4]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 472.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 472.
+File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
+/resources/JOSS-logo.png Graphic file (type bmp)
+<C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
+urces/JOSS-logo.png>
+[5]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 505.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 505.
 (paper.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 472.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 472.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 505.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 505.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 66282D9266381654AED5494374CA03F2;241.
 Package logreq Info: Writing requests to 'paper.run.xml'.
@@ -1335,4 +1340,4 @@ Here is how much of TeX's memory you used:
  1348 hyphenation exceptions out of 8191
  60i,13n,75p,1196b,800s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on paper.pdf (4 pages).
+Output written on paper.pdf (5 pages).
