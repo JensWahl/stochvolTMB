@@ -109,7 +109,7 @@ AIC(gaussian,
 ```
 
 
-Clearly the leverage model outperforms the others and is our preferred model for this dataset. Lastly, we can also plot the estimated log-volatility and percentage volatility
+Clearly the leverage model outperforms the others and is our preferred model for this dataset. Lastly, we can also plot the estimated log-volatility and volatility:
 
 ```{r}
 plot(leverage, include_ci = TRUE, plot_log = TRUE, dates = spy$date)
