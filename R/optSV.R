@@ -330,6 +330,10 @@ summary.stochvolTMB_predict <- function(object, ..., quantiles = c(0.025, 0.975)
     stop("`object` should be of class stochvolTMB_predict")
   }
   
+  if (anyNA(quantiles)) {
+    stop("`quantiles` is NA")
+  }
+  
   if (length(quantiles) < 1) {
     stop("`quantiles` has to be of length 1 or greater")
   }
