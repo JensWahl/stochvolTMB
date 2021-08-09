@@ -12,7 +12,7 @@ plot_forecast(p, forecast, include_ci = TRUE)
 \item{forecast}{data.table}
 
 \item{include_ci}{logical value indicating if volatility should be plotted
-with approximately 95 \% confidence interval.#' @return ggplot object}
+with approximately 95\% confidence interval.#' @return ggplot object}
 }
 \description{
 Adds predicted volatility to the volatility plot.

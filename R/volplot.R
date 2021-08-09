@@ -5,7 +5,7 @@
 #' @param x A \code{stochvolTMB} object returned from \link{estimate_parameters}.
 #' @param ... Currently not used.
 #' @param include_ci Logical value indicating if volatility should be plotted
-#'   with approximately 95 \% confidence interval.
+#'   with approximately 95\% confidence interval.
 #' @param plot_log Logical value indicating if the estimated should be plotted
 #'   on log or original scale. If \code{plot_log = TRUE} the process h is
 #'   plotted. If \code{plot_log = FALSE} 100 \code{sigma_y} exp(\code{h} / 2) is
@@ -79,7 +79,7 @@ plot.stochvolTMB <- function(x, ...,
         ggplot2::geom_line(ggplot2::aes(time, h_upper), color = "grey", size = 0.3) + 
         ggplot2::geom_line(ggplot2::aes(time, h_lower), color = "grey", size = 0.3) + 
         ggplot2::geom_ribbon(ggplot2::aes(time, ymax = h_upper, ymin = h_lower), fill = "grey", alpha = 0.1) + 
-        ggplot2::ggtitle("Estimated log volatility with 95 % confidence interval")
+        ggplot2::ggtitle("Estimated log volatility with 95% confidence interval")
       
       
       if (!is.null(forecast)) {
@@ -116,7 +116,7 @@ plot.stochvolTMB <- function(x, ...,
         ggplot2::geom_line(ggplot2::aes(time, volatility_lower), color = "grey", size = 0.3) + 
         ggplot2::geom_ribbon(ggplot2::aes(time, ymax = volatility_upper, ymin = volatility_lower), 
                              fill = "grey", alpha = 0.1) + 
-        ggplot2::ggtitle("Estimated volatility with 95 % confidence interval")
+        ggplot2::ggtitle("Estimated volatility with 95% confidence interval")
       
     } 
     
@@ -136,7 +136,7 @@ plot.stochvolTMB <- function(x, ...,
 #' @param p ggplot object 
 #' @param forecast data.table 
 #' @param include_ci logical value indicating if volatility should be plotted
-#'   with approximately 95 \% confidence interval.#' @return ggplot object 
+#'   with approximately 95\% confidence interval.#' @return ggplot object 
 #' @keywords internal
 #' @export
 

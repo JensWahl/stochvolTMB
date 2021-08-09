@@ -12,7 +12,7 @@
 \item{...}{Currently not used.}
 
 \item{include_ci}{Logical value indicating if volatility should be plotted
-with approximately 95 \% confidence interval.}
+with approximately 95\% confidence interval.}
 
 \item{plot_log}{Logical value indicating if the estimated should be plotted
 on log or original scale. If \code{plot_log = TRUE} the process h is
