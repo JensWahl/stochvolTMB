@@ -55,16 +55,35 @@ test_that("Test predict.R", {
 # Data ------------------------------------------------------------------------------------------------------------
 
   opt <- readRDS("test_objects/test_summary.rds")
-  expect_error(predict(opt, steps = 0))
 
-  
-
-# Tests -----------------------------------------------------------------------------------------------------------
   set.seed(123)
   steps <- 10; nsim <- 10000
   pred <- predict(opt, steps = steps, nsim = nsim, include_parameters = FALSE)
+
+# Tests -----------------------------------------------------------------------------------------------------------
+
+  expect_error(predict(opt, steps = 0))
   expect_named(pred, c("y", "h", "h_exp"))
   expect_equal(dim(pred$y), c(steps, nsim))
   expect_equal(dim(pred$h), c(steps, nsim))
+  
+  # Test summary(predict)
+  srep <- summary(pred, quantiles = c(0.025, 0.975), predict_mean = TRUE)
+  expect_equal(length(srep), 3)
+  expect_equal(nrow(srep$y), steps)
+  expect_equal(nrow(srep$h), steps)
+  expect_equal(nrow(srep$h_exp), steps)
+  expect_true(all(c("quantile_0.025", "quantile_0.975", "mean") %in% names(srep$y)))
+  
+  
+  # Do not include mean
+  srep <- summary(pred, quantiles = c(0.025, 0.975), predict_mean = FALSE)
+  expect_true(!"mean" %in% names(srep$y))
+  
+  # Wrong quantiles
+  expect_error(summary(pred, quantiles = c(0.025, 1.975)))
+  expect_error(summary(pred, quantiles = NA))
+  expect_error(summary(pred, quantiles = NULL))
+  
   
 })
