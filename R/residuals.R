@@ -13,15 +13,14 @@
 
 residuals <- function(object, conditional = 1:(object$nobs - 100), ...) {
   
-residuals <- TMB::oneStepPredict(object$obj, 
-                                 observation.name = "y",
-                                 data.term.indicator = "keep",
-                                 discrete = FALSE,
-                                 method = "oneStepGeneric",
-                                 conditional = conditional,
-                                 parallel = TRUE,
-                                 reverse = TRUE)
-  
-  
-    return(residuals$residual)
+  residuals <- TMB::oneStepPredict(object$obj, 
+                                   observation.name = "y",
+                                   data.term.indicator = "keep",
+                                   discrete = FALSE,
+                                   method = "oneStepGeneric",
+                                   conditional = conditional,
+                                   parallel = TRUE,
+                                   reverse = TRUE)
+    
+  return(residuals$residual)
 }
