@@ -84,6 +84,7 @@ plot(leverage, include_ci = TRUE, dates = spy$date)
 
 Given the estimated parameters we can simulate future volatility and log-returns using `predict`. 
 ```{r}
+set.seed(123)
 # simulate future prices with or without parameter uncertainty
 pred = predict(leverage, steps = 10)
 
