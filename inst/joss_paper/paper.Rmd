@@ -56,8 +56,8 @@ By using optimization instead of simulations one can obtain substantial speed up
 \end{equation}
 
 where $y_t$ is the observed log return for day $t$, $h_t$ is the logarithm of the conditional variance of day $t$ and is modelled as an AR(1) process, $\boldsymbol{\theta} = (\phi, \sigma_y, \sigma_h)$ is a vector of the fixed parameters and $F$ denotes the distribution of $\epsilon_t$. 
-Four distributions are implemented for $\epsilon_t$: (1) The standard normal distribution; (2) The $t$-distribution with $\nu$ degrees of freedom; 
-(3) The skew-normal distribution with skewness parameter $\alpha$; and (4) The leverage model where $(\epsilon_t, \eta_t)$ are both standard normal with correlation
+Four distributions are implemented for $\epsilon_t$: (1) The standard Gaussian distribution; (2) The $t$-distribution with $\nu$ degrees of freedom; 
+(3) The skew-Gaussian distribution with skewness parameter $\alpha$; and (4) The leverage model where $(\epsilon_t, \eta_t)$ are both standard Gaussian with correlation
 coefficient $\rho$. The last three distributions add an additional fixed parameter to $\boldsymbol{\theta}$. `stochvolTMB` also supports generic functions such as `plot`, `summary`, `predict` and `AIC`. The plotting is 
 implemented using `ggplot2` [@ggplot2] and data processing utilizes the `R`-package `data.table` [@datatableRpackage]. 
 
@@ -96,7 +96,7 @@ importance of having more flexible distributions, even after controlling for the
 plot(leverage, plot_log = FALSE, dates = spy$date)
 ```
 
-Future volatility can be simulated from the estimated model. Parameter uncertainty of the fixed effects is by default included and is obtained by simulating parameter values from the asymptotic distribution, i.e. a multivariate normal distribution using the observed Fisher information matrix (inverse Hessian of the negative log-likelihood) as the covariance matrix. 
+Future volatility can be simulated from the estimated model. Parameter uncertainty of the fixed effects is by default included and is obtained by simulating parameter values from the asymptotic distribution, i.e. a multivariate Gaussian distribution using the observed Fisher information matrix (inverse Hessian of the negative log-likelihood) as the covariance matrix. 
 
 ```{r warning=FALSE, message=FALSE}
 set.seed(123)
