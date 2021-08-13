@@ -15,16 +15,11 @@
     sub-directories of 1Mb or more:
       libs  19.5Mb
 
-> checking R code for possible problems ... NOTE
-  plot.stochvolTMB: no visible global function definition for 'predict'
-  Undefined global functions or variables:
-    predict
-  Consider adding
-    importFrom("stats", "predict")
-  to your NAMESPACE file.
 
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
 
 
+## Submitter's comment: The feedback from last submission has been adressed:
+Fixed (possibly) invalid URL from tidyverse 
