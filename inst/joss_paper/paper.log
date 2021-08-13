@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (MiKTeX 20.7) (preloaded format=xelatex 2020.12.8)  13 AUG 2021 10:50
+This is XeTeX, Version 3.14159265-2.6-0.999992 (MiKTeX 20.7) (preloaded format=xelatex 2020.12.8)  13 AUG 2021 16:21
 entering extended mode
 **./paper.tex
 (paper.tex
@@ -1299,13 +1299,17 @@ File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
 <C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
 urces/JOSS-logo.png>
 [3]
-Underfull \hbox (badness 1237) in paragraph at lines 445--448
+Underfull \hbox (badness 1237) in paragraph at lines 446--449
 [][]\TU/lmr/m/n/10 Bell, Brad. 2005. “CppAD: A Package for C++ Algorithmic Diff
 erentiation.”
  []
 
-
-Overfull \hbox (7.65742pt too wide) in paragraph at lines 453--456
+File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
+/resources/JOSS-logo.png Graphic file (type bmp)
+<C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
+urces/JOSS-logo.png>
+[4]
+Overfull \hbox (7.65742pt too wide) in paragraph at lines 454--457
 [][]\TU/lmr/m/n/10 Guennebaud, Gaël, Benoît Jacob, and others. 2010. “Eigen V3.
 ” http://eigen.tuxfamily.org. 
  []
@@ -1314,17 +1318,12 @@ File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
 /resources/JOSS-logo.png Graphic file (type bmp)
 <C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
 urces/JOSS-logo.png>
-[4]
-File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
-/resources/JOSS-logo.png Graphic file (type bmp)
-<C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
-urces/JOSS-logo.png>
 [5]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 506.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 506.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 507.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 507.
 (paper.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 506.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 506.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 507.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 507.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 66282D9266381654AED5494374CA03F2;241.
 Package logreq Info: Writing requests to 'paper.run.xml'.
@@ -1334,7 +1333,7 @@ Package logreq Info: Writing requests to 'paper.run.xml'.
 Here is how much of TeX's memory you used:
  35487 strings out of 414448
  698146 string characters out of 2901471
- 1449687 words of memory out of 3000000
+ 1448687 words of memory out of 3000000
  52220 multiletter control sequences out of 15000+200000
  544733 words of font info for 88 fonts, out of 3000000 for 9000
  1348 hyphenation exceptions out of 8191

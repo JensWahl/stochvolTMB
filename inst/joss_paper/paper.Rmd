@@ -96,7 +96,7 @@ importance of having more flexible distributions, even after controlling for the
 plot(leverage, plot_log = FALSE, dates = spy$date)
 ```
 
-Future volatility can be simulated from the estimated model. Parameter uncertainty of the fixed effects is by default included and is obtained by simulating parameter values from the asymptotic distribution, i.e. a multivariate normal distribution using the observed Fisher information matrix (inverse Hessian of the log-likelihood) as the covariance matrix. 
+Future volatility can be simulated from the estimated model. Parameter uncertainty of the fixed effects is by default included and is obtained by simulating parameter values from the asymptotic distribution, i.e. a multivariate normal distribution using the observed Fisher information matrix (inverse Hessian of the negative log-likelihood) as the covariance matrix. 
 
 ```{r warning=FALSE, message=FALSE}
 set.seed(123)

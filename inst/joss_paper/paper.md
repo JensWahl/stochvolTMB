@@ -109,7 +109,7 @@ plot(leverage, plot_log = FALSE, dates = spy$date)
 
 ![](paper_files/figure-latex/unnamed-chunk-3-1.pdf)<!-- --> 
 
-Future volatility can be simulated from the estimated model. Parameter uncertainty of the fixed effects are by default included and is obtained by simulating parameter values from the asymptotic distribution, i.e. a multivariate normal distribution using the observed Fisher information matrix (inverse Hessian of the log-likelihood) as covariance matrix. 
+Future volatility can be simulated from the estimated model. Parameter uncertainty of the fixed effects is by default included and is obtained by simulating parameter values from the asymptotic distribution, i.e. a multivariate normal distribution using the observed Fisher information matrix (inverse Hessian of the negative log-likelihood) as the covariance matrix. 
 
 
 ```r
