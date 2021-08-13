@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (MiKTeX 20.7) (preloaded format=xelatex 2020.12.8)  6 AUG 2021 08:23
+This is XeTeX, Version 3.14159265-2.6-0.999992 (MiKTeX 20.7) (preloaded format=xelatex 2020.12.8)  13 AUG 2021 10:50
 entering extended mode
 **./paper.tex
 (paper.tex
@@ -1299,13 +1299,13 @@ File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
 <C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
 urces/JOSS-logo.png>
 [3]
-Underfull \hbox (badness 1237) in paragraph at lines 444--447
+Underfull \hbox (badness 1237) in paragraph at lines 445--448
 [][]\TU/lmr/m/n/10 Bell, Brad. 2005. “CppAD: A Package for C++ Algorithmic Diff
 erentiation.”
  []
 
 
-Overfull \hbox (7.65742pt too wide) in paragraph at lines 452--455
+Overfull \hbox (7.65742pt too wide) in paragraph at lines 453--456
 [][]\TU/lmr/m/n/10 Guennebaud, Gaël, Benoît Jacob, and others. 2010. “Eigen V3.
 ” http://eigen.tuxfamily.org. 
  []
@@ -1320,11 +1320,11 @@ File: C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss
 <C:/Users/jcw/Documents/R/win-library/4.0/rticles/rmarkdown/templates/joss/reso
 urces/JOSS-logo.png>
 [5]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 505.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 505.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 506.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 506.
 (paper.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 505.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 505.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 506.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 506.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 66282D9266381654AED5494374CA03F2;241.
 Package logreq Info: Writing requests to 'paper.run.xml'.
