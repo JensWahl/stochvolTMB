@@ -10,3 +10,5 @@ src-x64/
 inst/doc
 doc
 Meta
+/doc/
+/Meta/
