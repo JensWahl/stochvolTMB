@@ -1,8 +1,8 @@
 Package: stochvolTMB
 Type: Package
 Title: Likelihood Estimation of Stochastic Volatility Models
-Version: 0.2.0
-Date: 2021-08-09
+Version: 0.3.0
+Date: 2025-01-29
 Author: Jens Christian Wahl <jens.c.wahl@gmail.com>
 Maintainer: Jens Christian Wahl <jens.c.wahl@gmail.com>
 Description: Parameter estimation for stochastic volatility models using maximum likelihood. The latent log-volatility is 
