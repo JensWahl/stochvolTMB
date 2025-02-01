@@ -3,8 +3,7 @@ Type: Package
 Title: Likelihood Estimation of Stochastic Volatility Models
 Version: 0.3.0
 Date: 2025-01-29
-Author: Jens Christian Wahl <jens.c.wahl@gmail.com>
-Maintainer: Jens Christian Wahl <jens.c.wahl@gmail.com>
+Authors@R: person("Jens", "Wahl", role = c("aut", "cre"), email = "jens.c.wahl@gmail.com")
 Description: Parameter estimation for stochastic volatility models using maximum likelihood. The latent log-volatility is 
     integrated out of the likelihood using the Laplace approximation. The models are fitted via 'TMB' (Template Model
     Builder) (Kristensen, Nielsen, Berg, Skaug, and Bell (2016) <doi:10.18637/jss.v070.i05>). 
