@@ -9,18 +9,19 @@ get_nll <- function(data, model = "gaussian", ...) {
 
   # Starting values for parameters
   param <- list(log_sigma_y = 0,
-                log_sigma_h = 0, 
+                log_sigma_h = 0,
                 logit_phi = 3,
                 log_df_minus_two = if (model == "t") 2 else numeric(0),
-                alpha = if (model %in% c("skew_gaussian")) 0 else numeric(0),
-                logit_rho = if (model %in% c("leverage")) 0 else numeric(0),
+                alpha = if (model %in% c("skew_gaussian", "skew_gaussian_leverage")) 0 else numeric(0),
+                logit_rho = if (model %in% c("leverage", "skew_gaussian_leverage")) 0 else numeric(0),
                 h = rep(0, length(data)))
   
   data <- list(y = data,
                model = ifelse(model == "gaussian", 0,
-                               ifelse(model == "t", 1, 
-                                      ifelse(model == "skew_gaussian", 2,
-                                             ifelse(model == "leverage", 3, 4)))))
+                              ifelse(model == "t", 1,
+                                     ifelse(model == "skew_gaussian", 2,
+                                            ifelse(model == "leverage", 3,
+                                                   ifelse(model == "skew_gaussian_leverage", 4, 5))))))
   
   obj <- TMB::MakeADFun(data = data, parameters = param, random = "h", DLL = "stochvolTMB", ...)
   
@@ -42,6 +43,7 @@ get_nll <- function(data, model = "gaussian", ...) {
 #' \item Leverage: Gaussian distribution with leverage where the noise of the latent process is correlated with the
 #'  observational distribution
 #' \item Skew gaussian distribution
+#' \item Skew gaussian with leverage: Skew gaussian distribution with leverage
 #' }
 #' 
 #' The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is 
@@ -49,7 +51,7 @@ get_nll <- function(data, model = "gaussian", ...) {
 #' 
 #' @param data A vector of observations.
 #' @param model A character specifying the model. Must be one of the following:
-#'  "gaussian", "t", "leverage", "skew_gaussian".
+#'  "gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage".
 #' @param opt.control An optional list of parameters for nlminb.
 #' @param ... additional arguments passed to \link[TMB]{MakeADFun}.
 #' 
@@ -76,7 +78,7 @@ estimate_parameters <- function(data, model = "gaussian", opt.control = NULL, ..
   
   if (!is.vector(data)) stop("data needs to be a vector")
   if (!is.character(model)) stop("model has to be a character")
-  if (!(model %in% c("gaussian", "skew_gaussian", "t", "leverage"))) stop("This model is not implemented")
+  if (!(model %in% c("gaussian", "skew_gaussian", "t", "leverage", "skew_gaussian_leverage"))) stop("This model is not implemented")
   
   # create TMB object
   obj <- get_nll(data, model, ...)
@@ -230,7 +232,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
   }
   
   # We need an extra step for the volatility to predict the last log-return
-  if (object$model == "leverage") steps <- steps + 1
+  if (object$model %in% c("leverage", "skew_gaussian_leverage")) steps <- steps + 1
   
   # Get parameter estimates 
   rep <- summary(object)
@@ -239,22 +241,22 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
   if (include_parameters) {
     
     sim_parameters <- simulate_parameters(object, nsim = nsim)
-    if (object$model != "leverage") rho <- 0 else rho <- sim_parameters[, which(colnames(sim_parameters) == "rho")]
+    if (!(object$model %in% c("leverage", "skew_gaussian_leverage"))) rho <- 0 else rho <- sim_parameters[, which(colnames(sim_parameters) == "rho")]
     if (object$model != "t") df <- Inf else df <-  sim_parameters[, which(colnames(sim_parameters) == "df")]
-    if (object$model != "skew_gaussian") alpha <- 0 else alpha <-  sim_parameters[, which(colnames(sim_parameters) == "alpha")]
+    if (!(object$model %in% c("skew_gaussian", "skew_gaussian_leverage"))) alpha <- 0 else alpha <-  sim_parameters[, which(colnames(sim_parameters) == "alpha")]
     sigma_y <-  sim_parameters[, which(colnames(sim_parameters) == "sigma_y")]
     sigma_h <- sim_parameters[, which(colnames(sim_parameters) == "sigma_h")]
     phi <- sim_parameters[, which(colnames(sim_parameters) == "phi")]
     
   } else {
-    
-    if (object$model != "leverage") rho <- 0 else rho <- rep[parameter == "rho", estimate]
+
+    if (!(object$model %in% c("leverage", "skew_gaussian_leverage"))) rho <- 0 else rho <- rep[parameter == "rho", estimate]
     if (object$model != "t") df <- Inf else df <- rep[parameter == "df", estimate]
-    if (object$model != "skew_gaussian") alpha <- 0 else df <- rep[parameter == "alpha", estimate]
+    if (!(object$model %in% c("skew_gaussian", "skew_gaussian_leverage"))) alpha <- 0 else alpha <- rep[parameter == "alpha", estimate]
     sigma_y <- rep[parameter == "sigma_y", estimate]
     sigma_h <- rep[parameter == "sigma_h", estimate]
     phi <- rep[parameter == "phi", estimate]
-    
+
   }
   
   # Get last estimated volatility and simulate from its distribution to get nsim starting points
@@ -272,34 +274,44 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
     }
   }  
   
-  if (object$model == "leverage") steps <- steps - 1
-  
+  if (object$model %in% c("leverage", "skew_gaussian_leverage")) steps <- steps - 1
+
   # Predict log-returns
   for (i in 1:steps) {
-    
+
     if (object$model == "skew_gaussian") {
-      
+
       delta <- alpha / sqrt(1 + alpha^2)
       omega <- 1 / sqrt(1 - 2 * delta^2 / pi)
       xi <- -omega * delta * sqrt(2 / pi)
       y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * sn::rsn(n = nsim, alpha = alpha, xi = xi, omega = omega)
-      
+
     } else if (object$model == "t") {
-      
-      y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * sqrt((df - 2) / df) * stats::rt(nsim, df = df)      
+
+      y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * sqrt((df - 2) / df) * stats::rt(nsim, df = df)
 
     } else if (object$model == "leverage") {
-      
+
       y_pred[i, ] <- sigma_y * exp(h_pred[i, ] / 2) * (rho / sigma_h * (h_pred[i + 1, ] - phi * h_pred[i, ]) + sqrt(1 - rho^2) * stats::rnorm(nsim))
-      
+
+    } else if (object$model == "skew_gaussian_leverage") {
+
+      # Standardized skew-normal parameters (mean 0, variance 1)
+      delta <- alpha / sqrt(1 + alpha^2)
+      omega <- 1 / sqrt(1 - 2 * delta^2 / pi)
+      xi <- -omega * delta * sqrt(2 / pi)
+      eta <- (h_pred[i + 1, ] - phi * h_pred[i, ]) / sigma_h
+      z <- sn::rsn(n = nsim, alpha = alpha, xi = xi, omega = omega)
+      y_pred[i, ] <- sigma_y * exp(h_pred[i, ] / 2) * (rho * eta + sqrt(1 - rho^2) * z)
+
     } else {
-      
+
       y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * stats::rnorm(nsim)
-      
+
     }
   }
-  
-  if (object$model == "leverage") {
+
+  if (object$model %in% c("leverage", "skew_gaussian_leverage")) {
     h_pred <- h_pred[1:steps, , drop = FALSE] 
     y_pred <- y_pred[1:steps, , drop = FALSE]
   }

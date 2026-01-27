@@ -10,7 +10,7 @@ test_that("Test sim_sv", {
                 alpha = 5,
                 rho = -0.7)
   nobs <- 1000
-  models <- c("gaussian", "t", "leverage", "skew_gaussian")
+  models <- c("gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage")
   
   for (model in models) {
     
@@ -40,8 +40,9 @@ test_that("Test sim_sv", {
   
   param$rho <- -1.2
   expect_error(sim_sv(param, model = "leverage"))
-  
-  
+  expect_error(sim_sv(param, model = "skew_gaussian_leverage"))
+
+
 })
 
 test_that("Test simulate_parameters", {

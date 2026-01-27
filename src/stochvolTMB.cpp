@@ -77,7 +77,7 @@ Type objective_function<Type>::operator()(){
     // Centered t-distribution
     // last term is contribution from jacobian of linear transformation y = a * x
     case 1:{
-      Type df = exp(log_df_minus_two(0)) + Type(2); // To assure that the variance exist
+      Type df = exp(log_df_minus_two(0)) + Type(2); // To ensure that the variance exist
       if(i == 0) ADREPORT(df); 
       Type normalization = exp(h(i) / 2) * sigma_y * sqrt((df - Type(2)) / df); 
       nll -= keep(i) * (dt(y(i) / normalization, df, true) - log(normalization));
@@ -107,11 +107,32 @@ Type objective_function<Type>::operator()(){
       break;
     }
       
-    // TODO: 
+    // Skew gaussian with leverage model
+    case 4:{
+      Type rho = f(logit_rho(0));
+      if(i == 0){
+        ADREPORT(rho);
+      }
+      if(i < (N - 1)){
+        Type eta = (h(i + 1) - phi * h(i)) / sigma_h;
+        Type scale_base = sigma_y * exp(h(i) / Type(2));
+        Type mean_cond = scale_base * rho * eta;
+        Type scale_cond = scale_base * sqrt(Type(1) - rho * rho);
+
+        // Skew-normal parameters adjusted for conditional mean and scale
+        Type delta = alpha(0) / sqrt(Type(1) + alpha(0) * alpha(0));
+        Type omega = scale_cond / sqrt(Type(1) - Type(2) * delta * delta / M_PI);
+        Type xi = mean_cond - omega * delta * sqrt(Type(2) / M_PI);
+
+        nll -= keep(i) * skew_norm(y(i), alpha(0), omega, xi, true);
+      }
+      break;
+    }
+
+    // TODO:
     // Skew t distribution
-    // Skew gaussian with leverage
     // Skew t with leverage
-    
+
     default:
       Rf_error("This distribution is not implementet!");
       break;

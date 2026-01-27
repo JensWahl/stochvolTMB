@@ -41,4 +41,11 @@ l[[model]]$par <- opt$fit$par
 l[[model]]$objective <- opt$fit$objective
 l[[model]]$y <- data$y
 
+model <- "skew_gaussian_leverage"
+data <- sim_sv(param = param, nobs = nobs, seed = seed, model = model)
+opt <- estimate_parameters(data$y, model = model)
+l[[model]]$par <- opt$fit$par
+l[[model]]$objective <- opt$fit$objective
+l[[model]]$y <- data$y
+
 saveRDS(l, "tests/testthat/test_objects/test_parameter_estimates.rds")

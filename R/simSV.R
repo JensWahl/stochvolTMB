@@ -55,7 +55,7 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
   }
   
   # We need an extra observation to simulate the last y
-  if (model == "leverage") nobs <- nobs + 1
+  if (model %in% c("leverage", "skew_gaussian_leverage")) nobs <- nobs + 1
   
   # Set seed if specified
   if (!is.null(seed)) set.seed(seed)
@@ -105,7 +105,7 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     attr(y, "parameters") <- NULL
     
   } else if (model == "leverage") {
-    
+
     if (abs(param$rho) >= 1) {
       stop("Correlation parameter `rho` is not between -1 and 1")
     }
@@ -117,7 +117,31 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     # Remove the last value
     y <- y[-nobs]
     h <- h[-nobs]
-    
+
+  } else if (model == "skew_gaussian_leverage") {
+
+    if (abs(param$rho) >= 1) {
+      stop("Correlation parameter `rho` is not between -1 and 1")
+    }
+
+    # parameters specific for skew gaussian leverage model
+    alpha <- param$alpha
+    rho <- param$rho
+
+    # Standardized skew-normal parameters (mean 0, variance 1)
+    delta <- alpha / sqrt(1 + alpha^2)
+    omega <- 1 / sqrt(1 - 2 * delta^2 / pi)
+    xi <- -omega * delta * sqrt(2 / pi)
+
+    for (i in 1:(nobs - 1)) {
+      eta <- (h[i + 1] - phi * h[i]) / sigma_h
+      z <- sn::rsn(n = 1, alpha = alpha, xi = xi, omega = omega)
+      y[i] <- sigma_y * exp(h[i] / 2) * (rho * eta + sqrt(1 - rho^2) * z)
+    }
+    # Remove the last value
+    y <- y[-nobs]
+    h <- h[-nobs]
+
   } else {
     stop(paste0("The model ", model, " has not been implemented"))
   }

@@ -7,7 +7,7 @@ test_that("Test estimate_parameters.R", {
   # Data --------------------------------------------------------------------
   
   results <- readRDS("test_objects/test_parameter_estimates.rds")
-  models <- c("gaussian", "t", "leverage", "skew_gaussian")
+  models <- c("gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage")
 
 # Tests -------------------------------------------------------------------
   opt <- list()
@@ -84,6 +84,32 @@ test_that("Test predict.R", {
   expect_error(summary(pred, quantiles = c(0.025, 1.975)))
   expect_error(summary(pred, quantiles = NA))
   expect_error(summary(pred, quantiles = NULL))
-  
-  
+
+
+})
+
+test_that("Test predict.R for skew_gaussian_leverage", {
+
+# Data ------------------------------------------------------------------------------------------------------------
+
+  param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7)
+  data <- sim_sv(param = param, nobs = 500, seed = 123, model = "skew_gaussian_leverage")
+  opt <- estimate_parameters(data$y, model = "skew_gaussian_leverage", silent = TRUE)
+
+  set.seed(123)
+  steps <- 10; nsim <- 1000
+  pred <- predict(opt, steps = steps, nsim = nsim, include_parameters = FALSE)
+
+# Tests -----------------------------------------------------------------------------------------------------------
+
+  expect_named(pred, c("y", "h", "h_exp"))
+  expect_equal(dim(pred$y), c(steps, nsim))
+  expect_equal(dim(pred$h), c(steps, nsim))
+
+  # Test with include_parameters = TRUE
+  set.seed(123)
+  pred_with_params <- predict(opt, steps = steps, nsim = nsim, include_parameters = TRUE)
+  expect_named(pred_with_params, c("y", "h", "h_exp"))
+  expect_equal(dim(pred_with_params$y), c(steps, nsim))
+
 })
