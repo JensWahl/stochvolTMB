@@ -113,3 +113,35 @@ test_that("Test predict.R for skew_gaussian_leverage", {
   expect_equal(dim(pred_with_params$y), c(steps, nsim))
 
 })
+
+test_that("skew gaussian models do not get stuck at alpha = 0 or diverge to |rho| = 1", {
+
+  param <- list(phi = 0.9, sigma_h = 0.3, sigma_y = 0.2, alpha = 5, rho = -0.8)
+
+  for (model in c("skew_gaussian", "skew_gaussian_leverage")) {
+    for (seed in 1:3) {
+      data <- sim_sv(param = param, nobs = 1000, seed = seed, model = model)
+      opt <- estimate_parameters(data$y, model = model, silent = TRUE)
+      est <- summary(opt, report = "transformed")
+
+      expect_equal(opt$fit$convergence, 0)
+      expect_true(opt$rep$pdHess)
+      expect_gt(est[parameter == "alpha", estimate], 2)
+      if (model == "skew_gaussian_leverage") {
+        expect_lt(abs(est[parameter == "rho", estimate] - param$rho), 0.15)
+      }
+    }
+  }
+
+})
+
+test_that("skewness_to_alpha inverts the skewness of the skew gaussian distribution", {
+
+  alpha <- c(-20, -3, -0.5, 0.1, 1, 8)
+  delta <- alpha / sqrt(1 + alpha^2)
+  mu <- delta * sqrt(2 / pi)
+  skewness <- (4 - pi) / 2 * mu^3 / (1 - mu^2)^(3 / 2)
+
+  expect_equal(skewness_to_alpha(skewness), alpha, tolerance = 1e-8)
+
+})

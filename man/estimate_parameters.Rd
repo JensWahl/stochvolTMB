@@ -10,7 +10,7 @@ estimate_parameters(data, model = "gaussian", opt.control = NULL, ...)
 \item{data}{A vector of observations.}
 
 \item{model}{A character specifying the model. Must be one of the following:
-"gaussian", "t", "leverage", "skew_gaussian".}
+"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage".}
 
 \item{opt.control}{An optional list of parameters for nlminb.}
 
@@ -26,16 +26,31 @@ autoregressive process of order one with normally distributed noise.
 The following distributions are implemented for the observed process: 
 
 \itemize{
-\item Gaussian distribution
-\item t-distribution
-\item Leverage: Gaussian distribution with leverage where the noise of the latent process is correlated with the
- observational distribution
-\item Skew gaussian distribution
+\item \code{"gaussian"}: Gaussian distribution.
+\item \code{"t"}: t-distribution, scaled to unit variance. Estimates the degrees of freedom \code{df}.
+\item \code{"leverage"}: Gaussian distribution where the noise of the latent process is correlated with the
+ observational noise. Estimates the correlation \code{rho}.
+\item \code{"skew_gaussian"}: Skew gaussian distribution with mean zero and unit variance. Estimates the
+ skewness of the observational noise.
+\item \code{"skew_gaussian_leverage"}: Skew gaussian distribution with leverage. The skew gaussian return shock
+ \code{z_t} drives the volatility shock, \code{eta_t = rho * z_t + sqrt(1 - rho^2) * e_t}, where \code{e_t} is
+ standard gaussian. Estimates both the skewness and \code{rho}.
 }
 
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is 
 integrated out by applying the Laplace approximation.
 }
+\section{Skew gaussian models}{
+
+The skew gaussian models estimate the skewness \code{E[z^3]} of the standardized noise, not the shape
+parameter \code{alpha}. The likelihood is flat in \code{alpha} at \code{alpha = 0}, which makes the optimizer
+stop there, but it is regular in the skewness. The skewness is estimated as \code{logit_skewness} and is
+bounded by \code{|skewness| < 0.99}, which corresponds to \code{|alpha| <= 27}. Use
+\code{summary(object, report = "transformed")} to get \code{skewness} and \code{alpha} with standard errors.
+The standard error of \code{alpha} is very large when the skewness is close to zero. Use the skewness for
+inference.
+}
+
 \examples{
 \donttest{
 # load data
@@ -49,5 +64,9 @@ estimates <- summary(opt)
 
 # plot estimated volatility with 95 \% confidence interval
 plot(opt, include_ci = TRUE)
+
+# skew gaussian model with leverage
+opt_sgl <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
+summary(opt_sgl, report = "transformed")
 }
 }

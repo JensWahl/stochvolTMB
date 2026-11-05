@@ -33,13 +33,13 @@ The stochastic volatility model, introduced by @Taylor_SV_1982, is defined by
 \end{equation}
 where $y_t$ is the observed log returns, $h_t$ is the logarithm of the variance on day $t$. The distribution of the innovations $\epsilon_t$ is specified below. To ensure stationarity for $h_t$, we assume $|\phi| < 1$. It can be shown that the unconditional distribution of $h_t$ is $\mathcal{N}(0,\sigma_h^2/(1 - \phi^2))$, and we assume $h_1 \sim \mathcal{N}(0,\sigma_h^2/(1-\phi^2))$. An interpretation of the latent process $\{h_t\}$ is that is represents the random and uneven flow of new information into the marked. For different time points, the variance will be dependent of this unobserved ``flow'' of information, i.e. conditioning on $h_t$, $\mathrm{Var}(y_t | h_t) = \sigma_x^2 e^{h_t}$.
 
-The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatility, meaning that a drop in price tend to lead to an increase in volatility To take these features of financial time series into account `stochvolTMB` has implemented the following four distribution for the innovations: 
+The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatility, meaning that a drop in price tend to lead to an increase in volatility To take these features of financial time series into account `stochvolTMB` has implemented the following five models for the innovations: 
 
 * Gaussian: $\epsilon_t \sim \mathcal{N}(0,1)$
 * t: $\epsilon_t \sim t_\nu(0,1)$, where $\nu$ is the degrees of freedom.
-* Skew-Gaussian: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$, with zero mean, unit variance and skewness parameter $\alpha$.
+* Skew-Gaussian: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$, with zero mean, unit variance and shape parameter $\alpha$. The model estimates the skewness $\gamma_1 = \mathrm{E}[\epsilon_t^3]$ of $\epsilon_t$ (bounded by $|\gamma_1| < 0.99$) and reports both $\gamma_1$ (`skewness`) and $\alpha$ (`alpha`).
 * Leverage: $\epsilon_t \sim \mathcal{N}(0,1)$ and $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$
-* Skew-Gaussian with leverage: $\epsilon_t = \rho \eta_t + \sqrt{1 - \rho^2} z_t$, where $z_t \sim \mathcal{SN}(0,1, \alpha)$ is independent of $\eta_t$. This combines asymmetric returns with the leverage effect.
+* Skew-Gaussian with leverage: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$ and $\eta_t = \rho \epsilon_t + \sqrt{1 - \rho^2} e_t$, where $e_t \sim \mathcal{N}(0,1)$ is independent of $\epsilon_t$. Then $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$, and the returns have the same skewness as in the skew-Gaussian model. With $\alpha = 0$ this is the leverage model.
 
 `stochvolTMB` is inspired by the package [stochvol](https://github.com/gregorkastner/stochvol) (@kastner2016), but `stochvolTMB` obtain parameter estimates through maximum likelihood estimation and not Markov Chain Monte Carlo. 
 
@@ -73,7 +73,7 @@ plot(spy$date, spy$log_return, type = "l", xlab = "", ylab = "", main = "Log-ret
 plot(spy$date, spy$price, type = "l", xlab = "", ylab = "", main = "Price of S&P500")
 ```
 
-We fit all four distributions: 
+We fit all five models: 
   
 ```{r warning=FALSE}
 gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
@@ -92,7 +92,7 @@ summary(t_dist, report = "transformed")
 Clearly the returns are more heavy tailed than Gaussian, even when controlling for the stochastic volatility. We can also check for asymmetric returns
 
 ```{r}
-summary(skew_gaussian, report = "fixed")
+summary(skew_gaussian, report = "transformed")
 ```
 
 and leverage (`rho`)
@@ -120,7 +120,17 @@ AIC(gaussian,
 ```
 
 
-We can compare the leverage model with the skew-Gaussian leverage model to see if adding skewness improves the fit. Lastly, we can also plot the estimated log-volatility and volatility:
+We can compare the leverage model with the skew-Gaussian leverage model to see if adding skewness improves the fit.
+
+The two skew-Gaussian models estimate the skewness of $\epsilon_t$ on a transformed scale (`logit_skewness`), not the shape parameter $\alpha$. The likelihood is flat in $\alpha$ at $\alpha = 0$, so an optimizer that starts there does not move, but the likelihood is regular in the skewness. Use `report = "transformed"` to get `skewness` and `alpha` on their natural scale. The standard error of `alpha` is very large when the skewness is close to zero, so use `skewness` for inference. To simulate from the model, give `alpha` to `sim_sv`:
+
+```{r}
+param <- list(phi = 0.95, sigma_h = 0.25, sigma_y = 0.01, alpha = -2, rho = -0.7)
+sim <- sim_sv(param, nobs = 2000, seed = 1, model = "skew_gaussian_leverage")
+fit <- estimate_parameters(sim$y, model = "skew_gaussian_leverage", silent = TRUE)
+summary(fit, report = "transformed")
+```
+ Lastly, we can also plot the estimated log-volatility and volatility:
 
 ```{r}
 plot(leverage, include_ci = TRUE, plot_log = TRUE, dates = spy$date)

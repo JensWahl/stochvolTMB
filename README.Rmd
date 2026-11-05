@@ -26,12 +26,13 @@ knitr::opts_chunk$set(
 
 `stochvolTMB` is a package for fitting stochastic volatility (SV) models to time series data. It is inspired by the package [stochvol](https://github.com/gregorkastner/stochvol), but parameter estimates are obtained through optimization and not MCMC, leading to significant speed up. It is built on [Template Model Builder](https://github.com/kaskr/adcomp) for fast and efficient estimation. The latent volatility is integrated out of the likelihood using the Laplace approximation and automatic differentiation (AD) is used for accurate evaluation of derivatives. 
 
-Four distributions for the observational error are implemented: 
+Five models for the observational error are implemented. Select a model with the `model` argument of `estimate_parameters`: 
 
-* **Gaussian** - The classic SV model with Gaussian noise 
-* **t** - t-distributed noise for heavy tail returns 
-* **Leverage** -  Extending the **Gaussian** model by allowing observed returns to be correlated with the latent volatility
-* **Skew-Gaussian** - Skew-Gaussian distributed noise for asymmetric returns
+* **Gaussian** (`"gaussian"`) - The classic SV model with Gaussian noise 
+* **t** (`"t"`) - t-distributed noise for heavy tail returns 
+* **Leverage** (`"leverage"`) -  Extending the **Gaussian** model by allowing observed returns to be correlated with the latent volatility
+* **Skew-Gaussian** (`"skew_gaussian"`) - Skew-Gaussian distributed noise for asymmetric returns
+* **Skew-Gaussian with leverage** (`"skew_gaussian_leverage"`) - Combines asymmetric returns with the leverage effect
 
 
 ## Installation
@@ -69,9 +70,13 @@ gaussian <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRU
 t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
+skew_gaussian_leverage <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
 
-# the leverage model stands out with an AIC far below the other models
-AIC(gaussian, t_dist, skew_gaussian, leverage)
+# the models with leverage stand out with an AIC far below the other models
+AIC(gaussian, t_dist, skew_gaussian, leverage, skew_gaussian_leverage)
+
+# the skew models report the skewness and the shape parameter alpha
+summary(skew_gaussian_leverage, report = "transformed")
 
 # get parameter estimates with standard error
 estimates <- summary(leverage)

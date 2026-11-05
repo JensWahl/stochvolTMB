@@ -15,7 +15,7 @@ sim_sv(
 \item{param}{List of parameters. This includes the standard deviation of the observations, \code{sigma_y},
 the standard deviation of the latent volatility process, \code{sigma_h}, the persistence parameter \code{phi}. If
 \code{model} = "t", the degree of freedom \code{df} must be specified. If \code{model} = "skew_gaussian", 
-the skewness parameter \code{alpha} must be specified and if \code{model} = "leverage", 
+the shape parameter \code{alpha} must be specified and if \code{model} = "leverage", 
 the correlation \code{rho} between the latent error term and the observational error has to be specified.}
 
 \item{nobs}{Length of time series.}
@@ -40,5 +40,7 @@ parameter \code{df}. Note that the observations are scaled by \code{sqrt((df-2)/
 variance equal to one. Asymmetric returns are obtained from the "skew_gaussian" model. How asymmetric is governed by
 the skewness parameter \code{alpha}. The so called leverage model, where we allow for correlation between 
 log-returns and volatility can be simulated by setting \code{model} to "leverage" and specifying the
-correlation parameter \code{rho}.
+correlation parameter \code{rho}. In the "skew_gaussian_leverage" model the return shock \code{z_t} is skew gaussian
+with mean zero, unit variance and shape \code{alpha}, and it drives the volatility shock:
+\code{h_{t+1} = phi * h_t + sigma_h * (rho * z_t + sqrt(1 - rho^2) * e_t)}, where \code{e_t} is standard gaussian.
 }

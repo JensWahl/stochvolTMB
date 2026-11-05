@@ -21,14 +21,15 @@ shinyUI(fluidPage(
                         choices = c("Gaussian" = "gaussian",
                                        "Student-t" = "t",
                                        "Skew-Gaussian" = "skew_gaussian",
-                                       "Gaussian leverage" = "leverage")),
+                                       "Gaussian leverage" = "leverage",
+                                       "Skew-Gaussian leverage" = "skew_gaussian_leverage")),
             h4("Set parameter values"),
             sliderInput("phi", withMathJax("Dispersion parameter \\(\\phi\\)"), -0.99, 0.99, 0.9, step = 0.05),
             sliderInput("sigma_y", "Observational error \\(\\sigma_y\\)", -5, 5, 0.2, step = 0.1),
             sliderInput("sigma_h", "State error \\(\\sigma_h\\)", -5, 5, 0.4, step = 0.1),
             sliderInput("nu", "degrees of freedom \\(\\nu\\) (only for Student-t)", 3, 20, 5, step = 1),
-            sliderInput("alpha", "Skewness parameter \\(\\alpha\\) (only for Skew-Gaussian)", -5, 5, -1, step = 0.1),
-            sliderInput("rho", "Leverage parameter \\(\\rho\\) (only for Gaussian leverage)", -0.99, 0.99, -0.6, step = 0.05),
+            sliderInput("alpha", "Shape parameter \\(\\alpha\\) (only for Skew-Gaussian models)", -5, 5, -1, step = 0.1),
+            sliderInput("rho", "Leverage parameter \\(\\rho\\) (only for leverage models)", -0.99, 0.99, -0.6, step = 0.05),
             sliderInput("nobs", "Number of observations", 100, 10000, 3000, step = 100)
          ),
         
