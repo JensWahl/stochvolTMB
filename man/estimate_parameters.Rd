@@ -42,13 +42,25 @@ integrated out by applying the Laplace approximation.
 }
 \section{Skew gaussian models}{
 
-The skew gaussian models estimate the skewness \code{E[z^3]} of the standardized noise, not the shape
-parameter \code{alpha}. The likelihood is flat in \code{alpha} at \code{alpha = 0}, which makes the optimizer
-stop there, but it is regular in the skewness. The skewness is estimated as \code{logit_skewness} and is
-bounded by \code{|skewness| < 0.99}, which corresponds to \code{|alpha| <= 27}. Use
-\code{summary(object, report = "transformed")} to get \code{skewness} and \code{alpha} with standard errors.
-The standard error of \code{alpha} is very large when the skewness is close to zero. Use the skewness for
-inference.
+The skew gaussian models report two numbers for the asymmetry of the standardized noise \code{z}:
+\itemize{
+\item \code{alpha}: the shape parameter of the skew normal density. \code{alpha = 0} gives the gaussian
+ distribution and \code{alpha -> Inf} the half-gaussian distribution. It has no direct statistical meaning.
+\item \code{skewness}: the skewness \code{E[z^3]} of the noise, a monotone function of \code{alpha}. With
+ \code{delta = alpha / sqrt(1 + alpha^2)} and \code{mu = delta * sqrt(2 / pi)},
+ \code{skewness = (4 - pi) / 2 * mu^3 / (1 - mu^2)^(3 / 2)}. For example, \code{alpha} = 0.5, 1, 2 and 5 give
+ \code{skewness} = 0.02, 0.14, 0.45 and 0.85.
+}
+The models estimate the skewness, not \code{alpha}. Close to zero the skewness grows like \code{alpha^3}, so the
+likelihood is flat in \code{alpha} at \code{alpha = 0} and the optimizer does not move from there. In the
+skewness the likelihood is regular. The skewness is estimated as \code{logit_skewness} and is bounded by
+\code{|skewness| < 0.99}, which corresponds to \code{|alpha| <= 27}.
+
+Use \code{summary(object, report = "transformed")} to get \code{skewness} and \code{alpha} with standard errors.
+Use \code{skewness} for inference. Use \code{alpha} when you need the shape parameter, for example in
+\code{\link{sim_sv}} or \code{sn::dsn}. Close to zero skewness, \code{alpha} changes fast with the skewness, so
+the standard error of \code{alpha} is very large even when the skewness is well determined. In the
+"skew_gaussian_leverage" model the skewness is that of the return shock, not of the returns.
 }
 
 \examples{

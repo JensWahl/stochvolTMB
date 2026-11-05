@@ -1,7 +1,12 @@
 ---
 title: "stochvolTMB: Likelihood estimation of stochastic volatility"
 author: "Jens Christian Wahl"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    # MathJax 3 bundles its own fonts; the default MathJax 2 shows \mathcal symbols as empty squares
+    math_method:
+      engine: mathjax
+      url: https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js
 bibliography: ../inst/REFERENCES.bib
 vignette: >
   %\VignetteIndexEntry{stochvolTMB: Likelihood estimation of stochastic volatility}
@@ -37,9 +42,37 @@ The original SV model from @Taylor_SV_1982 assumed normally distributed innovati
 
 * Gaussian: $\epsilon_t \sim \mathcal{N}(0,1)$
 * t: $\epsilon_t \sim t_\nu(0,1)$, where $\nu$ is the degrees of freedom.
-* Skew-Gaussian: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$, with zero mean, unit variance and shape parameter $\alpha$. The model estimates the skewness $\gamma_1 = \mathrm{E}[\epsilon_t^3]$ of $\epsilon_t$ (bounded by $|\gamma_1| < 0.99$) and reports both $\gamma_1$ (`skewness`) and $\alpha$ (`alpha`).
+* Skew-Gaussian: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$, with zero mean, unit variance and shape parameter $\alpha$. See [Skewness and the shape parameter](#skewness-and-the-shape-parameter) for how the asymmetry is estimated and reported.
 * Leverage: $\epsilon_t \sim \mathcal{N}(0,1)$ and $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$
 * Skew-Gaussian with leverage: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$ and $\eta_t = \rho \epsilon_t + \sqrt{1 - \rho^2} e_t$, where $e_t \sim \mathcal{N}(0,1)$ is independent of $\epsilon_t$. Then $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$, and the returns have the same skewness as in the skew-Gaussian model. With $\alpha = 0$ this is the leverage model.
+
+## Skewness and the shape parameter
+
+The skew-Gaussian models report two numbers for the asymmetry of $\epsilon_t$: the shape parameter `alpha` and the `skewness`. Both describe the same distribution on different scales.
+
+The shape parameter $\alpha$ is the parameter of the skew-normal density. With location $\xi$ and scale $\omega$ chosen so that $\epsilon_t$ has mean zero and unit variance, the density is
+$$
+p(x) = \frac{2}{\omega} \phi\left(\frac{x - \xi}{\omega}\right) \Phi\left(\alpha \frac{x - \xi}{\omega}\right),
+$$
+where $\phi$ and $\Phi$ are the density and the distribution function of the standard Gaussian distribution. $\alpha = 0$ gives the Gaussian distribution, and $\alpha \to \pm \infty$ gives a half-Gaussian distribution. $\alpha$ has no direct statistical meaning.
+
+The skewness $\gamma_1 = \mathrm{E}[\epsilon_t^3]$ is the usual skewness coefficient, because $\epsilon_t$ has mean zero and unit variance. It is a monotone function of $\alpha$:
+$$
+\delta = \frac{\alpha}{\sqrt{1 + \alpha^2}}, \qquad \mu = \delta \sqrt{2 / \pi}, \qquad \gamma_1 = \frac{4 - \pi}{2} \frac{\mu^3}{(1 - \mu^2)^{3/2}}.
+$$
+
+| $\alpha$ | 0 | 0.5 | 1 | 2 | 5 | 27 | $\infty$ |
+|---|---|---|---|---|---|---|---|
+| $\gamma_1$ | 0 | 0.02 | 0.14 | 0.45 | 0.85 | 0.99 | 0.995 |
+
+`stochvolTMB` estimates the skewness, not $\alpha$, for two reasons:
+
+* Close to zero, $\gamma_1$ grows like $\alpha^3$. The likelihood is therefore flat in $\alpha$ at $\alpha = 0$ (the first and second derivatives are zero), and an optimizer that starts there does not move. In the skewness, the likelihood has a normal slope at zero.
+* Large values of $\alpha$ change the distribution very little. The skewness is bounded by $|\gamma_1| < 0.99$, which corresponds to $|\alpha| \le 27$. This keeps the optimizer away from the half-Gaussian limit, where the fit is unstable.
+
+The skewness is estimated on a transformed scale as `logit_skewness`. `summary(object, report = "transformed")` reports `skewness` and `alpha` with standard errors from the delta method. Use `skewness` for inference. Use `alpha` when you need the shape parameter, for example in `sim_sv`, `sn::dsn` or other software. When the skewness is close to zero, a small change in skewness gives a large change in $\alpha$, so the standard error of `alpha` is very large even when the skewness is well determined.
+
+In the skew-Gaussian model with leverage, the skewness is that of the return shock $\epsilon_t$, not of the returns $y_t$. The time-varying volatility, and its correlation with past shocks, change the distribution of $y_t$.
 
 `stochvolTMB` is inspired by the package [stochvol](https://github.com/gregorkastner/stochvol) (@kastner2016), but `stochvolTMB` obtain parameter estimates through maximum likelihood estimation and not Markov Chain Monte Carlo. 
 
@@ -122,7 +155,7 @@ AIC(gaussian,
 
 We can compare the leverage model with the skew-Gaussian leverage model to see if adding skewness improves the fit.
 
-The two skew-Gaussian models estimate the skewness of $\epsilon_t$ on a transformed scale (`logit_skewness`), not the shape parameter $\alpha$. The likelihood is flat in $\alpha$ at $\alpha = 0$, so an optimizer that starts there does not move, but the likelihood is regular in the skewness. Use `report = "transformed"` to get `skewness` and `alpha` on their natural scale. The standard error of `alpha` is very large when the skewness is close to zero, so use `skewness` for inference. To simulate from the model, give `alpha` to `sim_sv`:
+The skew-Gaussian models report both `skewness` and the shape parameter `alpha` (see [Skewness and the shape parameter](#skewness-and-the-shape-parameter)). Use `skewness` for inference. To simulate from the model, give `alpha` to `sim_sv`:
 
 ```{r}
 param <- list(phi = 0.95, sigma_h = 0.25, sigma_y = 0.01, alpha = -2, rho = -0.7)
