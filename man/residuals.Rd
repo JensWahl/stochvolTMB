@@ -4,13 +4,25 @@
 \alias{residuals}
 \title{Calculate one-step-ahead (OSA) residuals for stochastic volatility model.}
 \usage{
-residuals(object, conditional = 1:(object$nobs - 100), ...)
+residuals(
+  object,
+  conditional = NULL,
+  method = c("grid", "tmb"),
+  grid_size = 500,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{stochvolTMB} object.}
 
-\item{conditional}{Index vector of observations that are fixed during OSA. By default the residuals of the last 100
-observations are calculated. If set to \code{NULL} it will calculate one-step-ahead residuals for all observations.}
+\item{conditional}{Index vector of observations that are not predicted. Residuals are returned for the other
+observations. If \code{NULL}, the \code{"grid"} method returns residuals for all observations, and the
+\code{"tmb"} method uses \code{1:(object$nobs - 100)}. Use \code{integer(0)} to get all residuals with
+\code{"tmb"}.}
+
+\item{method}{\code{"grid"} or \code{"tmb"}. See details.}
+
+\item{grid_size}{Number of grid points for \code{h_t} in the \code{"grid"} method.}
 
 \item{...}{Currently not used.}
 }
@@ -18,9 +30,23 @@ observations are calculated. If set to \code{NULL} it will calculate one-step-ah
 Vector of one-step-ahead residuals. If the model is correctly specified, these should be standard normal.
 }
 \description{
-This function is very time consuming and by default computes the one-step-ahead residual for the last 100 observations. 
-See the function \link[TMB]{oneStepPredict} and the paper in the references for more details.
+The OSA residual of observation \code{y_t} is \code{qnorm(F_t(y_t))}, where \code{F_t} is the predictive
+distribution function of \code{y_t} given \code{y_1, ..., y_{t-1}} at the estimated parameters. If the model is
+correct, the residuals are independent and standard gaussian.
+}
+\details{
+Two methods are available:
+\itemize{
+\item \code{"grid"} (default): an exact filter on a grid for the log-volatility \code{h_t}. Because \code{h_t}
+ is one-dimensional, the predictive distribution can be calculated by summation over the grid, without the
+ Laplace approximation. It calculates the residuals for all observations in a few seconds.
+\item \code{"tmb"}: \link[TMB]{oneStepPredict} with \code{method = "oneStepGeneric"}. It uses the Laplace
+ approximation and takes about one to three seconds per observation, so by default only the last 100
+ observations are used.
+}
 }
 \references{
-\url{https://www.researchgate.net/publication/316581864_Validation_of_ecological_state_space_models_using_the_Laplace_approximation}
+Thygesen, U. H., Albertsen, C. M., Berg, C. W., Kristensen, K. and Nielsen, A. (2017). Validation
+  of ecological state space models using the Laplace approximation. Environmental and Ecological Statistics,
+  24(2), 317-339. \doi{10.1007/s10651-017-0372-4}
 }

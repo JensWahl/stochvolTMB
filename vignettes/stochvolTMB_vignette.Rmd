@@ -92,6 +92,12 @@ Function Name                 Description
 `summary.stochvolTMB`         Extract parameter estimates and volatility with uncertainty.
 
 `predict.stochvolTMB`         Predict future volatility and returns. 
+
+`plot_returns`                Plot returns with intervals from the fitted model.
+
+`residuals`                   Calculate one-step-ahead residuals.
+
+`plot_diagnostics`            Plot diagnostics based on one-step-ahead residuals.
 ----------------------------- --------------------------------------------------
 
 `estimate_parameters` returns an object of class `stochvolTMB`. The `summary` function returns a `data.table` with estimated parameters, estimated log-volatility and transformed parameters along with standard errors, p-values and z-values. The argument `report = "fixed"` returns the parameters on the scale they were estimated. This means that the standard deviations $\sigma_y, \sigma_h$ are given on the log scale; the degrees of freedom is one the scale $\log (\nu - 2)$ to ensure that $\nu > 2$ (i.e. the variance exists); and lastly that the persistence parameter $\phi$ and the correlation parameter $\rho$ are estimated on a logit scale to ensure that they are between -1 and 1. If `report = c("fixed", "transformed")`, parameter estimates transformed back to their original scale is also returned. If you want to extract the estimated log-volatility you can use `report = "random"`. 
@@ -180,6 +186,31 @@ summary(pred)
 # plot the forecast
 plot(leverage, forecast = 50) + ggplot2::xlim(3200, nrow(spy) + 50)
 ```
+
+## Checking the fit
+
+`plot_returns` shows the returns together with the central 95% interval of the fitted conditional distribution of each return, given the estimated log-volatility. The interval uses the error distribution of the model, so it is asymmetric for the skew-Gaussian models. Returns outside the interval are red, and the subtitle gives their share. For a good model the share is close to 5%. The interval uses the smoothed log-volatility, which also uses the return on the same day, so this is an optimistic, in-sample check.
+
+```{r}
+plot_returns(skew_gaussian_leverage, dates = spy$date)
+```
+
+A stricter check uses one-step-ahead (OSA) residuals (@thygesen2017). The OSA residual of $y_t$ is $\Phi^{-1}(F_t(y_t))$, where $F_t$ is the predictive distribution function of $y_t$ given $y_1, \dots, y_{t-1}$. If the model is correct, the OSA residuals are independent and standard Gaussian. Because the log-volatility $h_t$ is one-dimensional, `residuals` calculates $F_t$ exactly with a filter on a grid for $h_t$, for all observations in a few seconds. The slower method based on the Laplace approximation, `TMB::oneStepPredict`, is available with `method = "tmb"`.
+
+`plot_diagnostics` shows three panels:
+
+* A Q-Q plot against the standard Gaussian distribution. Bent tails show that the error distribution is wrong.
+* The autocorrelation function (ACF) of the residuals. Bars outside the dashed lines show dependence in the returns that the model does not capture.
+* The ACF of the squared residuals. Bars outside the dashed lines show volatility clustering that the model does not capture.
+
+We compare the Gaussian model with the skew-Gaussian model with leverage:
+
+```{r fig.height=3.5}
+plot_diagnostics(gaussian)
+plot_diagnostics(skew_gaussian_leverage)
+```
+
+For the Gaussian model the Q-Q plot bends down in the left tail: there are more large negative returns than the model expects. For the skew-Gaussian model with leverage the Q-Q plot is almost a straight line, so the skewness captures the asymmetry of the returns. Only a few of the most extreme negative returns are still too large. Both models leave a small negative autocorrelation at lag 1 in the residuals. The models have mean zero and therefore cannot capture this. For the skew-Gaussian model with leverage, the autocorrelation of the squared residuals at lag 1 is also negative. This suggests that, after a large shock, the model increases the predicted volatility slightly too much.
 
 
 # Comparison to stochvol

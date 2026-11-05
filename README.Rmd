@@ -85,6 +85,9 @@ head(estimates, 10)
 # plot estimated volatility with 95 % confidence interval
 plot(leverage, include_ci = TRUE, dates = spy$date)
 
+# plot the returns with the 95 % interval of the fitted model
+plot_returns(skew_gaussian_leverage, dates = spy$date)
+
 
 ```
 
@@ -103,6 +106,12 @@ print(pred_summary)
 plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
   ggplot2::xlim(c(spy[.N, date] - 150, spy[.N, date] + 50))
 
+```
+
+To check the fit with one-step-ahead residuals, use `plot_diagnostics`. It shows a Q-Q plot and the autocorrelation of the residuals and of the squared residuals:
+
+```{r fig.height=3.5}
+plot_diagnostics(skew_gaussian_leverage)
 ```
 
 ## Shiny app 

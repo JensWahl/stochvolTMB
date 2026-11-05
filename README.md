@@ -114,16 +114,17 @@ head(estimates, 10)
 
 # plot estimated volatility with 95 % confidence interval
 plot(leverage, include_ci = TRUE, dates = spy$date)
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the stochvolTMB package.
-#>   Please report the issue at <https://github.com/JensWahl/stochvolTMB/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 ```
 
 <img src="man/figures/README-example-1.png" alt="" width="100%" />
+
+``` r
+
+# plot the returns with the 95 % interval of the fitted model
+plot_returns(skew_gaussian_leverage, dates = spy$date)
+```
+
+<img src="man/figures/README-example-2.png" alt="" width="100%" />
 
 Given the estimated parameters we can simulate future volatility and
 log-returns using `predict`.
@@ -193,6 +194,16 @@ plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" alt="" width="100%" />
+
+To check the fit with one-step-ahead residuals, use `plot_diagnostics`.
+It shows a Q-Q plot and the autocorrelation of the residuals and of the
+squared residuals:
+
+``` r
+plot_diagnostics(skew_gaussian_leverage)
+```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" alt="" width="100%" />
 
 ## Shiny app
 

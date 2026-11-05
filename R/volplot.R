@@ -69,15 +69,15 @@ plot.stochvolTMB <- function(x, ...,
   if (plot_log) {
     
     p <- ggplot2::ggplot(report, ggplot2::aes(time, estimate)) +
-      ggplot2::geom_line(size = 0.8, color = "black") + 
+      ggplot2::geom_line(linewidth = 0.8, color = "black") + 
       ggplot2:: ggtitle("Estimated log volatility") + 
       ggplot2::xlab("") +
       ggplot2::ylab("")
     
     if (include_ci) {
       p <- p + 
-        ggplot2::geom_line(ggplot2::aes(time, h_upper), color = "grey", size = 0.3) + 
-        ggplot2::geom_line(ggplot2::aes(time, h_lower), color = "grey", size = 0.3) + 
+        ggplot2::geom_line(ggplot2::aes(time, h_upper), color = "grey", linewidth = 0.3) + 
+        ggplot2::geom_line(ggplot2::aes(time, h_lower), color = "grey", linewidth = 0.3) + 
         ggplot2::geom_ribbon(ggplot2::aes(time, ymax = h_upper, ymin = h_lower), fill = "grey", alpha = 0.1) + 
         ggplot2::ggtitle("Estimated log volatility with 95% confidence interval")
       
@@ -85,11 +85,11 @@ plot.stochvolTMB <- function(x, ...,
       if (!is.null(forecast)) {
         p <- p + ggplot2::geom_line(data = pred_summary$h, 
                                     ggplot2::aes(x = time, y = quantile_0.025), 
-                                    size = 0.3, linetype = 2, col = "grey") + 
+                                    linewidth = 0.3, linetype = 2, col = "grey") + 
           ggplot2::geom_line(data = pred_summary$h, 
-                             ggplot2::aes(x = time, y = quantile_0.975), size = 0.3, linetype = 2, col = "grey") + 
+                             ggplot2::aes(x = time, y = quantile_0.975), linewidth = 0.3, linetype = 2, col = "grey") + 
           ggplot2::geom_line(data = pred_summary$h, 
-                           ggplot2::aes(x = time, y = mean), size = 0.8, linetype = 2, col = "black")
+                           ggplot2::aes(x = time, y = mean), linewidth = 0.8, linetype = 2, col = "black")
       }
     }
     
@@ -105,15 +105,15 @@ plot.stochvolTMB <- function(x, ...,
                    volatility_upper =  sigma_y * exp(h_upper / 2),
                    volatility_lower =  sigma_y * exp(h_lower / 2))]
     
-    p <- ggplot2::ggplot(report, ggplot2::aes(time, volatility)) + ggplot2::geom_line(size = 0.8, color = "black") + 
+    p <- ggplot2::ggplot(report, ggplot2::aes(time, volatility)) + ggplot2::geom_line(linewidth = 0.8, color = "black") + 
       ggplot2::ggtitle("Estimated volatility") + 
       ggplot2::xlab("") +
       ggplot2::ylab("")
     
     if (include_ci) {
       p <- p + 
-        ggplot2::geom_line(ggplot2::aes(time, volatility_upper), color = "grey", size = 0.3) + 
-        ggplot2::geom_line(ggplot2::aes(time, volatility_lower), color = "grey", size = 0.3) + 
+        ggplot2::geom_line(ggplot2::aes(time, volatility_upper), color = "grey", linewidth = 0.3) + 
+        ggplot2::geom_line(ggplot2::aes(time, volatility_lower), color = "grey", linewidth = 0.3) + 
         ggplot2::geom_ribbon(ggplot2::aes(time, ymax = volatility_upper, ymin = volatility_lower), 
                              fill = "grey", alpha = 0.1) + 
         ggplot2::ggtitle("Estimated volatility with 95% confidence interval")
@@ -145,15 +145,15 @@ plot_forecast <- function(p, forecast, include_ci = TRUE) {
   time <- quantile_0.025 <- quantile_0.975 <- NULL
   
   p <-  p + 
-   ggplot2::geom_line(data = forecast, ggplot2::aes(x = time, y = mean), size = 0.8, linetype = 2, col = "black")
+   ggplot2::geom_line(data = forecast, ggplot2::aes(x = time, y = mean), linewidth = 0.8, linetype = 2, col = "black")
  
  
  if (include_ci) {
   p <- p + 
     ggplot2::geom_line(data = forecast, ggplot2::aes(x = time, y = quantile_0.025), 
-                       size = 0.8, linetype = 2, col = "grey") + 
+                       linewidth = 0.8, linetype = 2, col = "grey") + 
     ggplot2::geom_line(data = forecast, ggplot2::aes(x = time, y = quantile_0.975),
-                       size = 0.8, linetype = 2, col = "grey") 
+                       linewidth = 0.8, linetype = 2, col = "grey") 
  }
   
  return(p)

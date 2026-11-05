@@ -9,6 +9,17 @@
   `summary(report = "transformed")` reports both `skewness` and `alpha`. Before, the optimizer started at `alpha = 0`,
   where the likelihood is flat (the score is exactly zero), and the fit often stayed at `alpha = 0`.
 * The skew-Gaussian density now uses a numerically stable `log(pnorm(x))` instead of `log(1e-5 + pnorm(x))`.
+* New `plot_returns()` plots the returns with the central interval of the fitted conditional distribution and marks
+  the returns outside it.
+* New `plot_diagnostics()` plots a Q-Q plot and the autocorrelation of the one-step-ahead residuals and of the squared
+  residuals.
+* `residuals()` has a new default method, `method = "grid"`. It calculates the one-step-ahead residuals exactly with a
+  filter on a grid for the log-volatility, for all observations in a few seconds. The old method,
+  `TMB::oneStepPredict` with the Laplace approximation, takes one to three seconds per observation and is available
+  with `method = "tmb"`. With `method = "grid"`, `residuals()` returns residuals for all observations by default.
+* `residuals(method = "tmb")` no longer fails with "Multiple TMB models loaded" when several TMB models are loaded,
+  for example after `devtools::load_all()`. It then calculates the residuals without parallel processing.
+* Plots use `linewidth` instead of the deprecated `size` for lines. `ggplot2` (>= 3.4.0) is required.
 
 # stochvolTMB 0.2.0
 
