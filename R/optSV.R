@@ -64,9 +64,7 @@ get_nll <- function(data, model = "gaussian", ...) {
 #'  \code{skewness} = 0.02, 0.14, 0.45 and 0.85.
 #' }
 #' The models estimate the skewness, not \code{alpha}. Close to zero the skewness grows like \code{alpha^3}, so the
-#' likelihood is flat in \code{alpha} at \code{alpha = 0} and the optimizer does not move from there. In the
-#' skewness the likelihood is regular. The skewness is estimated as \code{logit_skewness} and is bounded by
-#' \code{|skewness| < 0.99}, which corresponds to \code{|alpha| <= 27}.
+#' likelihood is flat in \code{alpha} at \code{alpha = 0} and the optimizer does not move from there.
 #'
 #' Use \code{summary(object, report = "transformed")} to get \code{skewness} and \code{alpha} with standard errors.
 #' Use \code{skewness} for inference. Use \code{alpha} when you need the shape parameter, for example in
