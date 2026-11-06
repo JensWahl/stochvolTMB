@@ -108,7 +108,7 @@ Type objective_function<Type>::operator()(){
 
   // Jones-Faddy skew t, standardized to mean zero and unit variance. a and b set the left and right tail.
   Type a_st = 0, b_st = 0, mu_st = 0, sd_st = 1, logc_st = 0;
-  if(model == 5){
+  if(model == 5 || model == 6){
     Type df_left = exp(capped_log_df_minus_two(log_df_left_minus_two(0))) + Type(2);
     Type df_right = exp(capped_log_df_minus_two(log_df_right_minus_two(0))) + Type(2);
     ADREPORT(df_left);
@@ -125,7 +125,7 @@ Type objective_function<Type>::operator()(){
   }
 
   Type rho = 0;
-  if(model == 3 || model == 4){
+  if(model == 3 || model == 4 || model == 6){
     rho = f(logit_rho(0));
     ADREPORT(rho);
   }
@@ -204,17 +204,25 @@ Type objective_function<Type>::operator()(){
 
     // Skew t distribution (Jones and Faddy 2003). The density is smooth, unlike Hansen's skewed t whose
     // curvature jumps at the mode; that jump broke the Laplace approximation and the optimizer.
-    case 5:{
+    // Skew t with leverage: same order as model 4, the skew t return shock z(i) drives the volatility shock,
+    // eta(i) = rho * z(i) + sqrt(1 - rho^2) * e(i).
+    case 5:
+    case 6:{
       Type scale = sigma_y * exp(h(i) / Type(2));
       Type t = mu_st + sd_st * y(i) / scale;
       Type r = t / sqrt(a_st + b_st + t * t);
       nll -= keep(i) * (logc_st + (a_st + Type(0.5)) * log(Type(1) + r) + (b_st + Type(0.5)) * log(Type(1) - r) +
         log(sd_st) - log(scale));
+      if(model == 6 && i < (N - 1)){
+        // Replace the gaussian AR(1) term with h(i + 1) | h(i), y(i). Marginally eta has no closed form here, so
+        // unlike model 4 this term contains y(i) without keep, and TMB::oneStepPredict cannot be used.
+        Type c = sqrt(Type(1) - rho * rho);
+        Type eta = (h(i + 1) - phi * h(i)) / sigma_h;
+        Type z = y(i) / scale;
+        nll -= dnorm(eta, rho * z, c, true) - dnorm(eta, Type(0), Type(1), true);
+      }
       break;
     }
-
-    // TODO:
-    // Skew t with leverage
 
     default:
       Rf_error("This distribution is not implementet!");

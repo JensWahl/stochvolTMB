@@ -42,7 +42,8 @@ Two methods are available:
  Laplace approximation. It calculates the residuals for all observations in a few seconds.
 \item \code{"tmb"}: \link[TMB]{oneStepPredict} with \code{method = "oneStepGeneric"}. It uses the Laplace
  approximation and takes about one to three seconds per observation, so by default only the last 100
- observations are used.
+ observations are used. It is not available for the \code{"skew_t_leverage"} model, where \code{y_t} also enters
+ the model for \code{h_{t+1}}.
 }
 }
 \references{

@@ -10,7 +10,7 @@ estimate_parameters(data, model = "gaussian", opt.control = NULL, ...)
 \item{data}{A vector of observations.}
 
 \item{model}{A character specifying the model. Must be one of the following:
-"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t".}
+"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t", "skew_t_leverage".}
 
 \item{opt.control}{An optional list of parameters for nlminb.}
 
@@ -38,6 +38,9 @@ The following distributions are implemented for the observed process:
 \item \code{"skew_t"}: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
  left and the right tail have their own degrees of freedom, \code{df_left} and \code{df_right}, so the model
  can have heavier tails for losses than for gains. With equal values it is the \code{"t"} model.
+\item \code{"skew_t_leverage"}: Skew t distribution with leverage. As in \code{"skew_gaussian_leverage"}, the
+ return shock \code{z_t} drives the volatility shock, \code{eta_t = rho * z_t + sqrt(1 - rho^2) * e_t}. Estimates
+ \code{df_left}, \code{df_right} and \code{rho}.
 }
 
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is 
@@ -64,7 +67,7 @@ the standard error of \code{alpha} is very large even when the skewness is well 
 "skew_gaussian_leverage" model the skewness is that of the return shock, not of the returns.
 }
 
-\section{Skew t model}{
+\section{Skew t models}{
 
 The left tail of the noise decays like a Student t distribution with \code{df_left} degrees of freedom and the
 right tail like one with \code{df_right} degrees of freedom. A smaller value means a heavier tail. If

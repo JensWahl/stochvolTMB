@@ -25,7 +25,8 @@
 #' \code{\link{estimate_parameters}} for how \code{alpha} relates to the skewness) and if \code{model} = "leverage", 
 #' the correlation \code{rho} between the latent error term and the observational error has to be specified.
 #' If \code{model} = "skew_t", the degrees of freedom of the left and the right tail, \code{df_left} and
-#' \code{df_right}, must be specified.
+#' \code{df_right}, must be specified. The "skew_t_leverage" model needs \code{df_left}, \code{df_right} and
+#' \code{rho}; like "skew_gaussian_leverage", the skew t return shock drives the volatility shock.
 #' @param seed Seed to reproduce simulation.
 #' @param model Distribution of error term.
 #' @return data.table with columns \code{y} (observations) and \code{h} (latent log-volatility).
@@ -130,15 +131,22 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     }
     y <- exp(h / 2) * sigma_y * rskew_t(nobs, param$df_left, param$df_right)
 
-  } else if (model == "skew_gaussian_leverage") {
+  } else if (model %in% c("skew_gaussian_leverage", "skew_t_leverage")) {
 
     if (abs(param$rho) >= 1) {
       stop("Correlation parameter `rho` is not between -1 and 1")
     }
 
-    # The skew gaussian return shock z drives the volatility shock, so h is simulated again here
+    # The skew return shock z drives the volatility shock, so h is simulated again here
     rho <- param$rho
-    z <- rsn_standard(nobs, param$alpha)
+    if (model == "skew_t_leverage") {
+      if (param$df_left <= 2 || param$df_right <= 2) {
+        stop("Degrees of freedom `df_left` and `df_right` have to be greater than 2")
+      }
+      z <- rskew_t(nobs, param$df_left, param$df_right)
+    } else {
+      z <- rsn_standard(nobs, param$alpha)
+    }
     for (t in 2:nobs) {
       h[t] <- phi * h[t - 1] + sigma_h * (rho * z[t - 1] + sqrt(1 - rho^2) * stats::rnorm(1))
     }

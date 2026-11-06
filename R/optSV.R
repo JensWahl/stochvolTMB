@@ -14,9 +14,9 @@ get_nll <- function(data, model = "gaussian", ...) {
                 log_df_minus_two = if (model == "t") 2 else numeric(0),
                 # Not exactly zero: the map from skewness to alpha has an infinite derivative there
                 logit_skewness = if (model %in% c("skew_gaussian", "skew_gaussian_leverage")) 0.01 else numeric(0),
-                logit_rho = if (model %in% c("leverage", "skew_gaussian_leverage")) 0 else numeric(0),
-                log_df_left_minus_two = if (model == "skew_t") 2 else numeric(0),
-                log_df_right_minus_two = if (model == "skew_t") 2 else numeric(0),
+                logit_rho = if (model %in% c("leverage", "skew_gaussian_leverage", "skew_t_leverage")) 0 else numeric(0),
+                log_df_left_minus_two = if (model %in% c("skew_t", "skew_t_leverage")) 2 else numeric(0),
+                log_df_right_minus_two = if (model %in% c("skew_t", "skew_t_leverage")) 2 else numeric(0),
                 h = rep(0, length(data)))
   
   data <- list(y = data,
@@ -25,7 +25,8 @@ get_nll <- function(data, model = "gaussian", ...) {
                                      ifelse(model == "skew_gaussian", 2,
                                             ifelse(model == "leverage", 3,
                                                    ifelse(model == "skew_gaussian_leverage", 4,
-                                                          ifelse(model == "skew_t", 5, 6)))))))
+                                                          ifelse(model == "skew_t", 5,
+                                                                 ifelse(model == "skew_t_leverage", 6, 7))))))))
   
   obj <- TMB::MakeADFun(data = data, parameters = param, random = "h", DLL = "stochvolTMB", ...)
   
@@ -54,6 +55,9 @@ get_nll <- function(data, model = "gaussian", ...) {
 #' \item \code{"skew_t"}: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
 #'  left and the right tail have their own degrees of freedom, \code{df_left} and \code{df_right}, so the model
 #'  can have heavier tails for losses than for gains. With equal values it is the \code{"t"} model.
+#' \item \code{"skew_t_leverage"}: Skew t distribution with leverage. As in \code{"skew_gaussian_leverage"}, the
+#'  return shock \code{z_t} drives the volatility shock, \code{eta_t = rho * z_t + sqrt(1 - rho^2) * e_t}. Estimates
+#'  \code{df_left}, \code{df_right} and \code{rho}.
 #' }
 #' 
 #' The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is 
@@ -78,7 +82,7 @@ get_nll <- function(data, model = "gaussian", ...) {
 #' the standard error of \code{alpha} is very large even when the skewness is well determined. In the
 #' "skew_gaussian_leverage" model the skewness is that of the return shock, not of the returns.
 #'
-#' @section Skew t model:
+#' @section Skew t models:
 #' The left tail of the noise decays like a Student t distribution with \code{df_left} degrees of freedom and the
 #' right tail like one with \code{df_right} degrees of freedom. A smaller value means a heavier tail. If
 #' \code{df_left < df_right}, large losses are more likely than large gains of the same size, and the noise is
@@ -99,7 +103,7 @@ get_nll <- function(data, model = "gaussian", ...) {
 #'
 #' @param data A vector of observations.
 #' @param model A character specifying the model. Must be one of the following:
-#'  "gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t".
+#'  "gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t", "skew_t_leverage".
 #' @param opt.control An optional list of parameters for nlminb.
 #' @param ... additional arguments passed to \link[TMB]{MakeADFun}.
 #' 
@@ -130,7 +134,7 @@ estimate_parameters <- function(data, model = "gaussian", opt.control = NULL, ..
   
   if (!is.vector(data)) stop("data needs to be a vector")
   if (!is.character(model)) stop("model has to be a character")
-  if (!(model %in% c("gaussian", "skew_gaussian", "t", "leverage", "skew_gaussian_leverage", "skew_t"))) {
+  if (!(model %in% c("gaussian", "skew_gaussian", "t", "leverage", "skew_gaussian_leverage", "skew_t", "skew_t_leverage"))) {
     stop("This model is not implemented")
   }
   
@@ -301,9 +305,9 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
   if (include_parameters) {
     
     sim_parameters <- simulate_parameters(object, nsim = nsim)
-    if (!(object$model %in% c("leverage", "skew_gaussian_leverage"))) rho <- 0 else rho <- sim_parameters[, which(colnames(sim_parameters) == "rho")]
+    if (!(object$model %in% c("leverage", "skew_gaussian_leverage", "skew_t_leverage"))) rho <- 0 else rho <- sim_parameters[, which(colnames(sim_parameters) == "rho")]
     if (object$model != "t") df <- Inf else df <-  sim_parameters[, which(colnames(sim_parameters) == "df")]
-    if (object$model == "skew_t") {
+    if (object$model %in% c("skew_t", "skew_t_leverage")) {
       df_left <- sim_parameters[, which(colnames(sim_parameters) == "df_left")]
       df_right <- sim_parameters[, which(colnames(sim_parameters) == "df_right")]
     }
@@ -314,9 +318,9 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
     
   } else {
 
-    if (!(object$model %in% c("leverage", "skew_gaussian_leverage"))) rho <- 0 else rho <- rep[parameter == "rho", estimate]
+    if (!(object$model %in% c("leverage", "skew_gaussian_leverage", "skew_t_leverage"))) rho <- 0 else rho <- rep[parameter == "rho", estimate]
     if (object$model != "t") df <- Inf else df <- rep[parameter == "df", estimate]
-    if (object$model == "skew_t") {
+    if (object$model %in% c("skew_t", "skew_t_leverage")) {
       df_left <- rep[parameter == "df_left", estimate]
       df_right <- rep[parameter == "df_right", estimate]
     }
@@ -333,7 +337,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
   y_pred <- matrix(0, nrow = steps, ncol = nsim)
   h_start <- stats::rnorm(nsim, h_last$estimate, h_last$std_error)
   
-  if (object$model == "skew_gaussian_leverage") {
+  if (object$model %in% c("skew_gaussian_leverage", "skew_t_leverage")) {
 
     # The return shock z drives the next volatility shock, so h and y are simulated jointly.
     # The first volatility shock comes from the last observed return.
@@ -342,7 +346,7 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
     h_prev <- h_start
     for (i in 1:steps) {
       h_pred[i, ] <- phi * h_prev + sigma_h * (rho * z + sqrt(1 - rho^2) * stats::rnorm(nsim))
-      z <- rsn_standard(nsim, alpha)
+      z <- if (object$model == "skew_t_leverage") rskew_t(nsim, df_left, df_right) else rsn_standard(nsim, alpha)
       y_pred[i, ] <- sigma_y * exp(h_pred[i, ] / 2) * z
       h_prev <- h_pred[i, ]
     }

@@ -7,7 +7,7 @@ test_that("Test estimate_parameters.R", {
   # Data --------------------------------------------------------------------
   
   results <- readRDS("test_objects/test_parameter_estimates.rds")
-  models <- c("gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t")
+  models <- c("gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t", "skew_t_leverage")
 
 # Tests -------------------------------------------------------------------
   opt <- list()

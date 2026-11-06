@@ -38,7 +38,7 @@ The stochastic volatility model, introduced by @Taylor_SV_1982, is defined by
 \end{equation}
 where $y_t$ is the observed log returns, $h_t$ is the logarithm of the variance on day $t$. The distribution of the innovations $\epsilon_t$ is specified below. To ensure stationarity for $h_t$, we assume $|\phi| < 1$. It can be shown that the unconditional distribution of $h_t$ is $\mathcal{N}(0,\sigma_h^2/(1 - \phi^2))$, and we assume $h_1 \sim \mathcal{N}(0,\sigma_h^2/(1-\phi^2))$. An interpretation of the latent process $\{h_t\}$ is that is represents the random and uneven flow of new information into the marked. For different time points, the variance will be dependent of this unobserved ``flow'' of information, i.e. conditioning on $h_t$, $\mathrm{Var}(y_t | h_t) = \sigma_y^2 e^{h_t}$.
 
-The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatility, meaning that a drop in price tend to lead to an increase in volatility To take these features of financial time series into account `stochvolTMB` has implemented the following six models for the innovations: 
+The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatility, meaning that a drop in price tend to lead to an increase in volatility To take these features of financial time series into account `stochvolTMB` has implemented the following seven models for the innovations: 
 
 * Gaussian: $\epsilon_t \sim \mathcal{N}(0,1)$
 * t: $\epsilon_t \sim t_\nu(0,1)$, where $\nu$ is the degrees of freedom.
@@ -46,6 +46,7 @@ The original SV model from @Taylor_SV_1982 assumed normally distributed innovati
 * Leverage: $\epsilon_t \sim \mathcal{N}(0,1)$ and $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$
 * Skew-Gaussian with leverage: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$ and $\eta_t = \rho \epsilon_t + \sqrt{1 - \rho^2} e_t$, where $e_t \sim \mathcal{N}(0,1)$ is independent of $\epsilon_t$. Then $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$, and the returns have the same skewness as in the skew-Gaussian model. With $\alpha = 0$ this is the leverage model.
 * Skew-t: $\epsilon_t$ has the skew t distribution of @jones2003, scaled to zero mean and unit variance. Its density is proportional to $(1 + x/\sqrt{a + b + x^2})^{a + 1/2} (1 - x/\sqrt{a + b + x^2})^{b + 1/2}$ before scaling. The left tail decays like a t-distribution with $\nu_L = 2a$ degrees of freedom, and the right tail like one with $\nu_R = 2b$. With $\nu_L < \nu_R$, large losses are more likely than large gains, which is common for stock returns. With $\nu_L = \nu_R$ this is the t model.
+* Skew-t with leverage: $\epsilon_t$ has the skew t distribution above, and $\eta_t = \rho \epsilon_t + \sqrt{1 - \rho^2} e_t$ as in the skew-Gaussian model with leverage. This combines heavy and asymmetric tails with the leverage effect.
 
 ## Skewness and the shape parameter
 
@@ -113,7 +114,7 @@ plot(spy$date, spy$log_return, type = "l", xlab = "", ylab = "", main = "Log-ret
 plot(spy$date, spy$price, type = "l", xlab = "", ylab = "", main = "Price of S&P500")
 ```
 
-We fit all six models: 
+We fit all seven models: 
   
 ```{r warning=FALSE}
 gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
@@ -122,6 +123,7 @@ skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", sil
 leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 skew_gaussian_leverage = estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
 skew_t = estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
+skew_t_leverage = estimate_parameters(spy$log_return, model = "skew_t_leverage", silent = TRUE)
 ```
 
 We can investigate the estimate for the degrees of freedom (`df`) to see if the returns are heavy-tailed
@@ -158,13 +160,14 @@ AIC(gaussian,
     skew_gaussian,
     skew_t,
     leverage,
-    skew_gaussian_leverage)
+    skew_gaussian_leverage,
+    skew_t_leverage)
 ```
 
-The skew-t model estimates one degree of freedom for each tail. The left tail of the S&P 500 returns is slightly heavier than the right tail:
+The skew-t model with leverage has the smallest AIC. It estimates one degree of freedom for each tail and the leverage $\rho$. The left tail of the S&P 500 returns is clearly heavier than the right tail, and the correlation between the return shock and the volatility shock is strongly negative:
 
 ```{r}
-summary(skew_t, report = "transformed")
+summary(skew_t_leverage, report = "transformed")
 ```
 
 
@@ -201,7 +204,7 @@ plot(leverage, forecast = 50) + ggplot2::xlim(3200, nrow(spy) + 50)
 `plot_returns` shows the returns together with the central 95% interval of the fitted conditional distribution of each return, given the estimated log-volatility. The interval uses the error distribution of the model, so it is asymmetric for the skew-Gaussian models. Returns outside the interval are red, and the subtitle gives their share. For a good model the share is close to 5%. The interval uses the smoothed log-volatility, which also uses the return on the same day, so this is an optimistic, in-sample check.
 
 ```{r}
-plot_returns(skew_gaussian_leverage, dates = spy$date)
+plot_returns(skew_t_leverage, dates = spy$date)
 ```
 
 A stricter check uses one-step-ahead (OSA) residuals (@thygesen2017). The OSA residual of $y_t$ is $\Phi^{-1}(F_t(y_t))$, where $F_t$ is the predictive distribution function of $y_t$ given $y_1, \dots, y_{t-1}$. If the model is correct, the OSA residuals are independent and standard Gaussian. Because the log-volatility $h_t$ is one-dimensional, `residuals` calculates $F_t$ exactly with a filter on a grid for $h_t$, for all observations in a few seconds (see [One-step-ahead residuals](#one-step-ahead-residuals) for the details). The slower method based on the Laplace approximation, `TMB::oneStepPredict`, is available with `method = "tmb"`.
@@ -212,14 +215,14 @@ A stricter check uses one-step-ahead (OSA) residuals (@thygesen2017). The OSA re
 * The autocorrelation function (ACF) of the residuals. Bars outside the dashed lines show dependence in the returns that the model does not capture.
 * The ACF of the squared residuals. Bars outside the dashed lines show volatility clustering that the model does not capture.
 
-We compare the Gaussian model with the skew-Gaussian model with leverage:
+We compare the Gaussian model with the skew-t model with leverage:
 
 ```{r fig.height=3.5}
 plot_diagnostics(gaussian)
-plot_diagnostics(skew_gaussian_leverage)
+plot_diagnostics(skew_t_leverage)
 ```
 
-For the Gaussian model the Q-Q plot bends down in the left tail: there are more large negative returns than the model expects. For the skew-Gaussian model with leverage the Q-Q plot is almost a straight line, so the skewness captures the asymmetry of the returns. Only a few of the most extreme negative returns are still too large. Both models leave a small negative autocorrelation at lag 1 in the residuals. The models have mean zero and therefore cannot capture this. For the skew-Gaussian model with leverage, the autocorrelation of the squared residuals at lag 1 is also negative. This suggests that, after a large shock, the model increases the predicted volatility slightly too much.
+For the Gaussian model the Q-Q plot bends down in the left tail: there are more large negative returns than the model expects. For the skew-t model with leverage the Q-Q plot is a straight line, also for the most extreme negative returns. The heavy and asymmetric tails together with the leverage effect capture the distribution of the returns. Both models leave a small negative autocorrelation at lag 1 in the residuals. The models have mean zero and therefore cannot capture this. For the skew-t model with leverage, the autocorrelation of the squared residuals at lag 1 is also negative. This suggests that, after a large shock, the model increases the predicted volatility slightly too much.
 
 
 # Comparison to stochvol
@@ -368,7 +371,7 @@ The only error is from the grid. With 500 grid points, the residuals for the S&P
 
 In the leverage models, $y_t$ and $h_{t+1}$ are correlated. The filter then needs one more step.
 
-In the *skew-Gaussian model with leverage*, $y_t$ depends on $h_t$ only, so steps 1 and 2 do not change. The return shock $z_t = y_t / (\sigma_y e^{h_t/2})$ drives the next volatility shock, so in step 3 the model for $h_{t+1}$ also depends on $y_t$:
+In the *skew-Gaussian* and the *skew-t model with leverage*, $y_t$ depends on $h_t$ only, so steps 1 and 2 do not change. The return shock $z_t = y_t / (\sigma_y e^{h_t/2})$ drives the next volatility shock, so in step 3 the model for $h_{t+1}$ also depends on $y_t$:
 \begin{equation}
     h_{t+1} \mid h_t, y_t \sim \mathcal{N}\left(\phi h_t + \sigma_h \rho z_t, \; \sigma_h^2 (1 - \rho^2)\right).
 \end{equation}
@@ -382,7 +385,7 @@ The filter therefore works with the joint predictive weights of $(h_t, h_{t+1})$
 
 ### Comparison with the Laplace approximation
 
-`TMB::oneStepPredict`, which is available with `residuals(method = "tmb")`, calculates the same residuals in a different way. For each observation it integrates over $y_t$ numerically, and each point of that integral needs a full Laplace approximation over all $T$ latent variables. This takes one to three seconds per observation, and the Laplace approximation can be inaccurate in the tails. The grid filter uses that $h_t$ is one-dimensional and that the model is a Markov chain in $h_t$. It therefore needs only one pass over the data and does not use the Laplace approximation.
+`TMB::oneStepPredict`, which is available with `residuals(method = "tmb")`, calculates the same residuals in a different way. For each observation it integrates over $y_t$ numerically, and each point of that integral needs a full Laplace approximation over all $T$ latent variables. It is not available for the skew-t model with leverage, because there $y_t$ also enters the model for $h_{t+1}$, which `oneStepPredict` does not allow. This takes one to three seconds per observation, and the Laplace approximation can be inaccurate in the tails. The grid filter uses that $h_t$ is one-dimensional and that the model is a Markov chain in $h_t$. It therefore needs only one pass over the data and does not use the Laplace approximation.
 
 We can check the method on simulated data. If we simulate from a model and fit the same model, the OSA residuals must be standard Gaussian and independent:
 

@@ -61,7 +61,7 @@ test_that("grid residuals agree with TMB and are standard gaussian", {
 
   param <- list(phi = 0.9, sigma_h = 0.3, sigma_y = 0.2, df = 5, alpha = -3, rho = -0.7, df_left = 4, df_right = 10)
 
-  for (model in c("gaussian", "t", "skew_gaussian", "leverage", "skew_gaussian_leverage", "skew_t")) {
+  for (model in c("gaussian", "t", "skew_gaussian", "leverage", "skew_gaussian_leverage", "skew_t", "skew_t_leverage")) {
     # skew_t needs about 1000 observations to separate heavy tails from volatility noise
     data <- sim_sv(param = param, nobs = 1000, seed = 1, model = model)
     opt <- estimate_parameters(data$y, model = model, silent = TRUE)
@@ -71,6 +71,12 @@ test_that("grid residuals agree with TMB and are standard gaussian", {
     expect_true(all(is.finite(res)))
     expect_lt(abs(mean(res)), 0.2)
     expect_lt(abs(sd(res) - 1), 0.15)
+
+    # TMB::oneStepPredict is not valid for skew_t_leverage (y enters the latent process without keep)
+    if (model == "skew_t_leverage") {
+      expect_error(residuals(opt, method = "tmb"))
+      next
+    }
 
     # Grid is exact; TMB uses the Laplace approximation, so allow a small difference. TMB sometimes returns NaN
     # when its numerical integration fails, so only compare the values it returns.

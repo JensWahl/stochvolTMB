@@ -11,7 +11,8 @@
 #'  Laplace approximation. It calculates the residuals for all observations in a few seconds.
 #' \item \code{"tmb"}: \link[TMB]{oneStepPredict} with \code{method = "oneStepGeneric"}. It uses the Laplace
 #'  approximation and takes about one to three seconds per observation, so by default only the last 100
-#'  observations are used.
+#'  observations are used. It is not available for the \code{"skew_t_leverage"} model, where \code{y_t} also enters
+#'  the model for \code{h_{t+1}}.
 #' }
 #'
 #' @param object A \code{stochvolTMB} object.
@@ -36,6 +37,10 @@ residuals <- function(object, conditional = NULL, method = c("grid", "tmb"), gri
     res <- osa_grid(object, grid_size = grid_size)
     if (!is.null(conditional)) res <- res[setdiff(seq_len(object$nobs), conditional)]
     return(res)
+  }
+
+  if (object$model == "skew_t_leverage") {
+    stop("method = \"tmb\" is not available for the skew_t_leverage model. Use method = \"grid\".")
   }
 
   if (is.null(conditional)) conditional <- 1:(object$nobs - 100)
@@ -83,7 +88,7 @@ osa_grid <- function(object, grid_size = 500, width = 8) {
   sigma_y <- get_par("sigma_y")
   sigma_h <- get_par("sigma_h")
   phi <- get_par("phi")
-  rho <- if (model %in% c("leverage", "skew_gaussian_leverage")) get_par("rho") else 0
+  rho <- if (model %in% c("leverage", "skew_gaussian_leverage", "skew_t_leverage")) get_par("rho") else 0
   c_rho <- sqrt(1 - rho^2)
 
   sd0 <- sigma_h / sqrt(1 - phi^2)
@@ -96,7 +101,7 @@ osa_grid <- function(object, grid_size = 500, width = 8) {
     k <- s * sqrt((df - 2) / df)
     cdf <- function(yt, idx) stats::pt(yt / k[idx], df)
     logpdf <- function(yt, idx) stats::dt(yt / k[idx], df, log = TRUE) - log(k[idx])
-  } else if (model == "skew_t") {
+  } else if (model %in% c("skew_t", "skew_t_leverage")) {
     df_left <- get_par("df_left")
     df_right <- get_par("df_right")
     cdf <- function(yt, idx) pskew_t(yt / s[idx], df_left, df_right)
@@ -147,7 +152,7 @@ osa_grid <- function(object, grid_size = 500, width = 8) {
       if (t == n) break
       logp <- logpdf(y[t], idx)
       post <- wt * exp(logp - max(logp))
-      if (model == "skew_gaussian_leverage") {
+      if (model %in% c("skew_gaussian_leverage", "skew_t_leverage")) {
         # The return shock drives the volatility shock, so the transition depends on y_t
         z <- y[t] / s[idx]
         w <- colSums(post * transition(phi * g[idx] + sigma_h * rho * z, sigma_h * c_rho))

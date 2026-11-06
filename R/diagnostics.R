@@ -133,7 +133,8 @@ plot_returns <- function(x, level = 0.95, dates = NULL) {
       df <- get_par("df")
       stats::qt(p, df = df) * sqrt((df - 2) / df)
     },
-    skew_t = qskew_t(p, get_par("df_left"), get_par("df_right")),
+    skew_t = ,
+    skew_t_leverage = qskew_t(p, get_par("df_left"), get_par("df_right")),
     skew_gaussian = ,
     skew_gaussian_leverage = {
       alpha <- get_par("alpha")

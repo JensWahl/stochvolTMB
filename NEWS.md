@@ -12,6 +12,9 @@
 * New model `skew_t`: the skew t distribution of Jones and Faddy (2003), standardized to mean zero and unit variance,
   with separate degrees of freedom for the left and the right tail (`df_left`, `df_right`). Supported by
   `estimate_parameters()`, `sim_sv()`, `predict()`, `residuals()` and `plot_returns()`.
+* New model `skew_t_leverage`: the skew t return shock drives the volatility shock, as in `skew_gaussian_leverage`.
+  It estimates `df_left`, `df_right` and `rho`. On the S&P 500 data it has the smallest AIC of all models, and its
+  one-step-ahead residuals have a straight Q-Q plot. `residuals(method = "tmb")` is not available for this model.
 * The degrees of freedom of the `t` and `skew_t` models are capped at 10,000. For larger values the `lgamma`
   differences in the density lost all precision, and the fit of the `t` model could run to `df = 1e14` with a
   meaningless likelihood. At 10,000 degrees of freedom the distribution is gaussian for all practical purposes.

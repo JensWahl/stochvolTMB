@@ -53,3 +53,26 @@ test_that("skew_t model recovers the tail parameters", {
   expect_true(all(sim_par[, c("df_left", "df_right")] > 2))
 
 })
+
+
+test_that("skew_t_leverage model recovers tails and leverage", {
+
+  param <- list(phi = 0.95, sigma_h = 0.25, sigma_y = 0.2, df_left = 4, df_right = 10, rho = -0.7)
+  data <- sim_sv(param = param, nobs = 1500, seed = 1, model = "skew_t_leverage")
+  opt <- estimate_parameters(data$y, model = "skew_t_leverage", silent = TRUE)
+  est <- summary(opt, report = "transformed")
+
+  expect_equal(opt$fit$convergence, 0)
+  expect_true(opt$rep$pdHess)
+  expect_lt(abs(est[parameter == "rho", estimate] - param$rho), 0.15)
+  expect_lt(est[parameter == "df_left", estimate], est[parameter == "df_right", estimate])
+
+  pred <- predict(opt, steps = 3, nsim = 500)
+  expect_equal(dim(pred$y), c(3, 500))
+  expect_true(all(is.finite(pred$y)))
+
+  res <- residuals(opt)
+  expect_length(res, opt$nobs)
+  expect_lt(abs(sd(res) - 1), 0.1)
+
+})

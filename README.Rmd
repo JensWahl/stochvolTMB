@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 
 `stochvolTMB` is a package for fitting stochastic volatility (SV) models to time series data. It is inspired by the package [stochvol](https://github.com/gregorkastner/stochvol), but parameter estimates are obtained through optimization and not MCMC, leading to significant speed up. It is built on [Template Model Builder](https://github.com/kaskr/adcomp) for fast and efficient estimation. The latent volatility is integrated out of the likelihood using the Laplace approximation and automatic differentiation (AD) is used for accurate evaluation of derivatives. 
 
-Six models for the observational error are implemented. Select a model with the `model` argument of `estimate_parameters`: 
+Seven models for the observational error are implemented. Select a model with the `model` argument of `estimate_parameters`: 
 
 * **Gaussian** (`"gaussian"`) - The classic SV model with Gaussian noise 
 * **t** (`"t"`) - t-distributed noise for heavy tail returns 
@@ -34,6 +34,7 @@ Six models for the observational error are implemented. Select a model with the 
 * **Skew-Gaussian** (`"skew_gaussian"`) - Skew-Gaussian distributed noise for asymmetric returns
 * **Skew-Gaussian with leverage** (`"skew_gaussian_leverage"`) - Combines asymmetric returns with the leverage effect
 * **Skew-t** (`"skew_t"`) - Skew t distributed noise with separate degrees of freedom for the left and the right tail
+* **Skew-t with leverage** (`"skew_t_leverage"`) - Combines heavy and asymmetric tails with the leverage effect
 
 
 ## Installation
@@ -60,7 +61,7 @@ remotes::install_github("JensWahl/stochvolTMB", dependencies = TRUE, build_vigne
 
 The main function for estimating parameters is `estimate_parameters`:
 
-```{r example, fig.alt = c("Estimated volatility of the S&P 500 with a 95% confidence interval", "S&P 500 returns with the 95% interval from the skew-Gaussian leverage model")}
+```{r example, fig.alt = c("Estimated volatility of the S&P 500 with a 95% confidence interval", "S&P 500 returns with the 95% interval from the skew-t leverage model")}
 library(stochvolTMB, warn.conflicts = FALSE)
 
 # load s&p500 data from 2005 to 2018
@@ -73,9 +74,10 @@ skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", si
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 skew_gaussian_leverage <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
 skew_t <- estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
+skew_t_leverage <- estimate_parameters(spy$log_return, model = "skew_t_leverage", silent = TRUE)
 
 # the models with leverage stand out with an AIC far below the other models
-AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage)
+AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage, skew_t_leverage)
 
 # the skew models report the skewness and the shape parameter alpha
 summary(skew_gaussian_leverage, report = "transformed")
@@ -88,7 +90,7 @@ head(estimates, 10)
 plot(leverage, include_ci = TRUE, dates = spy$date)
 
 # plot the returns with the 95 % interval of the fitted model
-plot_returns(skew_gaussian_leverage, dates = spy$date)
+plot_returns(skew_t_leverage, dates = spy$date)
 
 
 ```
@@ -112,8 +114,8 @@ plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
 
 To check the fit with one-step-ahead residuals, use `plot_diagnostics`. It shows a Q-Q plot and the autocorrelation of the residuals and of the squared residuals:
 
-```{r fig.height=3.5, fig.alt = "Q-Q plot and autocorrelation of the one-step-ahead residuals of the skew-Gaussian leverage model"}
-plot_diagnostics(skew_gaussian_leverage)
+```{r fig.height=3.5, fig.alt = "Q-Q plot and autocorrelation of the one-step-ahead residuals of the skew-t leverage model"}
+plot_diagnostics(skew_t_leverage)
 ```
 
 ## Shiny app 
