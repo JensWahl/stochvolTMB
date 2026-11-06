@@ -275,6 +275,34 @@ uncertainty.</td>
 <td align="left">Plot diagnostics based on one-step-ahead
 residuals.</td>
 </tr>
+<tr class="odd">
+<td align="left"><code>compare_models</code></td>
+<td align="left">Fit several models and rank them by AIC.</td>
+</tr>
+<tr class="even">
+<td align="left">
+<code>coef</code>, <code>vcov</code>
+</td>
+<td align="left">Parameter estimates and their covariance matrix.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>var_es</code></td>
+<td align="left">One-day Value at Risk and Expected Shortfall.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>forecast_var_es</code></td>
+<td align="left">Value at Risk and Expected Shortfall for several
+days.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>backtest_var</code></td>
+<td align="left">Backtest the Value at Risk.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>plot_var</code></td>
+<td align="left">Plot returns with the Value at Risk and Expected
+Shortfall.</td>
+</tr>
 </tbody>
 </table>
 <p><code>estimate_parameters</code> returns an object of class
@@ -308,15 +336,20 @@ data:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">date</span>, <span class="va">spy</span><span class="op">$</span><span class="va">price</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Price of S&amp;P500"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-2-2.png" class="r-plt" alt="" width="672"></p>
-<p>We fit all seven models:</p>
+<p>We fit all seven models with <code>compare_models</code>. It calls
+<code>estimate_parameters</code> for each model and stores the fitted
+models in the attribute <code>"fits"</code>. To fit one model, use
+<code>estimate_parameters(spy$log_return, model = "leverage")</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gaussian</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"gaussian"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">t_dist</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"t"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">skew_gaussian</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">skew_gaussian_leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">skew_t</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_t"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">skew_t_leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_t_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_models.html">compare_models</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">comparison</span>, <span class="st">"fits"</span><span class="op">)</span></span>
+<span><span class="va">gaussian</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">$</span><span class="va">gaussian</span></span>
+<span><span class="va">t_dist</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">$</span><span class="va">t</span></span>
+<span><span class="va">skew_gaussian</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">$</span><span class="va">skew_gaussian</span></span>
+<span><span class="va">leverage</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">$</span><span class="va">leverage</span></span>
+<span><span class="va">skew_gaussian_leverage</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">$</span><span class="va">skew_gaussian_leverage</span></span>
+<span><span class="va">skew_t</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">$</span><span class="va">skew_t</span></span>
+<span><span class="va">skew_t_leverage</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">$</span><span class="va">skew_t_leverage</span></span></code></pre></div>
 <p>We can investigate the estimate for the degrees of freedom
 (<code>df</code>) to see if the returns are heavy-tailed</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -363,24 +396,31 @@ better fit:</p>
 <span><span class="co">#&gt; 5:     alpha -1.82972879 0.1306960200 -13.99988  1.561309e-44 transformed</span></span>
 <span><span class="co">#&gt; 6:       rho -0.83719989 0.0226025017 -37.04014 2.588099e-300 transformed</span></span></code></pre></div>
 <p>To find the model that fits the data best, we can compare the <a href="https://en.wikipedia.org/wiki/Akaike_information_criterion" class="external-link">AIC</a>
-of our models and pick the smallest.</p>
+of our models and pick the smallest. <code>compare_models</code> returns
+the models ranked by AIC. The columns <code>converged</code> and
+<code>pd_hessian</code> show if the optimizer converged and if the
+Hessian is positive definite. If one of them is <code>FALSE</code>, the
+estimates of that model are not reliable.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC</a></span><span class="op">(</span><span class="va">gaussian</span>,</span>
-<span>    <span class="va">t_dist</span>,</span>
-<span>    <span class="va">skew_gaussian</span>,</span>
-<span>    <span class="va">skew_t</span>,</span>
-<span>    <span class="va">leverage</span>,</span>
-<span>    <span class="va">skew_gaussian_leverage</span>,</span>
-<span>    <span class="va">skew_t_leverage</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                        df       AIC</span></span>
-<span><span class="co">#&gt; gaussian                3 -23430.57</span></span>
-<span><span class="co">#&gt; t_dist                  4 -23451.69</span></span>
-<span><span class="co">#&gt; skew_gaussian           4 -23440.72</span></span>
-<span><span class="co">#&gt; skew_t                  5 -23459.72</span></span>
-<span><span class="co">#&gt; leverage                4 -23608.85</span></span>
-<span><span class="co">#&gt; skew_gaussian_leverage  5 -23698.59</span></span>
-<span><span class="co">#&gt; skew_t_leverage         6 -23721.38</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">comparison</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">model</span>, <span class="va">n_par</span>, <span class="va">log_lik</span>, <span class="va">aic</span>, <span class="va">bic</span>, <span class="va">delta_aic</span>, <span class="va">converged</span>, <span class="va">pd_hessian</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                     model n_par  log_lik       aic       bic delta_aic</span></span>
+<span><span class="co">#&gt;                    &lt;char&gt; &lt;int&gt;    &lt;num&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        skew_t_leverage     6 11866.69 -23721.38 -23684.38   0.00000</span></span>
+<span><span class="co">#&gt; 2: skew_gaussian_leverage     5 11854.30 -23698.59 -23667.76  22.78558</span></span>
+<span><span class="co">#&gt; 3:               leverage     4 11808.43 -23608.85 -23584.18 112.52674</span></span>
+<span><span class="co">#&gt; 4:                 skew_t     5 11734.86 -23459.72 -23428.89 261.65871</span></span>
+<span><span class="co">#&gt; 5:                      t     4 11729.85 -23451.69 -23427.02 269.68665</span></span>
+<span><span class="co">#&gt; 6:          skew_gaussian     4 11724.36 -23440.72 -23416.06 280.65545</span></span>
+<span><span class="co">#&gt; 7:               gaussian     3 11718.29 -23430.57 -23412.07 290.80456</span></span>
+<span><span class="co">#&gt;    converged pd_hessian</span></span>
+<span><span class="co">#&gt;       &lt;lgcl&gt;     &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1:      TRUE       TRUE</span></span>
+<span><span class="co">#&gt; 2:      TRUE       TRUE</span></span>
+<span><span class="co">#&gt; 3:      TRUE       TRUE</span></span>
+<span><span class="co">#&gt; 4:      TRUE       TRUE</span></span>
+<span><span class="co">#&gt; 5:      TRUE       TRUE</span></span>
+<span><span class="co">#&gt; 6:      TRUE       TRUE</span></span>
+<span><span class="co">#&gt; 7:      TRUE       TRUE</span></span></code></pre></div>
 <p>The skew-t model with leverage has the smallest AIC. It estimates one
 degree of freedom for each tail and the leverage <span class="math inline">\(\rho\)</span>. The left tail of the S&amp;P 500
 returns is clearly heavier than the right tail, and the correlation
@@ -396,13 +436,24 @@ negative:</p>
 <span><span class="co">#&gt; 4:   df_left  8.633938213 1.5493998448   5.57244 2.511955e-08 transformed</span></span>
 <span><span class="co">#&gt; 5:  df_right 15.174235582 3.7766675111   4.01789 5.872153e-05 transformed</span></span>
 <span><span class="co">#&gt; 6:       rho -0.870746622 0.0201355143 -43.24432 0.000000e+00 transformed</span></span></code></pre></div>
+<p><code>coef</code> and <code>vcov</code> return the estimates on their
+natural scale and their covariance matrix. With
+<code>scale = "estimation"</code> they use the scale that the parameters
+were estimated on:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">skew_t_leverage</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      sigma_y      sigma_h          phi      df_left     df_right          rho </span></span>
+<span><span class="co">#&gt;  0.007960946  0.266050218  0.975054402  8.633938213 15.174235582 -0.870746622</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">skew_t_leverage</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      sigma_y      sigma_h          phi      df_left     df_right          rho </span></span>
+<span><span class="co">#&gt; 0.0003943647 0.0179234176 0.0035924729 1.5493998448 3.7766675111 0.0201355143</span></span></code></pre></div>
 <p>We can compare the leverage model with the skew-Gaussian leverage
 model to see if adding skewness improves the fit.</p>
 <p>The skew-Gaussian models report both <code>skewness</code> and the
 shape parameter <code>alpha</code> (see <a href="#skewness-and-the-shape-parameter">Skewness and the shape
 parameter</a>). Use <code>skewness</code> for inference. To simulate
 from the model, give <code>alpha</code> to <code>sim_sv</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>phi <span class="op">=</span> <span class="fl">0.95</span>, sigma_h <span class="op">=</span> <span class="fl">0.25</span>, sigma_y <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="op">-</span><span class="fl">2</span>, rho <span class="op">=</span> <span class="op">-</span><span class="fl">0.7</span><span class="op">)</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_sv.html">sim_sv</a></span><span class="op">(</span><span class="va">param</span>, nobs <span class="op">=</span> <span class="fl">2000</span>, seed <span class="op">=</span> <span class="fl">1</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">y</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -417,12 +468,12 @@ from the model, give <code>alpha</code> to <code>sim_sv</code>:</p>
 <span><span class="co">#&gt; 6:       rho -0.70745465 0.0576766555 -12.265875  1.381122e-34 transformed</span></span></code></pre></div>
 <p>Lastly, we can also plot the estimated log-volatility and
 volatility:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">leverage</span>, include_ci <span class="op">=</span> <span class="cn">TRUE</span>, plot_log <span class="op">=</span> <span class="cn">TRUE</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">leverage</span>, include_ci <span class="op">=</span> <span class="cn">TRUE</span>, plot_log <span class="op">=</span> <span class="cn">TRUE</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">leverage</span>, include_ci <span class="op">=</span> <span class="cn">TRUE</span>, plot_log <span class="op">=</span> <span class="cn">FALSE</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-2.png" class="r-plt" alt="" width="672"></p>
 <p>We can simulate future returns with <code>predict</code>. This
 function returns three matrices of dimension <span class="math inline">\(\#\)</span> steps <span class="math inline">\(\times\)</span> #$ simulations: (1) the latent
 log-volatility <code>h</code>; (2) one for the percentage volatility
@@ -434,51 +485,51 @@ summarize the output from <code>predict</code>, we use the
 <code>summary</code> function, that calculate the mean and different
 quantiles based on the sumulations. We use the leverage model as an
 example:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pred</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">leverage</span>, steps <span class="op">=</span> <span class="fl">10</span>, include_parameters <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pred</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $y</span></span>
 <span><span class="co">#&gt;      time quantile_0.025 quantile_0.975          mean</span></span>
 <span><span class="co">#&gt;     &lt;int&gt;          &lt;num&gt;          &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:     1    -0.03693254     0.03638090 -8.346800e-05</span></span>
-<span><span class="co">#&gt;  2:     2    -0.03642909     0.03656511 -6.195944e-06</span></span>
-<span><span class="co">#&gt;  3:     3    -0.03776351     0.03560746 -1.900859e-04</span></span>
-<span><span class="co">#&gt;  4:     4    -0.03613583     0.03601838  2.238313e-04</span></span>
-<span><span class="co">#&gt;  5:     5    -0.03677749     0.03538381 -4.693050e-04</span></span>
-<span><span class="co">#&gt;  6:     6    -0.03563577     0.03430740 -3.192042e-05</span></span>
-<span><span class="co">#&gt;  7:     7    -0.03592050     0.03558189 -3.523342e-05</span></span>
-<span><span class="co">#&gt;  8:     8    -0.03618361     0.03486065 -3.855303e-04</span></span>
-<span><span class="co">#&gt;  9:     9    -0.03644212     0.03554776  7.430682e-05</span></span>
-<span><span class="co">#&gt; 10:    10    -0.03559686     0.03478340  1.200296e-04</span></span>
+<span><span class="co">#&gt;  1:     1    -0.03390928     0.03578714  1.884305e-04</span></span>
+<span><span class="co">#&gt;  2:     2    -0.03468329     0.03533891  1.936343e-04</span></span>
+<span><span class="co">#&gt;  3:     3    -0.03399761     0.03578401  5.544499e-04</span></span>
+<span><span class="co">#&gt;  4:     4    -0.03539847     0.03482133 -7.306338e-05</span></span>
+<span><span class="co">#&gt;  5:     5    -0.03507907     0.03531515 -1.994870e-04</span></span>
+<span><span class="co">#&gt;  6:     6    -0.03346930     0.03283918  3.510375e-05</span></span>
+<span><span class="co">#&gt;  7:     7    -0.03382748     0.03325664 -6.717707e-05</span></span>
+<span><span class="co">#&gt;  8:     8    -0.03510687     0.03489823  5.258260e-05</span></span>
+<span><span class="co">#&gt;  9:     9    -0.03276020     0.03321078 -5.889527e-05</span></span>
+<span><span class="co">#&gt; 10:    10    -0.03267239     0.03235914  7.830765e-05</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $h</span></span>
 <span><span class="co">#&gt;      time quantile_0.025 quantile_0.975     mean</span></span>
 <span><span class="co">#&gt;     &lt;int&gt;          &lt;num&gt;          &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:     1     0.37864094       2.476768 1.438236</span></span>
-<span><span class="co">#&gt;  2:     2     0.24691482       2.518899 1.394228</span></span>
-<span><span class="co">#&gt;  3:     3     0.10621212       2.571115 1.346337</span></span>
-<span><span class="co">#&gt;  4:     4    -0.04017098       2.623386 1.303985</span></span>
-<span><span class="co">#&gt;  5:     5    -0.15321414       2.631132 1.259683</span></span>
-<span><span class="co">#&gt;  6:     6    -0.25823265       2.674665 1.227349</span></span>
-<span><span class="co">#&gt;  7:     7    -0.35948292       2.658939 1.185892</span></span>
-<span><span class="co">#&gt;  8:     8    -0.43005116       2.695298 1.148238</span></span>
-<span><span class="co">#&gt;  9:     9    -0.52841071       2.699842 1.113199</span></span>
-<span><span class="co">#&gt; 10:    10    -0.58582864       2.697947 1.073842</span></span>
+<span><span class="co">#&gt;  1:     1     0.31931862       2.334532 1.339585</span></span>
+<span><span class="co">#&gt;  2:     2     0.17822570       2.395486 1.292486</span></span>
+<span><span class="co">#&gt;  3:     3     0.02750050       2.430255 1.248190</span></span>
+<span><span class="co">#&gt;  4:     4    -0.09583098       2.470918 1.200189</span></span>
+<span><span class="co">#&gt;  5:     5    -0.20219156       2.518019 1.162225</span></span>
+<span><span class="co">#&gt;  6:     6    -0.30001617       2.554602 1.127301</span></span>
+<span><span class="co">#&gt;  7:     7    -0.41465269       2.572237 1.087347</span></span>
+<span><span class="co">#&gt;  8:     8    -0.50276170       2.586219 1.054988</span></span>
+<span><span class="co">#&gt;  9:     9    -0.57345287       2.587513 1.019523</span></span>
+<span><span class="co">#&gt; 10:    10    -0.63395327       2.576489 0.984883</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $h_exp</span></span>
 <span><span class="co">#&gt;      time quantile_0.025 quantile_0.975       mean</span></span>
 <span><span class="co">#&gt;     &lt;int&gt;          &lt;num&gt;          &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:     1    0.010055528     0.02927974 0.01773806</span></span>
-<span><span class="co">#&gt;  2:     2    0.009327469     0.02982102 0.01750351</span></span>
-<span><span class="co">#&gt;  3:     3    0.008689145     0.03033649 0.01721214</span></span>
-<span><span class="co">#&gt;  4:     4    0.008107380     0.03096944 0.01695574</span></span>
-<span><span class="co">#&gt;  5:     5    0.007672233     0.03136660 0.01671858</span></span>
-<span><span class="co">#&gt;  6:     6    0.007269824     0.03187262 0.01650867</span></span>
-<span><span class="co">#&gt;  7:     7    0.006961065     0.03162556 0.01625110</span></span>
-<span><span class="co">#&gt;  8:     8    0.006702865     0.03211127 0.01604322</span></span>
-<span><span class="co">#&gt;  9:     9    0.006377058     0.03230435 0.01582043</span></span>
-<span><span class="co">#&gt; 10:    10    0.006152712     0.03217576 0.01558360</span></span>
+<span><span class="co">#&gt;  1:     1    0.009761833     0.02722296 0.01684402</span></span>
+<span><span class="co">#&gt;  2:     2    0.009014912     0.02788159 0.01659453</span></span>
+<span><span class="co">#&gt;  3:     3    0.008408949     0.02848258 0.01634075</span></span>
+<span><span class="co">#&gt;  4:     4    0.007923682     0.02883650 0.01604671</span></span>
+<span><span class="co">#&gt;  5:     5    0.007476405     0.02979495 0.01590138</span></span>
+<span><span class="co">#&gt;  6:     6    0.007046611     0.02985945 0.01566272</span></span>
+<span><span class="co">#&gt;  7:     7    0.006736679     0.03007695 0.01542462</span></span>
+<span><span class="co">#&gt;  8:     8    0.006459636     0.03070045 0.01527495</span></span>
+<span><span class="co">#&gt;  9:     9    0.006201696     0.03038732 0.01502129</span></span>
+<span><span class="co">#&gt; 10:    10    0.006029914     0.03064286 0.01481078</span></span>
 <span></span>
 <span><span class="co"># plot the forecast</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">leverage</span>, forecast <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">3200</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">spy</span><span class="op">)</span> <span class="op">+</span> <span class="fl">50</span><span class="op">)</span></span>
@@ -490,7 +541,7 @@ example:</p>
 <span><span class="co">#&gt; (`geom_line()`).</span></span>
 <span><span class="co">#&gt; Warning: Removed 3199 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_ribbon()`).</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="672"></p>
 <div class="section level3">
 <h3 id="checking-the-fit">Checking the fit<a class="anchor" aria-label="anchor" href="#checking-the-fit"></a>
 </h3>
@@ -502,9 +553,9 @@ models. Returns outside the interval are red, and the subtitle gives
 their share. For a good model the share is close to 5%. The interval
 uses the smoothed log-volatility, which also uses the return on the same
 day, so this is an optimistic, in-sample check.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_returns.html">plot_returns</a></span><span class="op">(</span><span class="va">skew_t_leverage</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="672"></p>
 <p>A stricter check uses one-step-ahead (OSA) residuals (<span class="citation">Thygesen et al. (2017)</span>). The OSA residual of
 <span class="math inline">\(y_t\)</span> is <span class="math inline">\(\Phi^{-1}(F_t(y_t))\)</span>, where <span class="math inline">\(F_t\)</span> is the predictive distribution
 function of <span class="math inline">\(y_t\)</span> given <span class="math inline">\(y_1, \dots, y_{t-1}\)</span>. If the model is
@@ -528,12 +579,12 @@ volatility clustering that the model does not capture.</li>
 </ul>
 <p>We compare the Gaussian model with the skew-t model with
 leverage:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">gaussian</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">gaussian</span><span class="op">)</span></span></code></pre></div>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">skew_t_leverage</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-2.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-15-2.png" class="r-plt" alt="" width="672"></p>
 <p>For the Gaussian model the Q-Q plot bends down in the left tail:
 there are more large negative returns than the model expects. For the
 skew-t model with leverage the Q-Q plot is a straight line, also for the
@@ -545,6 +596,128 @@ skew-t model with leverage, the autocorrelation of the squared residuals
 at lag 1 is also negative. This suggests that, after a large shock, the
 model increases the predicted volatility slightly too much.</p>
 </div>
+<div class="section level3">
+<h3 id="value-at-risk-and-expected-shortfall">Value at Risk and Expected Shortfall<a class="anchor" aria-label="anchor" href="#value-at-risk-and-expected-shortfall"></a>
+</h3>
+<p>A common use of a volatility model is to measure the risk of a
+position. For a level <span class="math inline">\(\alpha\)</span>, for
+example <span class="math inline">\(\alpha = 0.99\)</span>, the one-day
+<em>Value at Risk</em> (VaR) is the loss that the return on day <span class="math inline">\(t\)</span> is below only with probability <span class="math inline">\(1 - \alpha\)</span>. The <em>Expected
+Shortfall</em> (ES) is the expected loss on the days when the loss is
+larger than the VaR. Let <span class="math inline">\(q_t\)</span> be the
+<span class="math inline">\(1 - \alpha\)</span> quantile of the
+predictive distribution <span class="math inline">\(F_t\)</span> of
+<span class="math inline">\(y_t\)</span> given <span class="math inline">\(y_1, \dots, y_{t-1}\)</span>. Then <span class="math display">\[\begin{equation}
+    \mathrm{VaR}_t = -q_t, \qquad \mathrm{ES}_t = -\mathrm{E}[y_t \mid
+y_t \le q_t, y_1, \dots, y_{t-1}].
+\end{equation}\]</span> Both are positive numbers when they are losses,
+on the scale of the log-returns.</p>
+<p><code>var_es</code> calculates <span class="math inline">\(F_t\)</span> with the same filter as the
+one-step-ahead residuals (see <a href="#one-step-ahead-residuals">One-step-ahead residuals</a>). On the
+grid, <span class="math inline">\(F_t\)</span> is a mixture: <span class="math inline">\(F_t(y) = \sum_j w_t(j) F(y \mid g_j)\)</span>. In
+all models, <span class="math inline">\(y_t / (\sigma_y
+e^{h_t/2})\)</span> given <span class="math inline">\(h_t\)</span> has a
+fixed standardized distribution <span class="math inline">\(G\)</span>
+with mean zero and unit variance, so <span class="math inline">\(F(y
+\mid g_j) = G(y / s_j)\)</span> with <span class="math inline">\(s_j =
+\sigma_y e^{g_j/2}\)</span>. The quantile <span class="math inline">\(q_t\)</span> is the root of <span class="math inline">\(F_t(q) = 1 - \alpha\)</span>, and <span class="math display">\[\begin{equation}
+    \mathrm{ES}_t = -\frac{1}{1 - \alpha} \sum_j w_t(j) \, s_j \,
+M\left(\frac{q_t}{s_j}\right), \qquad M(c) = \mathrm{E}[Z \, 1(Z \le
+c)], \; Z \sim G.
+\end{equation}\]</span> <span class="math inline">\(M\)</span> has a
+closed form for the Gaussian, t and skew-Gaussian distributions. For the
+skew t distribution it is calculated numerically on a fine grid.
+<code>var_es</code> returns one row for each day and level, and the last
+row is the forecast for the next day after the data:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">risk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/var_es.html">var_es</a></span><span class="op">(</span><span class="va">skew_t_leverage</span>, level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.99</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">risk</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;     time level     y        var         es exceedance</span></span>
+<span><span class="co">#&gt;    &lt;int&gt; &lt;num&gt; &lt;num&gt;      &lt;num&gt;      &lt;num&gt;     &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1:  3523  0.95    NA 0.03181108 0.04560319         NA</span></span>
+<span><span class="co">#&gt; 2:  3523  0.99    NA 0.05359064 0.06893175         NA</span></span></code></pre></div>
+<p>The parameters are fixed at their estimates from all the data, so the
+values for the observed days are in-sample.</p>
+<div class="section level4">
+<h4 id="backtesting">Backtesting<a class="anchor" aria-label="anchor" href="#backtesting"></a>
+</h4>
+<p>A return is an <em>exceedance</em> if <span class="math inline">\(y_t
+&lt; -\mathrm{VaR}_t\)</span>. For a correct model, the exceedances
+happen on a fraction <span class="math inline">\(1 - \alpha\)</span> of
+the days, independently of each other. <code>backtest_var</code> tests
+both:</p>
+<ul>
+<li>The <em>unconditional coverage</em> test of <span class="citation">Kupiec (1995)</span> compares the number of exceedances
+with the expected number. A small p-value (<code>p_uc</code>) means that
+there are too many or too few exceedances.</li>
+<li>The <em>independence</em> test of <span class="citation">Christoffersen (1998)</span> checks if an exceedance is
+more likely on the day after an exceedance. A small p-value
+(<code>p_ind</code>) means that the exceedances come in clusters. This
+happens when the model reacts too slowly to a change in volatility.</li>
+<li>The <em>conditional coverage</em> test combines the two
+(<code>p_cc</code>).</li>
+</ul>
+<p><code>es_ratio</code> is the mean of <span class="math inline">\(-y_t
+/ \mathrm{ES}_t\)</span> over the exceedances. It is close to one when
+the ES is correct.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/backtest_var.html">backtest_var</a></span><span class="op">(</span><span class="va">risk</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    level     n expected observed        rate      lr_uc      p_uc    lr_ind</span></span>
+<span><span class="co">#&gt;    &lt;num&gt; &lt;int&gt;    &lt;num&gt;    &lt;int&gt;       &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  0.95  3522   176.10      191 0.054230551 1.29303116 0.2554901 1.3599331</span></span>
+<span><span class="co">#&gt; 2:  0.99  3522    35.22       34 0.009653606 0.04318348 0.8353802 0.9112984</span></span>
+<span><span class="co">#&gt;        p_ind     lr_cc      p_cc  es_ratio</span></span>
+<span><span class="co">#&gt;        &lt;num&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 0.2435491 2.6529642 0.2654093 0.9890637</span></span>
+<span><span class="co">#&gt; 2: 0.3397702 0.9544819 0.6204930 1.0067746</span></span>
+<span><span class="fu"><a href="../reference/backtest_var.html">backtest_var</a></span><span class="op">(</span><span class="fu"><a href="../reference/var_es.html">var_es</a></span><span class="op">(</span><span class="va">gaussian</span>, level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.99</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    level     n expected observed       rate    lr_uc         p_uc   lr_ind</span></span>
+<span><span class="co">#&gt;    &lt;num&gt; &lt;int&gt;    &lt;num&gt;    &lt;int&gt;      &lt;num&gt;    &lt;num&gt;        &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  0.95  3522   176.10      208 0.05905735  5.76331 0.0163642133 1.083807</span></span>
+<span><span class="co">#&gt; 2:  0.99  3522    35.22       60 0.01703578 14.54418 0.0001369108 2.638690</span></span>
+<span><span class="co">#&gt;        p_ind     lr_cc         p_cc es_ratio</span></span>
+<span><span class="co">#&gt;        &lt;num&gt;     &lt;num&gt;        &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 0.2978474  6.847118 0.0325962219 1.094632</span></span>
+<span><span class="co">#&gt; 2: 0.1042895 17.182871 0.0001856893 1.080347</span></span></code></pre></div>
+<p>The Gaussian model has too many exceedances, in particular at the 99%
+level, because its tails are too light. The skew-t model with leverage
+has close to the expected number of exceedances at both levels, and its
+<code>es_ratio</code> is close to one. <code>plot_var</code> shows the
+returns with <span class="math inline">\(-\mathrm{VaR}_t\)</span> and
+<span class="math inline">\(-\mathrm{ES}_t\)</span> and marks the
+exceedances:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_var.html">plot_var</a></span><span class="op">(</span><span class="va">risk</span>, level <span class="op">=</span> <span class="fl">0.99</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="672"></p>
+</div>
+<div class="section level4">
+<h4 id="more-than-one-day-ahead">More than one day ahead<a class="anchor" aria-label="anchor" href="#more-than-one-day-ahead"></a>
+</h4>
+<p>For more than one day there is no simple formula for the distribution
+of the returns. <code>forecast_var_es</code> therefore simulates future
+paths with <code>predict</code> and calculates VaR and ES for each day
+ahead, both for the return on that day and for the cumulative return up
+to that day. By default, the simulation includes the uncertainty of the
+parameters. <code>predict</code> starts from a Gaussian approximation of
+the last log-volatility, so for one day ahead the result differs
+slightly from the exact <code>var_es</code>:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/forecast_var_es.html">forecast_var_es</a></span><span class="op">(</span><span class="va">skew_t_leverage</span>, steps <span class="op">=</span> <span class="fl">10</span>, level <span class="op">=</span> <span class="fl">0.99</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      step level        var         es var_cumulative es_cumulative</span></span>
+<span><span class="co">#&gt;     &lt;int&gt; &lt;num&gt;      &lt;num&gt;      &lt;num&gt;          &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:     1  0.99 0.05284419 0.06827803     0.05284419    0.06827803</span></span>
+<span><span class="co">#&gt;  2:     2  0.99 0.05408404 0.07018714     0.07544342    0.09725807</span></span>
+<span><span class="co">#&gt;  3:     3  0.99 0.05342402 0.06941009     0.09417109    0.11927875</span></span>
+<span><span class="co">#&gt;  4:     4  0.99 0.05437557 0.07234534     0.11113296    0.14179133</span></span>
+<span><span class="co">#&gt;  5:     5  0.99 0.05413629 0.07197306     0.12424638    0.16123284</span></span>
+<span><span class="co">#&gt;  6:     6  0.99 0.05355018 0.07096271     0.13704527    0.17910890</span></span>
+<span><span class="co">#&gt;  7:     7  0.99 0.05425692 0.07263728     0.15025210    0.19660826</span></span>
+<span><span class="co">#&gt;  8:     8  0.99 0.05310403 0.07119998     0.15934538    0.20872529</span></span>
+<span><span class="co">#&gt;  9:     9  0.99 0.05418832 0.07378119     0.17189793    0.22574334</span></span>
+<span><span class="co">#&gt; 10:    10  0.99 0.05326162 0.07256297     0.18142237    0.24064329</span></span></code></pre></div>
+</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="comparison-to-stochvol">Comparison to stochvol<a class="anchor" aria-label="anchor" href="#comparison-to-stochvol"></a>
@@ -555,7 +728,7 @@ Chain Monte Carlo. An advantage of <code>stochvolTMB</code> is that
 optimization can be a lot faster than MCMC. We here compare the leverage
 and the gaussian model. Depending on your machine you can expect a speed
 up of 20-200x.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gregorkastner.github.io/stochvol/" class="external-link">stochvol</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">stochvol_gauss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://gregorkastner.github.io/stochvol/reference/svsample.html" class="external-link">svsample</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, quiet <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
@@ -568,7 +741,7 @@ the parameter <code>exp(mu/2)</code> and <code>sigma</code> from
 <code>stochvol</code> is the same as <code>sigma_y</code> and
 <code>sigma_h</code> from <code>stochvolTMB</code>. Both methods give
 almost identical results.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">stochvol_gauss</span><span class="op">$</span><span class="va">para</span></span>
 <span><span class="co">#&gt;                   mean           sd          5%          50%          95%</span></span>
@@ -825,8 +998,9 @@ They are proportional to <span class="math inline">\(\varphi\big((g_k -
 \end{equation}\]</span> The filter therefore works with the joint
 predictive weights of <span class="math inline">\((h_t,
 h_{t+1})\)</span> on the grid, <span class="math inline">\(w_t(j)
-P_{jk}\)</span>. Steps 1 and 2 sum over both <span class="math inline">\(j\)</span> and <span class="math inline">\(k\)</span>, and the sum over <span class="math inline">\(j\)</span> gives the weights for <span class="math inline">\(h_{t+1}\)</span>. For the last observation <span class="math inline">\(y_T\)</span> there is no <span class="math inline">\(h_{T+1}\)</span>, and <span class="math inline">\(y_T \mid h_T \sim \mathcal{N}(0, \sigma_y^2
-e^{h_T})\)</span>.</p>
+P_{jk}\)</span>. Steps 1 and 2 sum over both <span class="math inline">\(j\)</span> and <span class="math inline">\(k\)</span>, and the sum over <span class="math inline">\(j\)</span> gives the weights for <span class="math inline">\(h_{t+1}\)</span>. Step 1 can also use that <span class="math inline">\(y_t \mid h_t \sim \mathcal{N}(0, \sigma_y^2
+e^{h_t})\)</span> once <span class="math inline">\(h_{t+1}\)</span> is
+integrated out.</p>
 </div>
 <div class="section level4">
 <h4 id="comparison-with-the-laplace-approximation">Comparison with the Laplace approximation<a class="anchor" aria-label="anchor" href="#comparison-with-the-laplace-approximation"></a>
@@ -845,12 +1019,12 @@ approximation.</p>
 <p>We can check the method on simulated data. If we simulate from a
 model and fit the same model, the OSA residuals must be standard
 Gaussian and independent:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>phi <span class="op">=</span> <span class="fl">0.95</span>, sigma_h <span class="op">=</span> <span class="fl">0.3</span>, sigma_y <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>, rho <span class="op">=</span> <span class="op">-</span><span class="fl">0.7</span><span class="op">)</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_sv.html">sim_sv</a></span><span class="op">(</span><span class="va">param</span>, nobs <span class="op">=</span> <span class="fl">3000</span>, seed <span class="op">=</span> <span class="fl">2</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span><span class="op">)</span></span>
 <span><span class="va">fit_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">y</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">fit_sim</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 </div>
 </div>
@@ -858,6 +1032,11 @@ Gaussian and independent:</p>
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-christoffersen1998" class="csl-entry">
+Christoffersen, Peter F. 1998. <span>“Evaluating Interval
+Forecasts.”</span> <em>International Economic Review</em> 39 (4):
+841–62. <a href="https://doi.org/10.2307/2527341" class="external-link">https://doi.org/10.2307/2527341</a>.
+</div>
 <div id="ref-jones2003" class="csl-entry">
 Jones, M. C., and M. J. Faddy. 2003. <span>“A Skew Extension of the
 t-Distribution, with Applications.”</span> <em>Journal of the Royal
@@ -874,6 +1053,11 @@ Kristensen, Kasper, Anders Nielsen, Casper Berg, Hans Skaug, and Bradley
 Bell. 2016. <span>“TMB: Automatic Differentiation and Laplace
 Approximation.”</span> <em>Journal of Statistical Software,
 Articles</em> 70 (5): 1–21. <a href="https://doi.org/10.18637/jss.v070.i05" class="external-link">https://doi.org/10.18637/jss.v070.i05</a>.
+</div>
+<div id="ref-kupiec1995" class="csl-entry">
+Kupiec, Paul H. 1995. <span>“Techniques for Verifying the Accuracy of
+Risk Measurement Models.”</span> <em>The Journal of Derivatives</em> 3
+(2): 73–84. <a href="https://doi.org/10.3905/jod.1995.407942" class="external-link">https://doi.org/10.3905/jod.1995.407942</a>.
 </div>
 <div id="ref-Taylor_SV_1982" class="csl-entry">
 Taylor, S. J. 1982. <span>“Financial Returns Modelled by the Product of

@@ -61,25 +61,41 @@ library(stochvolTMB, warn.conflicts = FALSE)
 # load s&p500 data from 2005 to 2018
 data(spy)
 
-# find the best model using AIC 
-gaussian <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
-t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
-skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
-leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
-skew_gaussian_leverage <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
-skew_t <- estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
-skew_t_leverage <- estimate_parameters(spy$log_return, model = "skew_t_leverage", silent = TRUE)
+# fit all seven models and rank them by AIC
+comparison <- compare_models(spy$log_return)
+comparison[, .(model, n_par, log_lik, aic, bic, delta_aic, converged)]
+#>                     model n_par  log_lik       aic       bic delta_aic
+#>                    <char> <int>    <num>     <num>     <num>     <num>
+#> 1:        skew_t_leverage     6 11866.69 -23721.38 -23684.38   0.00000
+#> 2: skew_gaussian_leverage     5 11854.30 -23698.59 -23667.76  22.78558
+#> 3:               leverage     4 11808.43 -23608.85 -23584.18 112.52674
+#> 4:                 skew_t     5 11734.86 -23459.72 -23428.89 261.65871
+#> 5:                      t     4 11729.85 -23451.69 -23427.02 269.68665
+#> 6:          skew_gaussian     4 11724.36 -23440.72 -23416.06 280.65545
+#> 7:               gaussian     3 11718.29 -23430.57 -23412.07 290.80456
+#>    converged
+#>       <lgcl>
+#> 1:      TRUE
+#> 2:      TRUE
+#> 3:      TRUE
+#> 4:      TRUE
+#> 5:      TRUE
+#> 6:      TRUE
+#> 7:      TRUE
 
-# the models with leverage stand out with an AIC far below the other models
-AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage, skew_t_leverage)
-#>                        df       AIC
-#> gaussian                3 -23430.57
-#> t_dist                  4 -23451.69
-#> skew_gaussian           4 -23440.72
-#> skew_t                  5 -23459.72
-#> leverage                4 -23608.85
-#> skew_gaussian_leverage  5 -23698.59
-#> skew_t_leverage         6 -23721.38
+# the fitted models are stored in the attribute "fits"
+fits <- attr(comparison, "fits")
+leverage <- fits$leverage
+skew_gaussian_leverage <- fits$skew_gaussian_leverage
+skew_t_leverage <- fits$skew_t_leverage
+
+# parameter estimates on their natural scale, with standard errors
+coef(skew_t_leverage)
+#>      sigma_y      sigma_h          phi      df_left     df_right          rho 
+#>  0.007960947  0.266050220  0.975054402  8.633937770 15.174233987 -0.870746614
+sqrt(diag(vcov(skew_t_leverage)))
+#>      sigma_y      sigma_h          phi      df_left     df_right          rho 
+#> 0.0003943647 0.0179234178 0.0035924730 1.5493996123 3.7766666002 0.0201355154
 
 # the skew models report the skewness and the shape parameter alpha
 summary(skew_gaussian_leverage, report = "transformed")
@@ -141,44 +157,44 @@ print(pred_summary)
 #> $y
 #>      time quantile_0.025 quantile_0.975          mean
 #>     <int>          <num>          <num>         <num>
-#>  1:     1    -0.03787452     0.03639606 -2.352005e-04
-#>  2:     2    -0.03750167     0.03718038  7.938422e-05
-#>  3:     3    -0.03759011     0.03677040 -6.930858e-05
-#>  4:     4    -0.03667977     0.03841486  2.810659e-04
-#>  5:     5    -0.03674431     0.03679402 -1.421016e-04
-#>  6:     6    -0.03531571     0.03708404  2.750826e-04
-#>  7:     7    -0.03706161     0.03531337 -9.648350e-05
-#>  8:     8    -0.03654679     0.03581507 -9.638224e-05
-#>  9:     9    -0.03558469     0.03600052 -7.431832e-05
-#> 10:    10    -0.03551163     0.03483791 -3.915279e-04
+#>  1:     1    -0.03511786     0.03422990  8.830170e-05
+#>  2:     2    -0.03425975     0.03613982  2.378182e-04
+#>  3:     3    -0.03502339     0.03562585  2.814776e-04
+#>  4:     4    -0.03375335     0.03443438  1.377418e-05
+#>  5:     5    -0.03415388     0.03483894  5.813500e-05
+#>  6:     6    -0.03533800     0.03329416 -2.487619e-04
+#>  7:     7    -0.03518805     0.03589505  9.441464e-05
+#>  8:     8    -0.03376882     0.03399288  1.222454e-04
+#>  9:     9    -0.03417209     0.03288237 -2.140804e-04
+#> 10:    10    -0.03356554     0.03423250 -1.336477e-04
 #> 
 #> $h
 #>      time quantile_0.025 quantile_0.975     mean
 #>     <int>          <num>          <num>    <num>
-#>  1:     1     0.41447216       2.519873 1.455147
-#>  2:     2     0.27225022       2.568749 1.408390
-#>  3:     3     0.10808006       2.612277 1.363972
-#>  4:     4     0.01248118       2.639010 1.322519
-#>  5:     5    -0.12153490       2.658716 1.276073
-#>  6:     6    -0.20817536       2.688433 1.239662
-#>  7:     7    -0.28558724       2.696168 1.199534
-#>  8:     8    -0.37711849       2.699062 1.160366
-#>  9:     9    -0.46776638       2.718274 1.124317
-#> 10:    10    -0.55249774       2.705546 1.086525
+#>  1:     1     0.33848340       2.374523 1.355692
+#>  2:     2     0.19656034       2.420622 1.311919
+#>  3:     3     0.06080838       2.453701 1.264816
+#>  4:     4    -0.05849895       2.484628 1.219738
+#>  5:     5    -0.18187744       2.521410 1.181368
+#>  6:     6    -0.25406057       2.519600 1.147483
+#>  7:     7    -0.34127330       2.554394 1.114651
+#>  8:     8    -0.49256833       2.592125 1.078571
+#>  9:     9    -0.52840260       2.598494 1.046030
+#> 10:    10    -0.58870927       2.616284 1.015518
 #> 
 #> $h_exp
 #>      time quantile_0.025 quantile_0.975       mean
 #>     <int>          <num>          <num>      <num>
-#>  1:     1    0.010125271     0.02945742 0.01790539
-#>  2:     2    0.009421133     0.03039987 0.01765869
-#>  3:     3    0.008772480     0.03099832 0.01736513
-#>  4:     4    0.008319762     0.03130376 0.01715038
-#>  5:     5    0.007848844     0.03163646 0.01677779
-#>  6:     6    0.007459083     0.03191093 0.01657714
-#>  7:     7    0.007125009     0.03202311 0.01631264
-#>  8:     8    0.006833992     0.03228772 0.01612161
-#>  9:     9    0.006592298     0.03264210 0.01588995
-#> 10:    10    0.006231481     0.03240400 0.01567428
+#>  1:     1    0.009811451     0.02735105 0.01699095
+#>  2:     2    0.009155662     0.02822923 0.01676668
+#>  3:     3    0.008514904     0.02876314 0.01646270
+#>  4:     4    0.008024596     0.02918867 0.01622671
+#>  5:     5    0.007544592     0.02960823 0.01595737
+#>  6:     6    0.007255252     0.02989300 0.01577306
+#>  7:     7    0.006955999     0.03031952 0.01559668
+#>  8:     8    0.006545648     0.03043764 0.01543440
+#>  9:     9    0.006397995     0.03077176 0.01522605
+#> 10:    10    0.006172166     0.03109516 0.01507353
 
 # plot predicted volatility with 0.025 and 0.975 quantiles
 plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
@@ -208,16 +224,67 @@ plot_diagnostics(skew_t_leverage)
 ![Q-Q plot and autocorrelation of the one-step-ahead residuals of the
 skew-t leverage model](reference/figures/README-unnamed-chunk-6-1.png)
 
-## Shiny app
+## Value at Risk and Expected Shortfall
 
-By running
-[`demo()`](https://jenswahl.github.io/stochvolTMB/reference/demo.md) you
-start a shiny application where you can visually inspect the effect of
-choosing different models and parameter configurations
+`var_es` calculates the one-day Value at Risk (VaR) and Expected
+Shortfall (ES) from the exact one-step-ahead predictive distribution,
+for every day in the data and for the next day. `backtest_var` tests if
+the VaR exceedances have the expected frequency (Kupiec) and are
+independent (Christoffersen). For the S&P 500 data, the skew-t model
+with leverage passes both tests at the 95% and 99% levels:
 
 ``` r
 
-demo()
+risk <- var_es(skew_t_leverage, level = c(0.95, 0.99))
+
+# VaR and ES for the next day
+risk[is.na(y)]
+#>     time level     y        var         es exceedance
+#>    <int> <num> <num>      <num>      <num>     <lgcl>
+#> 1:  3523  0.95    NA 0.03181108 0.04560319         NA
+#> 2:  3523  0.99    NA 0.05359064 0.06893175         NA
+
+backtest_var(risk)
+#>    level     n expected observed        rate      lr_uc      p_uc    lr_ind
+#>    <num> <int>    <num>    <int>       <num>      <num>     <num>     <num>
+#> 1:  0.95  3522   176.10      191 0.054230551 1.29303116 0.2554901 1.3599331
+#> 2:  0.99  3522    35.22       34 0.009653606 0.04318348 0.8353802 0.9112984
+#>        p_ind     lr_cc      p_cc  es_ratio
+#>        <num>     <num>     <num>     <num>
+#> 1: 0.2435491 2.6529642 0.2654093 0.9890637
+#> 2: 0.3397702 0.9544819 0.6204930 1.0067746
+
+plot_var(risk, level = 0.99, dates = spy$date)
+```
+
+![S&P 500 returns with the one-step-ahead 99% VaR and ES from the skew-t
+leverage model, with the exceedances
+marked](reference/figures/README-unnamed-chunk-7-1.png)
+
+For more than one day, `forecast_var_es` simulates future returns. The
+cumulative columns give, for example, the 10-day VaR and ES:
+
+``` r
+
+set.seed(123)
+forecast_var_es(skew_t_leverage, steps = 10, level = 0.99)[c(1, 5, 10)]
+#>     step level        var         es var_cumulative es_cumulative
+#>    <int> <num>      <num>      <num>          <num>         <num>
+#> 1:     1  0.99 0.05353692 0.06848498     0.05353692    0.06848498
+#> 2:     5  0.99 0.05436722 0.07291772     0.12603045    0.16215942
+#> 3:    10  0.99 0.05363064 0.07430768     0.18499850    0.24817920
+```
+
+## Shiny app
+
+By running
+[`run_shiny_demo()`](https://jenswahl.github.io/stochvolTMB/reference/run_shiny_demo.md)
+you start a shiny application where you can visually inspect the effect
+of choosing different models and parameter configurations
+
+``` r
+
+run_shiny_demo()
 ```
 
 ![Screenshot of the shiny app with model and parameter controls and a
@@ -230,10 +297,17 @@ simulated time series
 
 ## All functions
 
-- [`demo()`](https://jenswahl.github.io/stochvolTMB/reference/demo.md) :
-  Run shiny demo
+- [`backtest_var()`](https://jenswahl.github.io/stochvolTMB/reference/backtest_var.md)
+  : Backtest Value at Risk and Expected Shortfall
+- [`coef(`*`<stochvolTMB>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/coef.stochvolTMB.md)
+  [`vcov(`*`<stochvolTMB>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/coef.stochvolTMB.md)
+  : Extract parameter estimates and their covariance matrix
+- [`compare_models()`](https://jenswahl.github.io/stochvolTMB/reference/compare_models.md)
+  : Fit several models and compare them
 - [`estimate_parameters()`](https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.md)
   : Estimate parameters for the stochastic volatility model
+- [`forecast_var_es()`](https://jenswahl.github.io/stochvolTMB/reference/forecast_var_es.md)
+  : Value at Risk and Expected Shortfall for several days ahead
 - [`logit()`](https://jenswahl.github.io/stochvolTMB/reference/logit.md)
   : Logit transformation from the real line to (-1, 1).
 - [`plot(`*`<stochvolTMB>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/plot.stochvolTMB.md)
@@ -242,11 +316,15 @@ simulated time series
   : Diagnostic plots based on one-step-ahead residuals
 - [`plot_returns()`](https://jenswahl.github.io/stochvolTMB/reference/plot_returns.md)
   : Plot returns with bands from the fitted model
+- [`plot_var()`](https://jenswahl.github.io/stochvolTMB/reference/plot_var.md)
+  : Plot returns with the one-step-ahead Value at Risk
 - [`predict(`*`<stochvolTMB>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/predict.stochvolTMB.md)
   : Predict future returns and future volatilities
-- [`residuals()`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
+- [`residuals(`*`<stochvolTMB>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/residuals.stochvolTMB.md)
   : Calculate one-step-ahead (OSA) residuals for stochastic volatility
   model.
+- [`run_shiny_demo()`](https://jenswahl.github.io/stochvolTMB/reference/run_shiny_demo.md)
+  : Run the shiny demo
 - [`sim_sv()`](https://jenswahl.github.io/stochvolTMB/reference/sim_sv.md)
   : Simulate log-returns from a stochastic volatility model
 - [`simulate_parameters()`](https://jenswahl.github.io/stochvolTMB/reference/simulate_parameters.md)
@@ -258,6 +336,8 @@ simulated time series
 - [`summary(`*`<stochvolTMB_predict>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/summary.stochvolTMB_predict.md)
   : Calculate quantiles based on predictions from the predictive
   distribution
+- [`var_es()`](https://jenswahl.github.io/stochvolTMB/reference/var_es.md)
+  : One-step-ahead Value at Risk and Expected Shortfall
 
 # Articles
 

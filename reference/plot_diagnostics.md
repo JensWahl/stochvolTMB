@@ -31,8 +31,8 @@ plot_diagnostics(x, res = NULL, lag_max = 20, ...)
 - res:
 
   Optional vector of OSA residuals from
-  [`residuals`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md).
-  If `NULL`, the residuals are calculated.
+  [`residuals`](https://rdrr.io/r/stats/residuals.html). If `NULL`, the
+  residuals are calculated.
 
 - lag_max:
 
@@ -41,8 +41,8 @@ plot_diagnostics(x, res = NULL, lag_max = 20, ...)
 - ...:
 
   Arguments passed to
-  [`residuals`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
-  when `res` is `NULL`, for example `method` or `conditional`.
+  [`residuals`](https://rdrr.io/r/stats/residuals.html) when `res` is
+  `NULL`, for example `method` or `conditional`.
 
 ## Value
 
@@ -52,10 +52,10 @@ ggplot object with the three diagnostic panels.
 
 By default, the residuals are calculated for all observations with the
 exact grid method of
-[`residuals`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md),
-which takes a few seconds. To reuse residuals, calculate them once with
-[`residuals`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
-and give them in `res`.
+[`residuals`](https://rdrr.io/r/stats/residuals.html), which takes a few
+seconds. To reuse residuals, calculate them once with
+[`residuals`](https://rdrr.io/r/stats/residuals.html) and give them in
+`res`.
 
 ## Examples
 

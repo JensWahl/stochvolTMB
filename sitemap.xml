@@ -6,9 +6,14 @@
 <url><loc>https://jenswahl.github.io/stochvolTMB/authors.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/index.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/news/index.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/backtest_var.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/coef.stochvolTMB.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/compare_models.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/demo.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/forecast_var_es.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/get_nll.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/grid_filter.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/index.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/logit.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/n_tmb_dlls.html</loc></url>
@@ -17,15 +22,19 @@
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/plot_diagnostics.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/plot_forecast.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/plot_returns.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/plot_var.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/predict.stochvolTMB.html</loc></url>
-<url><loc>https://jenswahl.github.io/stochvolTMB/reference/residuals.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/residuals.stochvolTMB.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/rsn_standard.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/run_shiny_demo.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/sim_sv.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/simulate_parameters.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/skew_t.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/skewness_to_alpha.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/spy.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/standard_error_distribution.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/summary.html</loc></url>
 <url><loc>https://jenswahl.github.io/stochvolTMB/reference/summary.stochvolTMB_predict.html</loc></url>
+<url><loc>https://jenswahl.github.io/stochvolTMB/reference/var_es.html</loc></url>
 </urlset>
 

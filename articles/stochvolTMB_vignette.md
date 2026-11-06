@@ -128,6 +128,12 @@ The main functions of `stochvolTMB` are:
 | `plot_returns` | Plot returns with intervals from the fitted model. |
 | `residuals` | Calculate one-step-ahead residuals. |
 | `plot_diagnostics` | Plot diagnostics based on one-step-ahead residuals. |
+| `compare_models` | Fit several models and rank them by AIC. |
+| `coef`, `vcov` | Parameter estimates and their covariance matrix. |
+| `var_es` | One-day Value at Risk and Expected Shortfall. |
+| `forecast_var_es` | Value at Risk and Expected Shortfall for several days. |
+| `backtest_var` | Backtest the Value at Risk. |
+| `plot_var` | Plot returns with the Value at Risk and Expected Shortfall. |
 
 `estimate_parameters` returns an object of class `stochvolTMB`. The
 `summary` function returns a `data.table` with estimated parameters,
@@ -164,17 +170,22 @@ plot(spy$date, spy$price, type = "l", xlab = "", ylab = "", main = "Price of S&P
 
 ![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-2-2.png)
 
-We fit all seven models:
+We fit all seven models with `compare_models`. It calls
+`estimate_parameters` for each model and stores the fitted models in the
+attribute `"fits"`. To fit one model, use
+`estimate_parameters(spy$log_return, model = "leverage")`.
 
 ``` r
 
-gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
-t_dist = estimate_parameters(spy$log_return, model = "t", silent = TRUE)
-skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
-leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
-skew_gaussian_leverage = estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
-skew_t = estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
-skew_t_leverage = estimate_parameters(spy$log_return, model = "skew_t_leverage", silent = TRUE)
+comparison <- compare_models(spy$log_return)
+fits <- attr(comparison, "fits")
+gaussian <- fits$gaussian
+t_dist <- fits$t
+skew_gaussian <- fits$skew_gaussian
+leverage <- fits$leverage
+skew_gaussian_leverage <- fits$skew_gaussian_leverage
+skew_t <- fits$skew_t
+skew_t_leverage <- fits$skew_t_leverage
 ```
 
 We can investigate the estimate for the degrees of freedom (`df`) to see
@@ -241,26 +252,32 @@ summary(skew_gaussian_leverage, report = "transformed")
 
 To find the model that fits the data best, we can compare the
 [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of our
-models and pick the smallest.
+models and pick the smallest. `compare_models` returns the models ranked
+by AIC. The columns `converged` and `pd_hessian` show if the optimizer
+converged and if the Hessian is positive definite. If one of them is
+`FALSE`, the estimates of that model are not reliable.
 
 ``` r
 
-
-AIC(gaussian,
-    t_dist,
-    skew_gaussian,
-    skew_t,
-    leverage,
-    skew_gaussian_leverage,
-    skew_t_leverage)
-#>                        df       AIC
-#> gaussian                3 -23430.57
-#> t_dist                  4 -23451.69
-#> skew_gaussian           4 -23440.72
-#> skew_t                  5 -23459.72
-#> leverage                4 -23608.85
-#> skew_gaussian_leverage  5 -23698.59
-#> skew_t_leverage         6 -23721.38
+comparison[, .(model, n_par, log_lik, aic, bic, delta_aic, converged, pd_hessian)]
+#>                     model n_par  log_lik       aic       bic delta_aic
+#>                    <char> <int>    <num>     <num>     <num>     <num>
+#> 1:        skew_t_leverage     6 11866.69 -23721.38 -23684.38   0.00000
+#> 2: skew_gaussian_leverage     5 11854.30 -23698.59 -23667.76  22.78558
+#> 3:               leverage     4 11808.43 -23608.85 -23584.18 112.52674
+#> 4:                 skew_t     5 11734.86 -23459.72 -23428.89 261.65871
+#> 5:                      t     4 11729.85 -23451.69 -23427.02 269.68665
+#> 6:          skew_gaussian     4 11724.36 -23440.72 -23416.06 280.65545
+#> 7:               gaussian     3 11718.29 -23430.57 -23412.07 290.80456
+#>    converged pd_hessian
+#>       <lgcl>     <lgcl>
+#> 1:      TRUE       TRUE
+#> 2:      TRUE       TRUE
+#> 3:      TRUE       TRUE
+#> 4:      TRUE       TRUE
+#> 5:      TRUE       TRUE
+#> 6:      TRUE       TRUE
+#> 7:      TRUE       TRUE
 ```
 
 The skew-t model with leverage has the smallest AIC. It estimates one
@@ -280,6 +297,20 @@ summary(skew_t_leverage, report = "transformed")
 #> 4:   df_left  8.633938213 1.5493998448   5.57244 2.511955e-08 transformed
 #> 5:  df_right 15.174235582 3.7766675111   4.01789 5.872153e-05 transformed
 #> 6:       rho -0.870746622 0.0201355143 -43.24432 0.000000e+00 transformed
+```
+
+`coef` and `vcov` return the estimates on their natural scale and their
+covariance matrix. With `scale = "estimation"` they use the scale that
+the parameters were estimated on:
+
+``` r
+
+coef(skew_t_leverage)
+#>      sigma_y      sigma_h          phi      df_left     df_right          rho 
+#>  0.007960946  0.266050218  0.975054402  8.633938213 15.174235582 -0.870746622
+sqrt(diag(vcov(skew_t_leverage)))
+#>      sigma_y      sigma_h          phi      df_left     df_right          rho 
+#> 0.0003943647 0.0179234176 0.0035924729 1.5493998448 3.7766675111 0.0201355143
 ```
 
 We can compare the leverage model with the skew-Gaussian leverage model
@@ -313,14 +344,14 @@ Lastly, we can also plot the estimated log-volatility and volatility:
 plot(leverage, include_ci = TRUE, plot_log = TRUE, dates = spy$date)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-1.png)
 
 ``` r
 
 plot(leverage, include_ci = TRUE, plot_log = FALSE, dates = spy$date)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-2.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-2.png)
 
 We can simulate future returns with `predict`. This function returns
 three matrices of dimension \\\\\\ steps \\\times\\ \#\$ simulations:
@@ -341,44 +372,44 @@ summary(pred)
 #> $y
 #>      time quantile_0.025 quantile_0.975          mean
 #>     <int>          <num>          <num>         <num>
-#>  1:     1    -0.03693254     0.03638090 -8.346800e-05
-#>  2:     2    -0.03642909     0.03656511 -6.195944e-06
-#>  3:     3    -0.03776351     0.03560746 -1.900859e-04
-#>  4:     4    -0.03613583     0.03601838  2.238313e-04
-#>  5:     5    -0.03677749     0.03538381 -4.693050e-04
-#>  6:     6    -0.03563577     0.03430740 -3.192042e-05
-#>  7:     7    -0.03592050     0.03558189 -3.523342e-05
-#>  8:     8    -0.03618361     0.03486065 -3.855303e-04
-#>  9:     9    -0.03644212     0.03554776  7.430682e-05
-#> 10:    10    -0.03559686     0.03478340  1.200296e-04
+#>  1:     1    -0.03390928     0.03578714  1.884305e-04
+#>  2:     2    -0.03468329     0.03533891  1.936343e-04
+#>  3:     3    -0.03399761     0.03578401  5.544499e-04
+#>  4:     4    -0.03539847     0.03482133 -7.306338e-05
+#>  5:     5    -0.03507907     0.03531515 -1.994870e-04
+#>  6:     6    -0.03346930     0.03283918  3.510375e-05
+#>  7:     7    -0.03382748     0.03325664 -6.717707e-05
+#>  8:     8    -0.03510687     0.03489823  5.258260e-05
+#>  9:     9    -0.03276020     0.03321078 -5.889527e-05
+#> 10:    10    -0.03267239     0.03235914  7.830765e-05
 #> 
 #> $h
 #>      time quantile_0.025 quantile_0.975     mean
 #>     <int>          <num>          <num>    <num>
-#>  1:     1     0.37864094       2.476768 1.438236
-#>  2:     2     0.24691482       2.518899 1.394228
-#>  3:     3     0.10621212       2.571115 1.346337
-#>  4:     4    -0.04017098       2.623386 1.303985
-#>  5:     5    -0.15321414       2.631132 1.259683
-#>  6:     6    -0.25823265       2.674665 1.227349
-#>  7:     7    -0.35948292       2.658939 1.185892
-#>  8:     8    -0.43005116       2.695298 1.148238
-#>  9:     9    -0.52841071       2.699842 1.113199
-#> 10:    10    -0.58582864       2.697947 1.073842
+#>  1:     1     0.31931862       2.334532 1.339585
+#>  2:     2     0.17822570       2.395486 1.292486
+#>  3:     3     0.02750050       2.430255 1.248190
+#>  4:     4    -0.09583098       2.470918 1.200189
+#>  5:     5    -0.20219156       2.518019 1.162225
+#>  6:     6    -0.30001617       2.554602 1.127301
+#>  7:     7    -0.41465269       2.572237 1.087347
+#>  8:     8    -0.50276170       2.586219 1.054988
+#>  9:     9    -0.57345287       2.587513 1.019523
+#> 10:    10    -0.63395327       2.576489 0.984883
 #> 
 #> $h_exp
 #>      time quantile_0.025 quantile_0.975       mean
 #>     <int>          <num>          <num>      <num>
-#>  1:     1    0.010055528     0.02927974 0.01773806
-#>  2:     2    0.009327469     0.02982102 0.01750351
-#>  3:     3    0.008689145     0.03033649 0.01721214
-#>  4:     4    0.008107380     0.03096944 0.01695574
-#>  5:     5    0.007672233     0.03136660 0.01671858
-#>  6:     6    0.007269824     0.03187262 0.01650867
-#>  7:     7    0.006961065     0.03162556 0.01625110
-#>  8:     8    0.006702865     0.03211127 0.01604322
-#>  9:     9    0.006377058     0.03230435 0.01582043
-#> 10:    10    0.006152712     0.03217576 0.01558360
+#>  1:     1    0.009761833     0.02722296 0.01684402
+#>  2:     2    0.009014912     0.02788159 0.01659453
+#>  3:     3    0.008408949     0.02848258 0.01634075
+#>  4:     4    0.007923682     0.02883650 0.01604671
+#>  5:     5    0.007476405     0.02979495 0.01590138
+#>  6:     6    0.007046611     0.02985945 0.01566272
+#>  7:     7    0.006736679     0.03007695 0.01542462
+#>  8:     8    0.006459636     0.03070045 0.01527495
+#>  9:     9    0.006201696     0.03038732 0.01502129
+#> 10:    10    0.006029914     0.03064286 0.01481078
 
 # plot the forecast
 plot(leverage, forecast = 50) + ggplot2::xlim(3200, nrow(spy) + 50)
@@ -392,7 +423,7 @@ plot(leverage, forecast = 50) + ggplot2::xlim(3200, nrow(spy) + 50)
 #> (`geom_ribbon()`).
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png)
 
 ### Checking the fit
 
@@ -410,7 +441,7 @@ an optimistic, in-sample check.
 plot_returns(skew_t_leverage, dates = spy$date)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-1.png)
 
 A stricter check uses one-step-ahead (OSA) residuals (Thygesen et al.
 (2017)). The OSA residual of \\y_t\\ is \\\Phi^{-1}(F_t(y_t))\\, where
@@ -441,14 +472,14 @@ We compare the Gaussian model with the skew-t model with leverage:
 plot_diagnostics(gaussian)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-15-1.png)
 
 ``` r
 
 plot_diagnostics(skew_t_leverage)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-2.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-15-2.png)
 
 For the Gaussian model the Q-Q plot bends down in the left tail: there
 are more large negative returns than the model expects. For the skew-t
@@ -460,6 +491,130 @@ models have mean zero and therefore cannot capture this. For the skew-t
 model with leverage, the autocorrelation of the squared residuals at lag
 1 is also negative. This suggests that, after a large shock, the model
 increases the predicted volatility slightly too much.
+
+### Value at Risk and Expected Shortfall
+
+A common use of a volatility model is to measure the risk of a position.
+For a level \\\alpha\\, for example \\\alpha = 0.99\\, the one-day
+*Value at Risk* (VaR) is the loss that the return on day \\t\\ is below
+only with probability \\1 - \alpha\\. The *Expected Shortfall* (ES) is
+the expected loss on the days when the loss is larger than the VaR. Let
+\\q_t\\ be the \\1 - \alpha\\ quantile of the predictive distribution
+\\F_t\\ of \\y_t\\ given \\y_1, \dots, y\_{t-1}\\. Then
+\\\begin{equation} \mathrm{VaR}\_t = -q_t, \qquad \mathrm{ES}\_t =
+-\mathrm{E}\[y_t \mid y_t \le q_t, y_1, \dots, y\_{t-1}\].
+\end{equation}\\ Both are positive numbers when they are losses, on the
+scale of the log-returns.
+
+`var_es` calculates \\F_t\\ with the same filter as the one-step-ahead
+residuals (see [One-step-ahead residuals](#one-step-ahead-residuals)).
+On the grid, \\F_t\\ is a mixture: \\F_t(y) = \sum_j w_t(j) F(y \mid
+g_j)\\. In all models, \\y_t / (\sigma_y e^{h_t/2})\\ given \\h_t\\ has
+a fixed standardized distribution \\G\\ with mean zero and unit
+variance, so \\F(y \mid g_j) = G(y / s_j)\\ with \\s_j = \sigma_y
+e^{g_j/2}\\. The quantile \\q_t\\ is the root of \\F_t(q) = 1 -
+\alpha\\, and \\\begin{equation} \mathrm{ES}\_t = -\frac{1}{1 - \alpha}
+\sum_j w_t(j) \\ s_j \\ M\left(\frac{q_t}{s_j}\right), \qquad M(c) =
+\mathrm{E}\[Z \\ 1(Z \le c)\], \\ Z \sim G. \end{equation}\\ \\M\\ has a
+closed form for the Gaussian, t and skew-Gaussian distributions. For the
+skew t distribution it is calculated numerically on a fine grid.
+`var_es` returns one row for each day and level, and the last row is the
+forecast for the next day after the data:
+
+``` r
+
+risk <- var_es(skew_t_leverage, level = c(0.95, 0.99))
+risk[is.na(y)]
+#>     time level     y        var         es exceedance
+#>    <int> <num> <num>      <num>      <num>     <lgcl>
+#> 1:  3523  0.95    NA 0.03181108 0.04560319         NA
+#> 2:  3523  0.99    NA 0.05359064 0.06893175         NA
+```
+
+The parameters are fixed at their estimates from all the data, so the
+values for the observed days are in-sample.
+
+#### Backtesting
+
+A return is an *exceedance* if \\y_t \< -\mathrm{VaR}\_t\\. For a
+correct model, the exceedances happen on a fraction \\1 - \alpha\\ of
+the days, independently of each other. `backtest_var` tests both:
+
+- The *unconditional coverage* test of Kupiec (1995) compares the number
+  of exceedances with the expected number. A small p-value (`p_uc`)
+  means that there are too many or too few exceedances.
+- The *independence* test of Christoffersen (1998) checks if an
+  exceedance is more likely on the day after an exceedance. A small
+  p-value (`p_ind`) means that the exceedances come in clusters. This
+  happens when the model reacts too slowly to a change in volatility.
+- The *conditional coverage* test combines the two (`p_cc`).
+
+`es_ratio` is the mean of \\-y_t / \mathrm{ES}\_t\\ over the
+exceedances. It is close to one when the ES is correct.
+
+``` r
+
+backtest_var(risk)
+#>    level     n expected observed        rate      lr_uc      p_uc    lr_ind
+#>    <num> <int>    <num>    <int>       <num>      <num>     <num>     <num>
+#> 1:  0.95  3522   176.10      191 0.054230551 1.29303116 0.2554901 1.3599331
+#> 2:  0.99  3522    35.22       34 0.009653606 0.04318348 0.8353802 0.9112984
+#>        p_ind     lr_cc      p_cc  es_ratio
+#>        <num>     <num>     <num>     <num>
+#> 1: 0.2435491 2.6529642 0.2654093 0.9890637
+#> 2: 0.3397702 0.9544819 0.6204930 1.0067746
+backtest_var(var_es(gaussian, level = c(0.95, 0.99)))
+#>    level     n expected observed       rate    lr_uc         p_uc   lr_ind
+#>    <num> <int>    <num>    <int>      <num>    <num>        <num>    <num>
+#> 1:  0.95  3522   176.10      208 0.05905735  5.76331 0.0163642133 1.083807
+#> 2:  0.99  3522    35.22       60 0.01703578 14.54418 0.0001369108 2.638690
+#>        p_ind     lr_cc         p_cc es_ratio
+#>        <num>     <num>        <num>    <num>
+#> 1: 0.2978474  6.847118 0.0325962219 1.094632
+#> 2: 0.1042895 17.182871 0.0001856893 1.080347
+```
+
+The Gaussian model has too many exceedances, in particular at the 99%
+level, because its tails are too light. The skew-t model with leverage
+has close to the expected number of exceedances at both levels, and its
+`es_ratio` is close to one. `plot_var` shows the returns with
+\\-\mathrm{VaR}\_t\\ and \\-\mathrm{ES}\_t\\ and marks the exceedances:
+
+``` r
+
+plot_var(risk, level = 0.99, dates = spy$date)
+```
+
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-18-1.png)
+
+#### More than one day ahead
+
+For more than one day there is no simple formula for the distribution of
+the returns. `forecast_var_es` therefore simulates future paths with
+`predict` and calculates VaR and ES for each day ahead, both for the
+return on that day and for the cumulative return up to that day. By
+default, the simulation includes the uncertainty of the parameters.
+`predict` starts from a Gaussian approximation of the last
+log-volatility, so for one day ahead the result differs slightly from
+the exact `var_es`:
+
+``` r
+
+set.seed(1)
+forecast_var_es(skew_t_leverage, steps = 10, level = 0.99)
+#>      step level        var         es var_cumulative es_cumulative
+#>     <int> <num>      <num>      <num>          <num>         <num>
+#>  1:     1  0.99 0.05284419 0.06827803     0.05284419    0.06827803
+#>  2:     2  0.99 0.05408404 0.07018714     0.07544342    0.09725807
+#>  3:     3  0.99 0.05342402 0.06941009     0.09417109    0.11927875
+#>  4:     4  0.99 0.05437557 0.07234534     0.11113296    0.14179133
+#>  5:     5  0.99 0.05413629 0.07197306     0.12424638    0.16123284
+#>  6:     6  0.99 0.05355018 0.07096271     0.13704527    0.17910890
+#>  7:     7  0.99 0.05425692 0.07263728     0.15025210    0.19660826
+#>  8:     8  0.99 0.05310403 0.07119998     0.15934538    0.20872529
+#>  9:     9  0.99 0.05418832 0.07378119     0.17189793    0.22574334
+#> 10:    10  0.99 0.05326162 0.07256297     0.18142237    0.24064329
+```
 
 ## Comparison to stochvol
 
@@ -730,9 +885,9 @@ and \\h\_{t+1}\\, through the volatility shock \\\eta_t = (h\_{t+1} -
 (1 - \rho^2)\right). \end{equation}\\ The filter therefore works with
 the joint predictive weights of \\(h_t, h\_{t+1})\\ on the grid,
 \\w_t(j) P\_{jk}\\. Steps 1 and 2 sum over both \\j\\ and \\k\\, and the
-sum over \\j\\ gives the weights for \\h\_{t+1}\\. For the last
-observation \\y_T\\ there is no \\h\_{T+1}\\, and \\y_T \mid h_T \sim
-\mathcal{N}(0, \sigma_y^2 e^{h_T})\\.
+sum over \\j\\ gives the weights for \\h\_{t+1}\\. Step 1 can also use
+that \\y_t \mid h_t \sim \mathcal{N}(0, \sigma_y^2 e^{h_t})\\ once
+\\h\_{t+1}\\ is integrated out.
 
 #### Comparison with the Laplace approximation
 
@@ -761,9 +916,13 @@ fit_sim <- estimate_parameters(sim$y, model = "skew_gaussian_leverage", silent =
 plot_diagnostics(fit_sim)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-18-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-23-1.png)
 
 ## References
+
+Christoffersen, Peter F. 1998. “Evaluating Interval Forecasts.”
+*International Economic Review* 39 (4): 841–62.
+<https://doi.org/10.2307/2527341>.
 
 Jones, M. C., and M. J. Faddy. 2003. “A Skew Extension of the
 t-Distribution, with Applications.” *Journal of the Royal Statistical
@@ -778,6 +937,10 @@ Kristensen, Kasper, Anders Nielsen, Casper Berg, Hans Skaug, and Bradley
 Bell. 2016. “TMB: Automatic Differentiation and Laplace Approximation.”
 *Journal of Statistical Software, Articles* 70 (5): 1–21.
 <https://doi.org/10.18637/jss.v070.i05>.
+
+Kupiec, Paul H. 1995. “Techniques for Verifying the Accuracy of Risk
+Measurement Models.” *The Journal of Derivatives* 3 (2): 73–84.
+<https://doi.org/10.3905/jod.1995.407942>.
 
 Taylor, S. J. 1982. “Financial Returns Modelled by the Product of Two
 Stochastic Processes-a Study of the Daily Sugar Prices 1961-75.” *Time

@@ -136,7 +136,6 @@ data("spy")
 
 # estimate parameters 
 opt <- estimate_parameters(spy$log_return, model = "gaussian")
-#> Optimizing tape... Done
 #> iter: 1  value: -518.7397 mgc: 0.5 ustep: 0.8994163 
 #> iter: 2  value: -3249.094 mgc: 0.4627596 ustep: 0.9483808 
 #> iter: 3  value: -6690.606 mgc: 26.88186 ustep: 0.973851 
