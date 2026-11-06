@@ -1,25 +1,21 @@
-# stochvolTMB 0.2.0
+# stochvolTMB 0.4.0
+
+This release adds two models (skew t with and without leverage), exact one-step-ahead residuals, Value at Risk and
+Expected Shortfall with backtests, and model comparison. It also fixes the instability of the skew-Gaussian leverage
+model. See NEWS.md for the details and the breaking changes.
 
 ## Test environments
-* local Windows install, R 4.0.2
-* ubuntu 16.04 and release (gihub actions) R release and R 3.6.0
-* windows-latest (github actions) R release
-# macOS-latest, (github actions) R release
-# solaris-x86 through rhub
 
+* local macOS, R 4.6.1
+* GitHub Actions: ubuntu-latest, windows-latest and macos-latest, R release
+* win-builder: R-devel and R-release
 
 ## R CMD check results
 
-> checking installed package size ... NOTE
-    installed size is 21.1Mb
-    sub-directories of 1Mb or more:
-      libs  19.5Mb
+0 errors | 0 warnings | 0 notes
 
-
+The installed size is about 21 Mb, most of it the compiled TMB model in libs. This is usual for packages that use TMB.
 
 ## Downstream dependencies
+
 There are currently no downstream dependencies for this package.
-
-
-## Submitter's comment: The feedback from last submission has been adressed:
-Fixed (possibly) invalid URL from tidyverse 

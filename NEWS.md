@@ -1,4 +1,15 @@
-# stochvolTMB (development version)
+# stochvolTMB 0.4.0
+
+## Breaking changes
+
+* The skew-Gaussian models estimate the skewness instead of the shape `alpha`. The fixed parameter `alpha` is
+  replaced by `logit_skewness`. `summary(report = "transformed")` and `coef()` report both `skewness` and `alpha`,
+  and `sim_sv()` still takes `alpha`.
+* `residuals()` uses the exact grid filter by default (`method = "grid"`) and returns residuals for all
+  observations. Use `method = "tmb"` for `TMB::oneStepPredict`.
+* `demo()` is deprecated. Use `run_shiny_demo()`.
+
+## New features and fixes
 
 * New `var_es()` calculates the one-day Value at Risk and Expected Shortfall from the exact one-step-ahead predictive
   distribution, for every observation and for the next day after the data. It uses the same filter on a grid as
@@ -18,7 +29,7 @@
   return shock drives the volatility shock, `eta_t = rho * z_t + sqrt(1 - rho^2) * e_t`. This order keeps the Laplace
   approximation accurate. The other order (skew noise added to `rho * eta_t`) made the approximation overestimate the
   likelihood, and the fit diverged to `rho = -1` and `|alpha| -> Inf`.
-* Breaking: the skew-Gaussian models now estimate the skewness instead of the shape `alpha`. The fixed parameter
+* The skew-Gaussian models now estimate the skewness instead of the shape `alpha`. The fixed parameter
   `alpha` is replaced by `logit_skewness`, and the skewness is bounded by `|skewness| < 0.99` (`|alpha| <= 27`).
   `summary(report = "transformed")` reports both `skewness` and `alpha`. Before, the optimizer started at `alpha = 0`,
   where the likelihood is flat (the score is exactly zero), and the fit often stayed at `alpha = 0`.
