@@ -188,7 +188,7 @@ summary(t_dist, report = "transformed")
 #> 1:   sigma_y  0.008392879 0.0008689248   9.658924 4.505714e-22 transformed
 #> 2:   sigma_h  0.185766767 0.0182175649  10.197124 2.042308e-24 transformed
 #> 3:       phi  0.984924644 0.0039281816 250.732972 0.000000e+00 transformed
-#> 4:        df 10.086366735 2.1022435029   4.797906 1.603330e-06 transformed
+#> 4:        df 10.086366735 2.1022435031   4.797906 1.603330e-06 transformed
 ```
 
 Clearly the returns are more heavy tailed than Gaussian, even when
@@ -200,7 +200,7 @@ asymmetric returns
 summary(skew_gaussian, report = "transformed")
 #>    parameter     estimate    std_error    z_value      p_value        type
 #>       <char>        <num>        <num>      <num>        <num>      <char>
-#> 1:   sigma_y  0.008247888 0.0007528397  10.955703 6.239189e-28 transformed
+#> 1:   sigma_y  0.008247888 0.0007528397  10.955703 6.239188e-28 transformed
 #> 2:   sigma_h  0.210904249 0.0187693205  11.236648 2.694187e-29 transformed
 #> 3:       phi  0.980555386 0.0044991195 217.943839 0.000000e+00 transformed
 #> 4:  skewness -0.164420269 0.0452041263  -3.637285 2.755275e-04 transformed
@@ -229,14 +229,14 @@ fit:
 ``` r
 
 summary(skew_gaussian_leverage, report = "transformed")
-#>    parameter     estimate    std_error   z_value       p_value        type
-#>       <char>        <num>        <num>     <num>         <num>      <char>
-#> 1:   sigma_y  0.007951179 0.0003805306  20.89498  5.948133e-97 transformed
-#> 2:   sigma_h  0.276811702 0.0178393398  15.51693  2.665194e-54 transformed
-#> 3:       phi  0.971016377 0.0038900968 249.61239  0.000000e+00 transformed
-#> 4:  skewness -0.404691018 0.0391237332 -10.34388  4.461237e-25 transformed
-#> 5:     alpha -1.829728834 0.1306960204 -13.99988  1.561303e-44 transformed
-#> 6:       rho -0.837199898 0.0226025004 -37.04015 2.587850e-300 transformed
+#>    parameter    estimate    std_error   z_value       p_value        type
+#>       <char>       <num>        <num>     <num>         <num>      <char>
+#> 1:   sigma_y  0.00795118 0.0003805306  20.89498  5.948316e-97 transformed
+#> 2:   sigma_h  0.27681170 0.0178393399  15.51693  2.665200e-54 transformed
+#> 3:       phi  0.97101638 0.0038900968 249.61239  0.000000e+00 transformed
+#> 4:  skewness -0.40469100 0.0391237338 -10.34387  4.461261e-25 transformed
+#> 5:     alpha -1.82972879 0.1306960200 -13.99988  1.561309e-44 transformed
+#> 6:       rho -0.83719989 0.0226025017 -37.04014 2.588099e-300 transformed
 ```
 
 To find the model that fits the data best, we can compare the
@@ -272,14 +272,14 @@ strongly negative:
 ``` r
 
 summary(skew_t_leverage, report = "transformed")
-#>    parameter     estimate    std_error    z_value      p_value        type
-#>       <char>        <num>        <num>      <num>        <num>      <char>
-#> 1:   sigma_y  0.007960947 0.0003943647  20.186762 1.279816e-90 transformed
-#> 2:   sigma_h  0.266050222 0.0179234179  14.843721 7.639759e-50 transformed
-#> 3:       phi  0.975054403 0.0035924730 271.415928 0.000000e+00 transformed
-#> 4:   df_left  8.633937520 1.5493994858   5.572441 2.511943e-08 transformed
-#> 5:  df_right 15.174233109 3.7766661081   4.017891 5.872132e-05 transformed
-#> 6:       rho -0.870746610 0.0201355160 -43.244316 0.000000e+00 transformed
+#>    parameter     estimate    std_error   z_value      p_value        type
+#>       <char>        <num>        <num>     <num>        <num>      <char>
+#> 1:   sigma_y  0.007960946 0.0003943647  20.18676 1.279770e-90 transformed
+#> 2:   sigma_h  0.266050218 0.0179234176  14.84372 7.639754e-50 transformed
+#> 3:       phi  0.975054402 0.0035924729 271.41593 0.000000e+00 transformed
+#> 4:   df_left  8.633938213 1.5493998448   5.57244 2.511955e-08 transformed
+#> 5:  df_right 15.174235582 3.7766675111   4.01789 5.872153e-05 transformed
+#> 6:       rho -0.870746622 0.0201355143 -43.24432 0.000000e+00 transformed
 ```
 
 We can compare the leverage model with the skew-Gaussian leverage model
@@ -298,12 +298,12 @@ fit <- estimate_parameters(sim$y, model = "skew_gaussian_leverage", silent = TRU
 summary(fit, report = "transformed")
 #>    parameter    estimate    std_error    z_value       p_value        type
 #>       <char>       <num>        <num>      <num>         <num>      <char>
-#> 1:   sigma_y  0.01032339 0.0003779025  27.317593 2.621788e-164 transformed
-#> 2:   sigma_h  0.23428648 0.0242279178   9.670104  4.039680e-22 transformed
-#> 3:       phi  0.93945634 0.0113655485  82.658249  0.000000e+00 transformed
-#> 4:  skewness -0.49637925 0.0541021455  -9.174853  4.521897e-20 transformed
-#> 5:     alpha -2.15955500 0.2114230932 -10.214376  1.709754e-24 transformed
-#> 6:       rho -0.70745466 0.0576766544 -12.265875  1.381115e-34 transformed
+#> 1:   sigma_y  0.01032339 0.0003779026  27.317592 2.621825e-164 transformed
+#> 2:   sigma_h  0.23428648 0.0242279181   9.670104  4.039682e-22 transformed
+#> 3:       phi  0.93945634 0.0113655487  82.658248  0.000000e+00 transformed
+#> 4:  skewness -0.49637925 0.0541021456  -9.174853  4.521893e-20 transformed
+#> 5:     alpha -2.15955503 0.2114230961 -10.214376  1.709754e-24 transformed
+#> 6:       rho -0.70745465 0.0576766555 -12.265875  1.381122e-34 transformed
 ```
 
 Lastly, we can also plot the estimated log-volatility and volatility:
