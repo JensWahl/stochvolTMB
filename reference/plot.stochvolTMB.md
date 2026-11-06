@@ -14,7 +14,7 @@ plot(x, ..., include_ci = TRUE, plot_log = TRUE, dates = NULL, forecast = NULL)
 - x:
 
   A `stochvolTMB` object returned from
-  [estimate_parameters](estimate_parameters.md).
+  [estimate_parameters](https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.md).
 
 - ...:
 

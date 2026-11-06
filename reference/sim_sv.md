@@ -44,10 +44,12 @@ sim_sv(
   `model` = "t", the degree of freedom `df` must be specified. If
   `model` = "skew_gaussian", the shape parameter `alpha` must be
   specified (see the section on skew gaussian models in
-  [`estimate_parameters`](estimate_parameters.md) for how `alpha`
-  relates to the skewness) and if `model` = "leverage", the correlation
-  `rho` between the latent error term and the observational error has to
-  be specified.
+  [`estimate_parameters`](https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.md)
+  for how `alpha` relates to the skewness) and if `model` = "leverage",
+  the correlation `rho` between the latent error term and the
+  observational error has to be specified. If `model` = "skew_t", the
+  degrees of freedom of the left and the right tail, `df_left` and
+  `df_right`, must be specified.
 
 - nobs:
 

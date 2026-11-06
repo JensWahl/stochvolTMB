@@ -10,7 +10,7 @@ estimation. The latent volatility is integrated out of the likelihood
 using the Laplace approximation and automatic differentiation (AD) is
 used for accurate evaluation of derivatives.
 
-Five models for the observational error are implemented. Select a model
+Six models for the observational error are implemented. Select a model
 with the `model` argument of `estimate_parameters`:
 
 - **Gaussian** (`"gaussian"`) - The classic SV model with Gaussian noise
@@ -21,6 +21,8 @@ with the `model` argument of `estimate_parameters`:
   noise for asymmetric returns
 - **Skew-Gaussian with leverage** (`"skew_gaussian_leverage"`) -
   Combines asymmetric returns with the leverage effect
+- **Skew-t** (`"skew_t"`) - Skew t distributed noise with separate
+  degrees of freedom for the left and the right tail
 
 ## Installation
 
@@ -63,13 +65,15 @@ t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 skew_gaussian_leverage <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
+skew_t <- estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
 
 # the models with leverage stand out with an AIC far below the other models
-AIC(gaussian, t_dist, skew_gaussian, leverage, skew_gaussian_leverage)
+AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage)
 #>                        df       AIC
 #> gaussian                3 -23430.57
 #> t_dist                  4 -23451.69
 #> skew_gaussian           4 -23440.72
+#> skew_t                  5 -23459.72
 #> leverage                4 -23608.85
 #> skew_gaussian_leverage  5 -23698.59
 
@@ -203,9 +207,10 @@ model](reference/figures/README-unnamed-chunk-6-1.png)
 
 ## Shiny app
 
-By running [`demo()`](reference/demo.md) you start a shiny application
-where you can visually inspect the effect of choosing different models
-and parameter configurations
+By running
+[`demo()`](https://jenswahl.github.io/stochvolTMB/reference/demo.md) you
+start a shiny application where you can visually inspect the effect of
+choosing different models and parameter configurations
 
 ``` r
 
@@ -222,30 +227,32 @@ simulated time series
 
 ## All functions
 
-- [`demo()`](demo.md) : Run shiny demo
-- [`estimate_parameters()`](estimate_parameters.md) : Estimate
-  parameters for the stochastic volatility model
-- [`logit()`](logit.md) : Logit transformation from the real line to
-  (-1, 1).
-- [`plot(`*`<stochvolTMB>`*`)`](plot.stochvolTMB.md) : Plot the
-  estimated latent volatility process
-- [`plot_diagnostics()`](plot_diagnostics.md) : Diagnostic plots based
-  on one-step-ahead residuals
-- [`plot_returns()`](plot_returns.md) : Plot returns with bands from the
-  fitted model
-- [`predict(`*`<stochvolTMB>`*`)`](predict.stochvolTMB.md) : Predict
-  future returns and future volatilities
-- [`residuals()`](residuals.md) : Calculate one-step-ahead (OSA)
-  residuals for stochastic volatility model.
-- [`sim_sv()`](sim_sv.md) : Simulate log-returns from a stochastic
-  volatility model
-- [`simulate_parameters()`](simulate_parameters.md) : Simulate from the
-  asymptotic distribution of the parameter estimates
-- [`spy`](spy.md) : Daily closing prices for the S&P500 from 2005 to
-  2018.
-- [`summary(`*`<stochvolTMB>`*`)`](summary.md) : Summary tables of model
-  parameters
-- [`summary(`*`<stochvolTMB_predict>`*`)`](summary.stochvolTMB_predict.md)
+- [`demo()`](https://jenswahl.github.io/stochvolTMB/reference/demo.md) :
+  Run shiny demo
+- [`estimate_parameters()`](https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.md)
+  : Estimate parameters for the stochastic volatility model
+- [`logit()`](https://jenswahl.github.io/stochvolTMB/reference/logit.md)
+  : Logit transformation from the real line to (-1, 1).
+- [`plot(`*`<stochvolTMB>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/plot.stochvolTMB.md)
+  : Plot the estimated latent volatility process
+- [`plot_diagnostics()`](https://jenswahl.github.io/stochvolTMB/reference/plot_diagnostics.md)
+  : Diagnostic plots based on one-step-ahead residuals
+- [`plot_returns()`](https://jenswahl.github.io/stochvolTMB/reference/plot_returns.md)
+  : Plot returns with bands from the fitted model
+- [`predict(`*`<stochvolTMB>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/predict.stochvolTMB.md)
+  : Predict future returns and future volatilities
+- [`residuals()`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
+  : Calculate one-step-ahead (OSA) residuals for stochastic volatility
+  model.
+- [`sim_sv()`](https://jenswahl.github.io/stochvolTMB/reference/sim_sv.md)
+  : Simulate log-returns from a stochastic volatility model
+- [`simulate_parameters()`](https://jenswahl.github.io/stochvolTMB/reference/simulate_parameters.md)
+  : Simulate from the asymptotic distribution of the parameter estimates
+- [`spy`](https://jenswahl.github.io/stochvolTMB/reference/spy.md) :
+  Daily closing prices for the S&P500 from 2005 to 2018.
+- [`summary(`*`<stochvolTMB>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/summary.md)
+  : Summary tables of model parameters
+- [`summary(`*`<stochvolTMB_predict>`*`)`](https://jenswahl.github.io/stochvolTMB/reference/summary.stochvolTMB_predict.md)
   : Calculate quantiles based on predictions from the predictive
   distribution
 
@@ -254,4 +261,4 @@ simulated time series
 ### All vignettes
 
 - [stochvolTMB: Likelihood estimation of stochastic
-  volatility](stochvolTMB_vignette.md):
+  volatility](https://jenswahl.github.io/stochvolTMB/articles/stochvolTMB_vignette.md):

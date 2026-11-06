@@ -22,6 +22,12 @@ for the observed process:
   `eta_t = rho * z_t + sqrt(1 - rho^2) * e_t`, where `e_t` is standard
   gaussian. Estimates both the skewness and `rho`.
 
+- `"skew_t"`: Skew t distribution of Jones and Faddy (2003), scaled to
+  mean zero and unit variance. The left and the right tail have their
+  own degrees of freedom, `df_left` and `df_right`, so the model can
+  have heavier tails for losses than for gains. With equal values it is
+  the `"t"` model.
+
 The parameters is estimated by minimizing the negative log-likelihood
 (nll) and the latent log-volatility is integrated out by applying the
 Laplace approximation.
@@ -42,7 +48,7 @@ estimate_parameters(data, model = "gaussian", opt.control = NULL, ...)
 
   A character specifying the model. Must be one of the following:
   "gaussian", "t", "leverage", "skew_gaussian",
-  "skew_gaussian_leverage".
+  "skew_gaussian_leverage", "skew_t".
 
 - opt.control:
 
@@ -78,12 +84,43 @@ skewness grows like `alpha^3`, so the likelihood is flat in `alpha` at
 
 Use `summary(object, report = "transformed")` to get `skewness` and
 `alpha` with standard errors. Use `skewness` for inference. Use `alpha`
-when you need the shape parameter, for example in [`sim_sv`](sim_sv.md)
+when you need the shape parameter, for example in
+[`sim_sv`](https://jenswahl.github.io/stochvolTMB/reference/sim_sv.md)
 or [`sn::dsn`](https://rdrr.io/pkg/sn/man/dsn.html). Close to zero
 skewness, `alpha` changes fast with the skewness, so the standard error
 of `alpha` is very large even when the skewness is well determined. In
 the "skew_gaussian_leverage" model the skewness is that of the return
 shock, not of the returns.
+
+## Skew t model
+
+The left tail of the noise decays like a Student t distribution with
+`df_left` degrees of freedom and the right tail like one with `df_right`
+degrees of freedom. A smaller value means a heavier tail. If
+`df_left < df_right`, large losses are more likely than large gains of
+the same size, and the noise is skewed to the left. Both values are
+greater than 2, so that the variance exists. They are estimated on the
+scale `log(df - 2)`.
+
+A light tail is hard to tell apart from a gaussian tail. If one tail is
+light, its estimated degrees of freedom can be very large and have a
+large standard error, and `nlminb` can report false convergence. This
+means that the data show no heavy tail on that side. The same is true
+for `df` in the `"t"` model. In both models the degrees of freedom are
+capped at 10,000, because the density cannot be calculated accurately
+for larger values. Short series (a few hundred observations) can also
+confuse heavy tails with a very noisy log-volatility.
+
+Hansen's (1994) skewed t distribution is not used, because its log
+density has a jump in the second derivative at the mode. This makes the
+Laplace approximation inaccurate and the optimization unstable.
+
+## References
+
+Jones, M. C. and Faddy, M. J. (2003). A skew extension of the
+t-distribution, with applications. Journal of the Royal Statistical
+Society: Series B, 65(1), 159-174.
+[doi:10.1111/1467-9868.00378](https://doi.org/10.1111/1467-9868.00378)
 
 ## Examples
 

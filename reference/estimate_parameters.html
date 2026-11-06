@@ -19,6 +19,9 @@ The following distributions are implemented for the observed process:
 &quot;skew_gaussian_leverage&quot;: Skew gaussian distribution with leverage. The skew gaussian return shock
  z_t drives the volatility shock, eta_t = rho * z_t + sqrt(1 - rho^2) * e_t, where e_t is
  standard gaussian. Estimates both the skewness and rho.
+&quot;skew_t&quot;: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
+ left and the right tail have their own degrees of freedom, df_left and df_right, so the model
+ can have heavier tails for losses than for gains. With equal values it is the &quot;t&quot; model.
 
 
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is
@@ -36,6 +39,9 @@ The following distributions are implemented for the observed process:
 &quot;skew_gaussian_leverage&quot;: Skew gaussian distribution with leverage. The skew gaussian return shock
  z_t drives the volatility shock, eta_t = rho * z_t + sqrt(1 - rho^2) * e_t, where e_t is
  standard gaussian. Estimates both the skewness and rho.
+&quot;skew_t&quot;: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
+ left and the right tail have their own degrees of freedom, df_left and df_right, so the model
+ can have heavier tails for losses than for gains. With equal values it is the &quot;t&quot; model.
 
 
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is
@@ -91,6 +97,9 @@ The following distributions are implemented for the observed process:</p>
 <li><p><code>"skew_gaussian_leverage"</code>: Skew gaussian distribution with leverage. The skew gaussian return shock
  <code>z_t</code> drives the volatility shock, <code>eta_t = rho * z_t + sqrt(1 - rho^2) * e_t</code>, where <code>e_t</code> is
  standard gaussian. Estimates both the skewness and <code>rho</code>.</p></li>
+<li><p><code>"skew_t"</code>: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
+ left and the right tail have their own degrees of freedom, <code>df_left</code> and <code>df_right</code>, so the model
+ can have heavier tails for losses than for gains. With equal values it is the <code>"t"</code> model.</p></li>
 </ul><p>The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is
 integrated out by applying the Laplace approximation.</p>
     </div>
@@ -110,7 +119,7 @@ integrated out by applying the Laplace approximation.</p>
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
 <dd><p>A character specifying the model. Must be one of the following:
-"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage".</p></dd>
+"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t".</p></dd>
 
 
 <dt id="arg-opt-control">opt.control<a class="anchor" aria-label="anchor" href="#arg-opt-control"></a></dt>
@@ -142,6 +151,28 @@ Use <code>skewness</code> for inference. Use <code>alpha</code> when you need th
 <code><a href="sim_sv.html">sim_sv</a></code> or <code><a href="https://rdrr.io/pkg/sn/man/dsn.html" class="external-link">sn::dsn</a></code>. Close to zero skewness, <code>alpha</code> changes fast with the skewness, so
 the standard error of <code>alpha</code> is very large even when the skewness is well determined. In the
 "skew_gaussian_leverage" model the skewness is that of the return shock, not of the returns.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="skew-t-model">Skew t model<a class="anchor" aria-label="anchor" href="#skew-t-model"></a></h2>
+
+
+<p>The left tail of the noise decays like a Student t distribution with <code>df_left</code> degrees of freedom and the
+right tail like one with <code>df_right</code> degrees of freedom. A smaller value means a heavier tail. If
+<code>df_left &lt; df_right</code>, large losses are more likely than large gains of the same size, and the noise is
+skewed to the left. Both values are greater than 2, so that the variance exists. They are estimated on the scale
+<code>log(df - 2)</code>.</p>
+<p>A light tail is hard to tell apart from a gaussian tail. If one tail is light, its estimated degrees of freedom
+can be very large and have a large standard error, and <code>nlminb</code> can report false convergence. This means
+that the data show no heavy tail on that side. The same is true for <code>df</code> in the <code>"t"</code> model. In both
+models the degrees of freedom are capped at 10,000, because the density cannot be calculated accurately for larger
+values. Short series (a few hundred observations) can also confuse heavy tails with a very noisy log-volatility.</p>
+<p>Hansen's (1994) skewed t distribution is not used, because its log density has a jump in the second
+derivative at the mode. This makes the Laplace approximation inaccurate and the optimization unstable.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Jones, M. C. and Faddy, M. J. (2003). A skew extension of the t-distribution, with applications.
+  Journal of the Royal Statistical Society: Series B, 65(1), 159-174. <a href="https://doi.org/10.1111/1467-9868.00378" class="external-link">doi:10.1111/1467-9868.00378</a></p>
     </div>
 
     <div class="section level2">

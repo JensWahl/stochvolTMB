@@ -26,12 +26,13 @@ plot_diagnostics(x, res = NULL, lag_max = 20, ...)
 - x:
 
   A `stochvolTMB` object returned from
-  [`estimate_parameters`](estimate_parameters.md).
+  [`estimate_parameters`](https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.md).
 
 - res:
 
-  Optional vector of OSA residuals from [`residuals`](residuals.md). If
-  `NULL`, the residuals are calculated.
+  Optional vector of OSA residuals from
+  [`residuals`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md).
+  If `NULL`, the residuals are calculated.
 
 - lag_max:
 
@@ -39,8 +40,9 @@ plot_diagnostics(x, res = NULL, lag_max = 20, ...)
 
 - ...:
 
-  Arguments passed to [`residuals`](residuals.md) when `res` is `NULL`,
-  for example `method` or `conditional`.
+  Arguments passed to
+  [`residuals`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
+  when `res` is `NULL`, for example `method` or `conditional`.
 
 ## Value
 
@@ -49,9 +51,11 @@ ggplot object with the three diagnostic panels.
 ## Details
 
 By default, the residuals are calculated for all observations with the
-exact grid method of [`residuals`](residuals.md), which takes a few
-seconds. To reuse residuals, calculate them once with
-[`residuals`](residuals.md) and give them in `res`.
+exact grid method of
+[`residuals`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md),
+which takes a few seconds. To reuse residuals, calculate them once with
+[`residuals`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
+and give them in `res`.
 
 ## Examples
 

@@ -17,21 +17,39 @@
   often stayed at `alpha = 0`.
 - The skew-Gaussian density now uses a numerically stable
   `log(pnorm(x))` instead of `log(1e-5 + pnorm(x))`.
-- New [`plot_returns()`](../reference/plot_returns.md) plots the returns
-  with the central interval of the fitted conditional distribution and
-  marks the returns outside it.
-- New [`plot_diagnostics()`](../reference/plot_diagnostics.md) plots a
-  Q-Q plot and the autocorrelation of the one-step-ahead residuals and
-  of the squared residuals.
-- [`residuals()`](../reference/residuals.md) has a new default method,
-  `method = "grid"`. It calculates the one-step-ahead residuals exactly
-  with a filter on a grid for the log-volatility, for all observations
-  in a few seconds. The old method,
+- New model `skew_t`: the skew t distribution of Jones and Faddy (2003),
+  standardized to mean zero and unit variance, with separate degrees of
+  freedom for the left and the right tail (`df_left`, `df_right`).
+  Supported by
+  [`estimate_parameters()`](https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.md),
+  [`sim_sv()`](https://jenswahl.github.io/stochvolTMB/reference/sim_sv.md),
+  [`predict()`](https://rdrr.io/r/stats/predict.html),
+  [`residuals()`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
+  and
+  [`plot_returns()`](https://jenswahl.github.io/stochvolTMB/reference/plot_returns.md).
+- The degrees of freedom of the `t` and `skew_t` models are capped at
+  10,000. For larger values the `lgamma` differences in the density lost
+  all precision, and the fit of the `t` model could run to `df = 1e14`
+  with a meaningless likelihood. At 10,000 degrees of freedom the
+  distribution is gaussian for all practical purposes.
+- New
+  [`plot_returns()`](https://jenswahl.github.io/stochvolTMB/reference/plot_returns.md)
+  plots the returns with the central interval of the fitted conditional
+  distribution and marks the returns outside it.
+- New
+  [`plot_diagnostics()`](https://jenswahl.github.io/stochvolTMB/reference/plot_diagnostics.md)
+  plots a Q-Q plot and the autocorrelation of the one-step-ahead
+  residuals and of the squared residuals.
+- [`residuals()`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
+  has a new default method, `method = "grid"`. It calculates the
+  one-step-ahead residuals exactly with a filter on a grid for the
+  log-volatility, for all observations in a few seconds. The old method,
   [`TMB::oneStepPredict`](https://rdrr.io/pkg/TMB/man/oneStepPredict.html)
   with the Laplace approximation, takes one to three seconds per
   observation and is available with `method = "tmb"`. With
-  `method = "grid"`, [`residuals()`](../reference/residuals.md) returns
-  residuals for all observations by default.
+  `method = "grid"`,
+  [`residuals()`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
+  returns residuals for all observations by default.
 - `residuals(method = "tmb")` no longer fails with “Multiple TMB models
   loaded” when several TMB models are loaded, for example after
   `devtools::load_all()`. It then calculates the residuals without

@@ -15,7 +15,7 @@ predict(object, steps = 1L, nsim = 10000, include_parameters = TRUE, ...)
 - object:
 
   A `stochvolTMB` object returned from
-  [`estimate_parameters`](estimate_parameters.md).
+  [`estimate_parameters`](https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.md).
 
 - steps:
 

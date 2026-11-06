@@ -109,7 +109,9 @@ the standard deviation of the latent volatility process, <code>sigma_h</code>, t
 <code>model</code> = "t", the degree of freedom <code>df</code> must be specified. If <code>model</code> = "skew_gaussian",
 the shape parameter <code>alpha</code> must be specified (see the section on skew gaussian models in
 <code><a href="estimate_parameters.html">estimate_parameters</a></code> for how <code>alpha</code> relates to the skewness) and if <code>model</code> = "leverage",
-the correlation <code>rho</code> between the latent error term and the observational error has to be specified.</p></dd>
+the correlation <code>rho</code> between the latent error term and the observational error has to be specified.
+If <code>model</code> = "skew_t", the degrees of freedom of the left and the right tail, <code>df_left</code> and
+<code>df_right</code>, must be specified.</p></dd>
 
 
 <dt id="arg-nobs">nobs<a class="anchor" aria-label="anchor" href="#arg-nobs"></a></dt>

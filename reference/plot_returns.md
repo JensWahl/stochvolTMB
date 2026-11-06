@@ -17,7 +17,7 @@ plot_returns(x, level = 0.95, dates = NULL)
 - x:
 
   A `stochvolTMB` object returned from
-  [`estimate_parameters`](estimate_parameters.md).
+  [`estimate_parameters`](https://jenswahl.github.io/stochvolTMB/reference/estimate_parameters.md).
 
 - level:
 
@@ -38,8 +38,9 @@ ggplot object.
 The subtitle shows the share of returns outside the interval. For a good
 model it is close to `1 - level`. The bands use the smoothed estimate of
 `h_t`, which also uses `y_t`. The share is therefore an optimistic,
-in-sample check. Use [`plot_diagnostics`](plot_diagnostics.md) for a
-check based on one-step-ahead residuals.
+in-sample check. Use
+[`plot_diagnostics`](https://jenswahl.github.io/stochvolTMB/reference/plot_diagnostics.md)
+for a check based on one-step-ahead residuals.
 
 ## Examples
 

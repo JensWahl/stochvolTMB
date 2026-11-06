@@ -63,7 +63,7 @@
 <!-- badges: start -->
 
 <p><code>stochvolTMB</code> is a package for fitting stochastic volatility (SV) models to time series data. It is inspired by the package <a href="https://github.com/gregorkastner/stochvol" class="external-link">stochvol</a>, but parameter estimates are obtained through optimization and not MCMC, leading to significant speed up. It is built on <a href="https://github.com/kaskr/adcomp" class="external-link">Template Model Builder</a> for fast and efficient estimation. The latent volatility is integrated out of the likelihood using the Laplace approximation and automatic differentiation (AD) is used for accurate evaluation of derivatives.</p>
-<p>Five models for the observational error are implemented. Select a model with the <code>model</code> argument of <code>estimate_parameters</code>:</p>
+<p>Six models for the observational error are implemented. Select a model with the <code>model</code> argument of <code>estimate_parameters</code>:</p>
 <ul>
 <li>
 <strong>Gaussian</strong> (<code>"gaussian"</code>) - The classic SV model with Gaussian noise</li>
@@ -75,6 +75,8 @@
 <strong>Skew-Gaussian</strong> (<code>"skew_gaussian"</code>) - Skew-Gaussian distributed noise for asymmetric returns</li>
 <li>
 <strong>Skew-Gaussian with leverage</strong> (<code>"skew_gaussian_leverage"</code>) - Combines asymmetric returns with the leverage effect</li>
+<li>
+<strong>Skew-t</strong> (<code>"skew_t"</code>) - Skew t distributed noise with separate degrees of freedom for the left and the right tail</li>
 </ul>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -106,13 +108,15 @@
 <span><span class="va">skew_gaussian</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">leverage</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">skew_gaussian_leverage</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">skew_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_t"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># the models with leverage stand out with an AIC far below the other models</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC</a></span><span class="op">(</span><span class="va">gaussian</span>, <span class="va">t_dist</span>, <span class="va">skew_gaussian</span>, <span class="va">leverage</span>, <span class="va">skew_gaussian_leverage</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC</a></span><span class="op">(</span><span class="va">gaussian</span>, <span class="va">t_dist</span>, <span class="va">skew_gaussian</span>, <span class="va">skew_t</span>, <span class="va">leverage</span>, <span class="va">skew_gaussian_leverage</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                        df       AIC</span></span>
 <span><span class="co">#&gt; gaussian                3 -23430.57</span></span>
 <span><span class="co">#&gt; t_dist                  4 -23451.69</span></span>
 <span><span class="co">#&gt; skew_gaussian           4 -23440.72</span></span>
+<span><span class="co">#&gt; skew_t                  5 -23459.72</span></span>
 <span><span class="co">#&gt; leverage                4 -23608.85</span></span>
 <span><span class="co">#&gt; skew_gaussian_leverage  5 -23698.59</span></span>
 <span></span>

@@ -10,7 +10,7 @@ estimation. The latent volatility is integrated out of the likelihood
 using the Laplace approximation and automatic differentiation (AD) is
 used for accurate evaluation of derivatives.
 
-Five models for the observational error are implemented. Select a model
+Six models for the observational error are implemented. Select a model
 with the `model` argument of `estimate_parameters`:
 
 - **Gaussian** (`"gaussian"`) - The classic SV model with Gaussian noise
@@ -21,6 +21,8 @@ with the `model` argument of `estimate_parameters`:
   noise for asymmetric returns
 - **Skew-Gaussian with leverage** (`"skew_gaussian_leverage"`) -
   Combines asymmetric returns with the leverage effect
+- **Skew-t** (`"skew_t"`) - Skew t distributed noise with separate
+  degrees of freedom for the left and the right tail
 
 ## Installation
 
@@ -63,13 +65,15 @@ t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 skew_gaussian_leverage <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
+skew_t <- estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
 
 # the models with leverage stand out with an AIC far below the other models
-AIC(gaussian, t_dist, skew_gaussian, leverage, skew_gaussian_leverage)
+AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage)
 #>                        df       AIC
 #> gaussian                3 -23430.57
 #> t_dist                  4 -23451.69
 #> skew_gaussian           4 -23440.72
+#> skew_t                  5 -23459.72
 #> leverage                4 -23608.85
 #> skew_gaussian_leverage  5 -23698.59
 
@@ -203,9 +207,10 @@ model](reference/figures/README-unnamed-chunk-6-1.png)
 
 ## Shiny app
 
-By running [`demo()`](reference/demo.md) you start a shiny application
-where you can visually inspect the effect of choosing different models
-and parameter configurations
+By running
+[`demo()`](https://jenswahl.github.io/stochvolTMB/reference/demo.md) you
+start a shiny application where you can visually inspect the effect of
+choosing different models and parameter configurations
 
 ``` r
 

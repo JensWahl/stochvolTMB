@@ -3,4 +3,4 @@
 ### All vignettes
 
 - [stochvolTMB: Likelihood estimation of stochastic
-  volatility](stochvolTMB_vignette.md):
+  volatility](https://jenswahl.github.io/stochvolTMB/articles/stochvolTMB_vignette.md):

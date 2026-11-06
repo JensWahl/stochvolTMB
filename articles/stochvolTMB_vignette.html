@@ -106,7 +106,7 @@ with the returns. The latter is called the <em>leverage effect</em>,
 where there is a negative correlation between a change in price and the
 volatility, meaning that a drop in price tend to lead to an increase in
 volatility To take these features of financial time series into account
-<code>stochvolTMB</code> has implemented the following five models for
+<code>stochvolTMB</code> has implemented the following six models for
 the innovations:</p>
 <ul>
 <li>Gaussian: <span class="math inline">\(\epsilon_t \sim
@@ -130,6 +130,14 @@ e_t\)</span>, where <span class="math inline">\(e_t \sim
 and the returns have the same skewness as in the skew-Gaussian model.
 With <span class="math inline">\(\alpha = 0\)</span> this is the
 leverage model.</li>
+<li>Skew-t: <span class="math inline">\(\epsilon_t\)</span> has the skew
+t distribution of <span class="citation">Jones and Faddy (2003)</span>,
+scaled to zero mean and unit variance. Its density is proportional to
+<span class="math inline">\((1 + x/\sqrt{a + b + x^2})^{a + 1/2} (1 -
+x/\sqrt{a + b + x^2})^{b + 1/2}\)</span> before scaling. The left tail
+decays like a t-distribution with <span class="math inline">\(\nu_L =
+2a\)</span> degrees of freedom, and the right tail like one with <span class="math inline">\(\nu_R = 2b\)</span>. With <span class="math inline">\(\nu_L &lt; \nu_R\)</span>, large losses are more
+likely than large gains, which is common for stock returns. With <span class="math inline">\(\nu_L = \nu_R\)</span> this is the t model.</li>
 </ul>
 <div class="section level3">
 <h3 id="skewness-and-the-shape-parameter">Skewness and the shape parameter<a class="anchor" aria-label="anchor" href="#skewness-and-the-shape-parameter"></a>
@@ -295,13 +303,14 @@ data:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">date</span>, <span class="va">spy</span><span class="op">$</span><span class="va">price</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Price of S&amp;P500"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-2-2.png" class="r-plt" alt="" width="672"></p>
-<p>We fit all five models:</p>
+<p>We fit all six models:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gaussian</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"gaussian"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">t_dist</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"t"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">skew_gaussian</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">skew_gaussian_leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">skew_gaussian_leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">skew_t</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_t"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>We can investigate the estimate for the degrees of freedom
 (<code>df</code>) to see if the returns are heavy-tailed</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -311,7 +320,7 @@ data:</p>
 <span><span class="co">#&gt; 1:   sigma_y  0.008392879 0.0008689248   9.658924 4.505714e-22 transformed</span></span>
 <span><span class="co">#&gt; 2:   sigma_h  0.185766767 0.0182175649  10.197124 2.042308e-24 transformed</span></span>
 <span><span class="co">#&gt; 3:       phi  0.984924644 0.0039281816 250.732972 0.000000e+00 transformed</span></span>
-<span><span class="co">#&gt; 4:        df 10.086366735 2.1022434996   4.797906 1.603330e-06 transformed</span></span></code></pre></div>
+<span><span class="co">#&gt; 4:        df 10.086366735 2.1022435029   4.797906 1.603330e-06 transformed</span></span></code></pre></div>
 <p>Clearly the returns are more heavy tailed than Gaussian, even when
 controlling for the stochastic volatility. We can also check for
 asymmetric returns</p>
@@ -354,21 +363,35 @@ of our models and pick the smallest.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC</a></span><span class="op">(</span><span class="va">gaussian</span>,</span>
 <span>    <span class="va">t_dist</span>,</span>
 <span>    <span class="va">skew_gaussian</span>,</span>
+<span>    <span class="va">skew_t</span>,</span>
 <span>    <span class="va">leverage</span>,</span>
 <span>    <span class="va">skew_gaussian_leverage</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                        df       AIC</span></span>
 <span><span class="co">#&gt; gaussian                3 -23430.57</span></span>
 <span><span class="co">#&gt; t_dist                  4 -23451.69</span></span>
 <span><span class="co">#&gt; skew_gaussian           4 -23440.72</span></span>
+<span><span class="co">#&gt; skew_t                  5 -23459.72</span></span>
 <span><span class="co">#&gt; leverage                4 -23608.85</span></span>
 <span><span class="co">#&gt; skew_gaussian_leverage  5 -23698.59</span></span></code></pre></div>
+<p>The skew-t model estimates one degree of freedom for each tail. The
+left tail of the S&amp;P 500 returns is slightly heavier than the right
+tail:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">skew_t</span>, report <span class="op">=</span> <span class="st">"transformed"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    parameter     estimate    std_error    z_value      p_value        type</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;        &lt;num&gt;      &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:   sigma_y  0.008453231 0.0008845568   9.556459 1.218547e-21 transformed</span></span>
+<span><span class="co">#&gt; 2:   sigma_h  0.179283424 0.0178550242  10.041063 1.005842e-23 transformed</span></span>
+<span><span class="co">#&gt; 3:       phi  0.985608755 0.0038246322 257.700273 0.000000e+00 transformed</span></span>
+<span><span class="co">#&gt; 4:   df_left  8.958567420 1.7847593001   5.019482 5.181096e-07 transformed</span></span>
+<span><span class="co">#&gt; 5:  df_right 10.777893703 2.3315808944   4.622569 3.790166e-06 transformed</span></span></code></pre></div>
 <p>We can compare the leverage model with the skew-Gaussian leverage
 model to see if adding skewness improves the fit.</p>
 <p>The skew-Gaussian models report both <code>skewness</code> and the
 shape parameter <code>alpha</code> (see <a href="#skewness-and-the-shape-parameter">Skewness and the shape
 parameter</a>). Use <code>skewness</code> for inference. To simulate
 from the model, give <code>alpha</code> to <code>sim_sv</code>:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>phi <span class="op">=</span> <span class="fl">0.95</span>, sigma_h <span class="op">=</span> <span class="fl">0.25</span>, sigma_y <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="op">-</span><span class="fl">2</span>, rho <span class="op">=</span> <span class="op">-</span><span class="fl">0.7</span><span class="op">)</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_sv.html">sim_sv</a></span><span class="op">(</span><span class="va">param</span>, nobs <span class="op">=</span> <span class="fl">2000</span>, seed <span class="op">=</span> <span class="fl">1</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">y</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -383,12 +406,12 @@ from the model, give <code>alpha</code> to <code>sim_sv</code>:</p>
 <span><span class="co">#&gt; 6:       rho -0.70745466 0.0576766544 -12.265875  1.381115e-34 transformed</span></span></code></pre></div>
 <p>Lastly, we can also plot the estimated log-volatility and
 volatility:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">leverage</span>, include_ci <span class="op">=</span> <span class="cn">TRUE</span>, plot_log <span class="op">=</span> <span class="cn">TRUE</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">leverage</span>, include_ci <span class="op">=</span> <span class="cn">TRUE</span>, plot_log <span class="op">=</span> <span class="cn">TRUE</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">leverage</span>, include_ci <span class="op">=</span> <span class="cn">TRUE</span>, plot_log <span class="op">=</span> <span class="cn">FALSE</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-10-2.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="672"></p>
 <p>We can simulate future returns with <code>predict</code>. This
 function returns three matrices of dimension <span class="math inline">\(\#\)</span> steps <span class="math inline">\(\times\)</span> #$ simulations: (1) the latent
 log-volatility <code>h</code>; (2) one for the percentage volatility
@@ -400,7 +423,7 @@ summarize the output from <code>predict</code>, we use the
 <code>summary</code> function, that calculate the mean and different
 quantiles based on the sumulations. We use the leverage model as an
 example:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pred</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">leverage</span>, steps <span class="op">=</span> <span class="fl">10</span>, include_parameters <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pred</span><span class="op">)</span></span>
@@ -456,7 +479,7 @@ example:</p>
 <span><span class="co">#&gt; (`geom_line()`).</span></span>
 <span><span class="co">#&gt; Warning: Removed 3199 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_ribbon()`).</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="672"></p>
 <div class="section level3">
 <h3 id="checking-the-fit">Checking the fit<a class="anchor" aria-label="anchor" href="#checking-the-fit"></a>
 </h3>
@@ -468,9 +491,9 @@ models. Returns outside the interval are red, and the subtitle gives
 their share. For a good model the share is close to 5%. The interval
 uses the smoothed log-volatility, which also uses the return on the same
 day, so this is an optimistic, in-sample check.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_returns.html">plot_returns</a></span><span class="op">(</span><span class="va">skew_gaussian_leverage</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="672"></p>
 <p>A stricter check uses one-step-ahead (OSA) residuals (<span class="citation">Thygesen et al. (2017)</span>). The OSA residual of
 <span class="math inline">\(y_t\)</span> is <span class="math inline">\(\Phi^{-1}(F_t(y_t))\)</span>, where <span class="math inline">\(F_t\)</span> is the predictive distribution
 function of <span class="math inline">\(y_t\)</span> given <span class="math inline">\(y_1, \dots, y_{t-1}\)</span>. If the model is
@@ -494,12 +517,12 @@ volatility clustering that the model does not capture.</li>
 </ul>
 <p>We compare the Gaussian model with the skew-Gaussian model with
 leverage:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">gaussian</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">gaussian</span><span class="op">)</span></span></code></pre></div>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">skew_gaussian_leverage</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-2.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-2.png" class="r-plt" alt="" width="672"></p>
 <p>For the Gaussian model the Q-Q plot bends down in the left tail:
 there are more large negative returns than the model expects. For the
 skew-Gaussian model with leverage the Q-Q plot is almost a straight
@@ -522,7 +545,7 @@ Chain Monte Carlo. An advantage of <code>stochvolTMB</code> is that
 optimization can be a lot faster than MCMC. We here compare the leverage
 and the gaussian model. Depending on your machine you can expect a speed
 up of 20-200x.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gregorkastner.github.io/stochvol/" class="external-link">stochvol</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">stochvol_gauss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://gregorkastner.github.io/stochvol/reference/svsample.html" class="external-link">svsample</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, quiet <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
@@ -535,7 +558,7 @@ the parameter <code>exp(mu/2)</code> and <code>sigma</code> from
 <code>stochvol</code> is the same as <code>sigma_y</code> and
 <code>sigma_h</code> from <code>stochvolTMB</code>. Both methods give
 almost identical results.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">stochvol_gauss</span><span class="op">$</span><span class="va">para</span></span>
 <span><span class="co">#&gt;                   mean           sd          5%          50%          95%</span></span>
@@ -814,12 +837,12 @@ approximation.</p>
 <p>We can check the method on simulated data. If we simulate from a
 model and fit the same model, the OSA residuals must be standard
 Gaussian and independent:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>phi <span class="op">=</span> <span class="fl">0.95</span>, sigma_h <span class="op">=</span> <span class="fl">0.3</span>, sigma_y <span class="op">=</span> <span class="fl">0.01</span>, alpha <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>, rho <span class="op">=</span> <span class="op">-</span><span class="fl">0.7</span><span class="op">)</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_sv.html">sim_sv</a></span><span class="op">(</span><span class="va">param</span>, nobs <span class="op">=</span> <span class="fl">3000</span>, seed <span class="op">=</span> <span class="fl">2</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span><span class="op">)</span></span>
 <span><span class="va">fit_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">y</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">fit_sim</span><span class="op">)</span></span></code></pre></div>
-<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 </div>
 </div>
@@ -827,6 +850,12 @@ Gaussian and independent:</p>
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-jones2003" class="csl-entry">
+Jones, M. C., and M. J. Faddy. 2003. <span>“A Skew Extension of the
+t-Distribution, with Applications.”</span> <em>Journal of the Royal
+Statistical Society: Series B (Statistical Methodology)</em> 65 (1):
+159–74. <a href="https://doi.org/10.1111/1467-9868.00378" class="external-link">https://doi.org/10.1111/1467-9868.00378</a>.
+</div>
 <div id="ref-kastner2016" class="csl-entry">
 Kastner, Gregor. 2016. <span>“Dealing with Stochastic Volatility in Time
 Series Using the <span>R</span> Package <span class="nocase">stochvol</span>.”</span> <em>Journal of Statistical

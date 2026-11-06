@@ -27,7 +27,7 @@ can be correlated with the returns. The latter is called the *leverage
 effect*, where there is a negative correlation between a change in price
 and the volatility, meaning that a drop in price tend to lead to an
 increase in volatility To take these features of financial time series
-into account `stochvolTMB` has implemented the following five models for
+into account `stochvolTMB` has implemented the following six models for
 the innovations:
 
 - Gaussian: \\\epsilon_t \sim \mathcal{N}(0,1)\\
@@ -45,6 +45,14 @@ the innovations:
   Then \\\mathrm{Cor}(\epsilon_t, \eta_t) = \rho\\, and the returns have
   the same skewness as in the skew-Gaussian model. With \\\alpha = 0\\
   this is the leverage model.
+- Skew-t: \\\epsilon_t\\ has the skew t distribution of Jones and Faddy
+  (2003), scaled to zero mean and unit variance. Its density is
+  proportional to \\(1 + x/\sqrt{a + b + x^2})^{a + 1/2} (1 -
+  x/\sqrt{a + b + x^2})^{b + 1/2}\\ before scaling. The left tail decays
+  like a t-distribution with \\\nu_L = 2a\\ degrees of freedom, and the
+  right tail like one with \\\nu_R = 2b\\. With \\\nu_L \< \nu_R\\,
+  large losses are more likely than large gains, which is common for
+  stock returns. With \\\nu_L = \nu_R\\ this is the t model.
 
 ### Skewness and the shape parameter
 
@@ -152,7 +160,7 @@ plot(spy$date, spy$price, type = "l", xlab = "", ylab = "", main = "Price of S&P
 
 ![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-2-2.png)
 
-We fit all five models:
+We fit all six models:
 
 ``` r
 
@@ -161,6 +169,7 @@ t_dist = estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 skew_gaussian_leverage = estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
+skew_t = estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
 ```
 
 We can investigate the estimate for the degrees of freedom (`df`) to see
@@ -174,7 +183,7 @@ summary(t_dist, report = "transformed")
 #> 1:   sigma_y  0.008392879 0.0008689248   9.658924 4.505714e-22 transformed
 #> 2:   sigma_h  0.185766767 0.0182175649  10.197124 2.042308e-24 transformed
 #> 3:       phi  0.984924644 0.0039281816 250.732972 0.000000e+00 transformed
-#> 4:        df 10.086366735 2.1022434996   4.797906 1.603330e-06 transformed
+#> 4:        df 10.086366735 2.1022435029   4.797906 1.603330e-06 transformed
 ```
 
 Clearly the returns are more heavy tailed than Gaussian, even when
@@ -235,14 +244,31 @@ models and pick the smallest.
 AIC(gaussian,
     t_dist,
     skew_gaussian,
+    skew_t,
     leverage,
     skew_gaussian_leverage)
 #>                        df       AIC
 #> gaussian                3 -23430.57
 #> t_dist                  4 -23451.69
 #> skew_gaussian           4 -23440.72
+#> skew_t                  5 -23459.72
 #> leverage                4 -23608.85
 #> skew_gaussian_leverage  5 -23698.59
+```
+
+The skew-t model estimates one degree of freedom for each tail. The left
+tail of the S&P 500 returns is slightly heavier than the right tail:
+
+``` r
+
+summary(skew_t, report = "transformed")
+#>    parameter     estimate    std_error    z_value      p_value        type
+#>       <char>        <num>        <num>      <num>        <num>      <char>
+#> 1:   sigma_y  0.008453231 0.0008845568   9.556459 1.218547e-21 transformed
+#> 2:   sigma_h  0.179283424 0.0178550242  10.041063 1.005842e-23 transformed
+#> 3:       phi  0.985608755 0.0038246322 257.700273 0.000000e+00 transformed
+#> 4:   df_left  8.958567420 1.7847593001   5.019482 5.181096e-07 transformed
+#> 5:  df_right 10.777893703 2.3315808944   4.622569 3.790166e-06 transformed
 ```
 
 We can compare the leverage model with the skew-Gaussian leverage model
@@ -276,14 +302,14 @@ Lastly, we can also plot the estimated log-volatility and volatility:
 plot(leverage, include_ci = TRUE, plot_log = TRUE, dates = spy$date)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-10-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-1.png)
 
 ``` r
 
 plot(leverage, include_ci = TRUE, plot_log = FALSE, dates = spy$date)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-10-2.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-2.png)
 
 We can simulate future returns with `predict`. This function returns
 three matrices of dimension \\\\\\ steps \\\times\\ \#\$ simulations:
@@ -355,7 +381,7 @@ plot(leverage, forecast = 50) + ggplot2::xlim(3200, nrow(spy) + 50)
 #> (`geom_ribbon()`).
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-11-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-1.png)
 
 ### Checking the fit
 
@@ -373,7 +399,7 @@ an optimistic, in-sample check.
 plot_returns(skew_gaussian_leverage, dates = spy$date)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-12-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png)
 
 A stricter check uses one-step-ahead (OSA) residuals (Thygesen et al.
 (2017)). The OSA residual of \\y_t\\ is \\\Phi^{-1}(F_t(y_t))\\, where
@@ -405,14 +431,14 @@ leverage:
 plot_diagnostics(gaussian)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-1.png)
 
 ``` r
 
 plot_diagnostics(skew_gaussian_leverage)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-2.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-2.png)
 
 For the Gaussian model the Q-Q plot bends down in the left tail: there
 are more large negative returns than the model expects. For the
@@ -729,9 +755,14 @@ fit_sim <- estimate_parameters(sim$y, model = "skew_gaussian_leverage", silent =
 plot_diagnostics(fit_sim)
 ```
 
-![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-17-1.png)
+![](stochvolTMB_vignette_files/figure-html/unnamed-chunk-18-1.png)
 
 ## References
+
+Jones, M. C., and M. J. Faddy. 2003. “A Skew Extension of the
+t-Distribution, with Applications.” *Journal of the Royal Statistical
+Society: Series B (Statistical Methodology)* 65 (1): 159–74.
+<https://doi.org/10.1111/1467-9868.00378>.
 
 Kastner, Gregor. 2016. “Dealing with Stochastic Volatility in Time
 Series Using the R Package stochvol.” *Journal of Statistical Software*
