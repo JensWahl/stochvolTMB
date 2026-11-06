@@ -59,7 +59,7 @@ remotes::install_github("JensWahl/stochvolTMB", dependencies = TRUE, build_vigne
 
 The main function for estimating parameters is `estimate_parameters`:
 
-```{r example}
+```{r example, fig.alt = c("Estimated volatility of the S&P 500 with a 95% confidence interval", "S&P 500 returns with the 95% interval from the skew-Gaussian leverage model")}
 library(stochvolTMB, warn.conflicts = FALSE)
 
 # load s&p500 data from 2005 to 2018
@@ -92,7 +92,7 @@ plot_returns(skew_gaussian_leverage, dates = spy$date)
 ```
 
 Given the estimated parameters we can simulate future volatility and log-returns using `predict`. 
-```{r}
+```{r fig.alt = "Estimated and predicted volatility of the S&P 500 for the next 50 days"}
 set.seed(123)
 # simulate future prices with or without parameter uncertainty
 pred = predict(leverage, steps = 10)
@@ -110,7 +110,7 @@ plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
 
 To check the fit with one-step-ahead residuals, use `plot_diagnostics`. It shows a Q-Q plot and the autocorrelation of the residuals and of the squared residuals:
 
-```{r fig.height=3.5}
+```{r fig.height=3.5, fig.alt = "Q-Q plot and autocorrelation of the one-step-ahead residuals of the skew-Gaussian leverage model"}
 plot_diagnostics(skew_gaussian_leverage)
 ```
 
@@ -122,4 +122,4 @@ By running `demo()` you start a shiny application where you can visually inspect
 demo()
 ```
 
-![](man/figures/shinyApp.png)
+![Screenshot of the shiny app with model and parameter controls and a simulated time series](man/figures/shinyApp.png)

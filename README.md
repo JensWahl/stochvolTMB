@@ -116,7 +116,7 @@ head(estimates, 10)
 plot(leverage, include_ci = TRUE, dates = spy$date)
 ```
 
-<img src="man/figures/README-example-1.png" alt="" width="100%" />
+<img src="man/figures/README-example-1.png" alt="Estimated volatility of the S&amp;P 500 with a 95% confidence interval" width="100%" />
 
 ``` r
 
@@ -124,7 +124,7 @@ plot(leverage, include_ci = TRUE, dates = spy$date)
 plot_returns(skew_gaussian_leverage, dates = spy$date)
 ```
 
-<img src="man/figures/README-example-2.png" alt="" width="100%" />
+<img src="man/figures/README-example-2.png" alt="S&amp;P 500 returns with the 95% interval from the skew-Gaussian leverage model" width="100%" />
 
 Given the estimated parameters we can simulate future volatility and
 log-returns using `predict`.
@@ -193,7 +193,7 @@ plot(leverage, include_ci = TRUE, forecast = 50, dates = spy$d) +
 #> (`geom_ribbon()`).
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" alt="" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" alt="Estimated and predicted volatility of the S&amp;P 500 for the next 50 days" width="100%" />
 
 To check the fit with one-step-ahead residuals, use `plot_diagnostics`.
 It shows a Q-Q plot and the autocorrelation of the residuals and of the
@@ -203,7 +203,7 @@ squared residuals:
 plot_diagnostics(skew_gaussian_leverage)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" alt="" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" alt="Q-Q plot and autocorrelation of the one-step-ahead residuals of the skew-Gaussian leverage model" width="100%" />
 
 ## Shiny app
 
@@ -215,4 +215,9 @@ configurations
 demo()
 ```
 
-![](man/figures/shinyApp.png)
+<figure>
+<img src="man/figures/shinyApp.png"
+alt="Screenshot of the shiny app with model and parameter controls and a simulated time series" />
+<figcaption aria-hidden="true">Screenshot of the shiny app with model
+and parameter controls and a simulated time series</figcaption>
+</figure>
