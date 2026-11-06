@@ -195,7 +195,7 @@ plot(leverage, forecast = 50) + ggplot2::xlim(3200, nrow(spy) + 50)
 plot_returns(skew_gaussian_leverage, dates = spy$date)
 ```
 
-A stricter check uses one-step-ahead (OSA) residuals (@thygesen2017). The OSA residual of $y_t$ is $\Phi^{-1}(F_t(y_t))$, where $F_t$ is the predictive distribution function of $y_t$ given $y_1, \dots, y_{t-1}$. If the model is correct, the OSA residuals are independent and standard Gaussian. Because the log-volatility $h_t$ is one-dimensional, `residuals` calculates $F_t$ exactly with a filter on a grid for $h_t$, for all observations in a few seconds. The slower method based on the Laplace approximation, `TMB::oneStepPredict`, is available with `method = "tmb"`.
+A stricter check uses one-step-ahead (OSA) residuals (@thygesen2017). The OSA residual of $y_t$ is $\Phi^{-1}(F_t(y_t))$, where $F_t$ is the predictive distribution function of $y_t$ given $y_1, \dots, y_{t-1}$. If the model is correct, the OSA residuals are independent and standard Gaussian. Because the log-volatility $h_t$ is one-dimensional, `residuals` calculates $F_t$ exactly with a filter on a grid for $h_t$, for all observations in a few seconds (see [One-step-ahead residuals](#one-step-ahead-residuals) for the details). The slower method based on the Laplace approximation, `TMB::oneStepPredict`, is available with `method = "tmb"`.
 
 `plot_diagnostics` shows three panels:
 
@@ -295,6 +295,94 @@ Finding the optimal value of $\boldsymbol{\theta}$ can be viewed as a nested opt
 find $\boldsymbol{h} (\boldsymbol{\theta})$ and $\mathbb{H}(\boldsymbol{\theta})$ we fix $\boldsymbol{\theta}$ and optimize using a quasi-Newton algorithm or a limited
 memory Newton method. The Laplace approximation is then optimized w.r.t. $\boldsymbol{\theta}$ using
 the quasi-Newton algorithm. 
+
+
+## One-step-ahead residuals
+
+This section explains how `residuals` calculates the one-step-ahead (OSA) residuals that `plot_diagnostics` uses. The parameters $\boldsymbol{\theta}$ are fixed at their estimates, so we do not write them below.
+
+### Why OSA residuals are standard Gaussian
+
+Let $F_t(y) = P(y_t \le y \mid y_1, \dots, y_{t-1})$ be the distribution function of $y_t$ given the earlier observations. This is the *predictive distribution* of $y_t$: what the model expects for day $t$, given everything until day $t-1$. The OSA residual of $y_t$ is
+\begin{equation}
+    r_t = \Phi^{-1}\big(F_t(y_t)\big),
+\end{equation}
+where $\Phi^{-1}$ is the quantile function of the standard Gaussian distribution.
+
+If the model is correct, $u_t = F_t(y_t)$ is uniform on $(0, 1)$. This is the probability integral transform: if a random variable $Y$ has a continuous distribution function $F$, then $F(Y)$ is uniform. Because $\Phi^{-1}$ maps a uniform variable to a standard Gaussian variable, $r_t$ is standard Gaussian. Each $u_t$ is calculated given the earlier observations only, so $u_1, \dots, u_T$ are also independent (@thygesen2017). In summary, for a correct model the OSA residuals are independent and standard Gaussian.
+
+A large negative residual means that the model gave a very small probability to a return that low, given the earlier returns. That is why the Q-Q plot of the OSA residuals shows if the tails of the model are correct.
+
+Note that ordinary residuals, for example $y_t / (\sigma_y e^{\hat{h}_t/2})$ with the estimated $\hat{h}_t$, do not have this property. The estimate $\hat{h}_t$ uses all observations, also $y_t$ itself and the observations after $t$.
+
+### The filter
+
+The difficulty is that $F_t$ depends on the unobserved log-volatility $h_t$. Given $h_t$, the distribution of $y_t$ is known, for example $y_t \mid h_t \sim \mathcal{N}(0, \sigma_y^2 e^{h_t})$ in the Gaussian model. We write $F(y \mid h_t)$ for this conditional distribution function and $f(y \mid h_t)$ for its density. But $h_t$ is not known, only its distribution given the earlier observations. We call this the *predictive density* of $h_t$:
+\begin{equation}
+    \pi_t(h) = p(h_t = h \mid y_1, \dots, y_{t-1}).
+\end{equation}
+Then $F_t$ is the average of $F(y \mid h)$ over this density:
+\begin{equation}
+    F_t(y) = \int F(y \mid h) \, \pi_t(h) \, dh.
+\end{equation}
+
+We calculate $\pi_t$ for $t = 1, \dots, T$ with a *filter*. A filter goes once forward through the data and repeats three steps for each day:
+
+1. **Predict.** Use $\pi_t$ to calculate $F_t(y_t)$ and the residual $r_t$.
+2. **Update.** Use Bayes' rule to include $y_t$. The density of $h_t$ given $y_1, \dots, y_t$ is
+\begin{equation}
+    p(h_t = h \mid y_1, \dots, y_t) = \frac{f(y_t \mid h) \, \pi_t(h)}{\int f(y_t \mid h') \, \pi_t(h') \, dh'}.
+\end{equation}
+3. **Move forward.** Use the model for $h_{t+1}$ given $h_t$, which is $\mathcal{N}(\phi h_t, \sigma_h^2)$, to get the predictive density for the next day:
+\begin{equation}
+    \pi_{t+1}(h') = \int \frac{1}{\sigma_h} \varphi\left(\frac{h' - \phi h}{\sigma_h}\right) p(h_t = h \mid y_1, \dots, y_t) \, dh,
+\end{equation}
+where $\varphi$ is the standard Gaussian density.
+
+The filter starts with the stationary distribution, $\pi_1 = \mathcal{N}(0, \sigma_h^2 / (1 - \phi^2))$.
+
+### From integrals to sums
+
+The integrals above have no closed form. But $h_t$ is one-dimensional, so we can calculate them accurately on a grid. Let $g_1 < g_2 < \dots < g_G$ be $G$ equally spaced points that cover eight stationary standard deviations of $h_t$ on each side of zero. By default $G = 500$. We keep $\pi_t$ as a vector of weights $w_t(j) \approx \pi_t(g_j) \Delta$, where $\Delta$ is the distance between the grid points, and the weights sum to one. The three steps become sums:
+\begin{equation}
+    \begin{aligned}
+        F_t(y_t) &= \sum_{j=1}^G w_t(j) \, F(y_t \mid g_j), \\
+        \tilde{w}_t(j) &= \frac{f(y_t \mid g_j) \, w_t(j)}{\sum_{i=1}^G f(y_t \mid g_i) \, w_t(i)}, \\
+        w_{t+1}(k) &= \sum_{j=1}^G \tilde{w}_t(j) \, P_{jk}.
+    \end{aligned}
+\end{equation}
+Here $P_{jk}$ is the probability of moving from $g_j$ to $g_k$. It is proportional to $\varphi\big((g_k - \phi g_j) / \sigma_h\big)$, scaled so that each row of $P$ sums to one.
+
+The only error is from the grid. With 500 grid points, the residuals for the S&P 500 data change by less than $10^{-7}$ when we use 1000 grid points instead. Most grid points have a weight that is almost zero, so the sums skip the points with a weight below $10^{-14}$ times the largest weight. This makes the filter fast: one pass over 3522 observations takes a few seconds.
+
+### Models with leverage
+
+In the leverage models, $y_t$ and $h_{t+1}$ are correlated. The filter then needs one more step.
+
+In the *skew-Gaussian model with leverage*, $y_t$ depends on $h_t$ only, so steps 1 and 2 do not change. The return shock $z_t = y_t / (\sigma_y e^{h_t/2})$ drives the next volatility shock, so in step 3 the model for $h_{t+1}$ also depends on $y_t$:
+\begin{equation}
+    h_{t+1} \mid h_t, y_t \sim \mathcal{N}\left(\phi h_t + \sigma_h \rho z_t, \; \sigma_h^2 (1 - \rho^2)\right).
+\end{equation}
+The transition probabilities $P_{jk}$ therefore change from day to day. They are proportional to $\varphi\big((g_k - \phi g_j - \sigma_h \rho z_{t,j}) / (\sigma_h \sqrt{1 - \rho^2})\big)$, where $z_{t,j} = y_t / (\sigma_y e^{g_j/2})$.
+
+In the *Gaussian model with leverage*, $y_t$ depends on both $h_t$ and $h_{t+1}$, through the volatility shock $\eta_t = (h_{t+1} - \phi h_t) / \sigma_h$:
+\begin{equation}
+    y_t \mid h_t, h_{t+1} \sim \mathcal{N}\left(\sigma_y e^{h_t/2} \rho \eta_t, \; \sigma_y^2 e^{h_t} (1 - \rho^2)\right).
+\end{equation}
+The filter therefore works with the joint predictive weights of $(h_t, h_{t+1})$ on the grid, $w_t(j) P_{jk}$. Steps 1 and 2 sum over both $j$ and $k$, and the sum over $j$ gives the weights for $h_{t+1}$. For the last observation $y_T$ there is no $h_{T+1}$, and $y_T \mid h_T \sim \mathcal{N}(0, \sigma_y^2 e^{h_T})$.
+
+### Comparison with the Laplace approximation
+
+`TMB::oneStepPredict`, which is available with `residuals(method = "tmb")`, calculates the same residuals in a different way. For each observation it integrates over $y_t$ numerically, and each point of that integral needs a full Laplace approximation over all $T$ latent variables. This takes one to three seconds per observation, and the Laplace approximation can be inaccurate in the tails. The grid filter uses that $h_t$ is one-dimensional and that the model is a Markov chain in $h_t$. It therefore needs only one pass over the data and does not use the Laplace approximation.
+
+We can check the method on simulated data. If we simulate from a model and fit the same model, the OSA residuals must be standard Gaussian and independent:
+
+```{r fig.height=3.5}
+param <- list(phi = 0.95, sigma_h = 0.3, sigma_y = 0.01, alpha = -3, rho = -0.7)
+sim <- sim_sv(param, nobs = 3000, seed = 2, model = "skew_gaussian_leverage")
+fit_sim <- estimate_parameters(sim$y, model = "skew_gaussian_leverage", silent = TRUE)
+plot_diagnostics(fit_sim)
+```
 
 
 # References
