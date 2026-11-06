@@ -25,7 +25,7 @@ Suggests:
     knitr,
     rmarkdown,
     stochvol
-URL: https://github.com/JensWahl/stochvolTMB
+URL: https://github.com/JensWahl/stochvolTMB, https://jenswahl.github.io/stochvolTMB/
 BugReports: https://github.com/JensWahl/stochvolTMB/issues
 RoxygenNote: 7.3.2
 Encoding: UTF-8

@@ -1,3 +1,5 @@
+url: https://jenswahl.github.io/stochvolTMB/
+
 template:
   bootstrap: 5
   math-rendering: mathjax
