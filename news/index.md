@@ -27,6 +27,12 @@
   [`residuals()`](https://jenswahl.github.io/stochvolTMB/reference/residuals.md)
   and
   [`plot_returns()`](https://jenswahl.github.io/stochvolTMB/reference/plot_returns.md).
+- New model `skew_t_leverage`: the skew t return shock drives the
+  volatility shock, as in `skew_gaussian_leverage`. It estimates
+  `df_left`, `df_right` and `rho`. On the S&P 500 data it has the
+  smallest AIC of all models, and its one-step-ahead residuals have a
+  straight Q-Q plot. `residuals(method = "tmb")` is not available for
+  this model.
 - The degrees of freedom of the `t` and `skew_t` models are capped at
   10,000. For larger values the `lgamma` differences in the density lost
   all precision, and the fit of the `t` model could run to `df = 1e14`

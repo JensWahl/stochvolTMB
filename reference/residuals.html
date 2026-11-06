@@ -102,7 +102,8 @@ observations. If <code>NULL</code>, the <code>"grid"</code> method returns resid
  Laplace approximation. It calculates the residuals for all observations in a few seconds.</p></li>
 <li><p><code>"tmb"</code>: <a href="https://rdrr.io/pkg/TMB/man/oneStepPredict.html" class="external-link">oneStepPredict</a> with <code>method = "oneStepGeneric"</code>. It uses the Laplace
  approximation and takes about one to three seconds per observation, so by default only the last 100
- observations are used.</p></li>
+ observations are used. It is not available for the <code>"skew_t_leverage"</code> model, where <code>y_t</code> also enters
+ the model for <code>h_{t+1}</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

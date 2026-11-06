@@ -62,7 +62,9 @@ Two methods are available:
   [oneStepPredict](https://rdrr.io/pkg/TMB/man/oneStepPredict.html) with
   `method = "oneStepGeneric"`. It uses the Laplace approximation and
   takes about one to three seconds per observation, so by default only
-  the last 100 observations are used.
+  the last 100 observations are used. It is not available for the
+  `"skew_t_leverage"` model, where `y_t` also enters the model for
+  `h_{t+1}`.
 
 ## References
 

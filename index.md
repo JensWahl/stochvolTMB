@@ -10,7 +10,7 @@ estimation. The latent volatility is integrated out of the likelihood
 using the Laplace approximation and automatic differentiation (AD) is
 used for accurate evaluation of derivatives.
 
-Six models for the observational error are implemented. Select a model
+Seven models for the observational error are implemented. Select a model
 with the `model` argument of `estimate_parameters`:
 
 - **Gaussian** (`"gaussian"`) - The classic SV model with Gaussian noise
@@ -23,6 +23,8 @@ with the `model` argument of `estimate_parameters`:
   Combines asymmetric returns with the leverage effect
 - **Skew-t** (`"skew_t"`) - Skew t distributed noise with separate
   degrees of freedom for the left and the right tail
+- **Skew-t with leverage** (`"skew_t_leverage"`) - Combines heavy and
+  asymmetric tails with the leverage effect
 
 ## Installation
 
@@ -66,9 +68,10 @@ skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", si
 leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 skew_gaussian_leverage <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
 skew_t <- estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
+skew_t_leverage <- estimate_parameters(spy$log_return, model = "skew_t_leverage", silent = TRUE)
 
 # the models with leverage stand out with an AIC far below the other models
-AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage)
+AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage, skew_t_leverage)
 #>                        df       AIC
 #> gaussian                3 -23430.57
 #> t_dist                  4 -23451.69
@@ -76,6 +79,7 @@ AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage)
 #> skew_t                  5 -23459.72
 #> leverage                4 -23608.85
 #> skew_gaussian_leverage  5 -23698.59
+#> skew_t_leverage         6 -23721.38
 
 # the skew models report the skewness and the shape parameter alpha
 summary(skew_gaussian_leverage, report = "transformed")
@@ -115,10 +119,10 @@ interval](reference/figures/README-example-1.png)
 
 
 # plot the returns with the 95 % interval of the fitted model
-plot_returns(skew_gaussian_leverage, dates = spy$date)
+plot_returns(skew_t_leverage, dates = spy$date)
 ```
 
-![S&P 500 returns with the 95% interval from the skew-Gaussian leverage
+![S&P 500 returns with the 95% interval from the skew-t leverage
 model](reference/figures/README-example-2.png)
 
 Given the estimated parameters we can simulate future volatility and
@@ -198,12 +202,11 @@ squared residuals:
 
 ``` r
 
-plot_diagnostics(skew_gaussian_leverage)
+plot_diagnostics(skew_t_leverage)
 ```
 
 ![Q-Q plot and autocorrelation of the one-step-ahead residuals of the
-skew-Gaussian leverage
-model](reference/figures/README-unnamed-chunk-6-1.png)
+skew-t leverage model](reference/figures/README-unnamed-chunk-6-1.png)
 
 ## Shiny app
 

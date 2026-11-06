@@ -49,7 +49,9 @@ sim_sv(
   the correlation `rho` between the latent error term and the
   observational error has to be specified. If `model` = "skew_t", the
   degrees of freedom of the left and the right tail, `df_left` and
-  `df_right`, must be specified.
+  `df_right`, must be specified. The "skew_t_leverage" model needs
+  `df_left`, `df_right` and `rho`; like "skew_gaussian_leverage", the
+  skew t return shock drives the volatility shock.
 
 - nobs:
 

@@ -22,6 +22,9 @@ The following distributions are implemented for the observed process:
 &quot;skew_t&quot;: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
  left and the right tail have their own degrees of freedom, df_left and df_right, so the model
  can have heavier tails for losses than for gains. With equal values it is the &quot;t&quot; model.
+&quot;skew_t_leverage&quot;: Skew t distribution with leverage. As in &quot;skew_gaussian_leverage&quot;, the
+ return shock z_t drives the volatility shock, eta_t = rho * z_t + sqrt(1 - rho^2) * e_t. Estimates
+ df_left, df_right and rho.
 
 
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is
@@ -42,6 +45,9 @@ The following distributions are implemented for the observed process:
 &quot;skew_t&quot;: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
  left and the right tail have their own degrees of freedom, df_left and df_right, so the model
  can have heavier tails for losses than for gains. With equal values it is the &quot;t&quot; model.
+&quot;skew_t_leverage&quot;: Skew t distribution with leverage. As in &quot;skew_gaussian_leverage&quot;, the
+ return shock z_t drives the volatility shock, eta_t = rho * z_t + sqrt(1 - rho^2) * e_t. Estimates
+ df_left, df_right and rho.
 
 
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is
@@ -100,6 +106,9 @@ The following distributions are implemented for the observed process:</p>
 <li><p><code>"skew_t"</code>: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
  left and the right tail have their own degrees of freedom, <code>df_left</code> and <code>df_right</code>, so the model
  can have heavier tails for losses than for gains. With equal values it is the <code>"t"</code> model.</p></li>
+<li><p><code>"skew_t_leverage"</code>: Skew t distribution with leverage. As in <code>"skew_gaussian_leverage"</code>, the
+ return shock <code>z_t</code> drives the volatility shock, <code>eta_t = rho * z_t + sqrt(1 - rho^2) * e_t</code>. Estimates
+ <code>df_left</code>, <code>df_right</code> and <code>rho</code>.</p></li>
 </ul><p>The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is
 integrated out by applying the Laplace approximation.</p>
     </div>
@@ -119,7 +128,7 @@ integrated out by applying the Laplace approximation.</p>
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
 <dd><p>A character specifying the model. Must be one of the following:
-"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t".</p></dd>
+"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t", "skew_t_leverage".</p></dd>
 
 
 <dt id="arg-opt-control">opt.control<a class="anchor" aria-label="anchor" href="#arg-opt-control"></a></dt>
@@ -153,7 +162,7 @@ the standard error of <code>alpha</code> is very large even when the skewness is
 "skew_gaussian_leverage" model the skewness is that of the return shock, not of the returns.</p>
     </div>
     <div class="section level2">
-    <h2 id="skew-t-model">Skew t model<a class="anchor" aria-label="anchor" href="#skew-t-model"></a></h2>
+    <h2 id="skew-t-models">Skew t models<a class="anchor" aria-label="anchor" href="#skew-t-models"></a></h2>
 
 
 <p>The left tail of the noise decays like a Student t distribution with <code>df_left</code> degrees of freedom and the

@@ -28,6 +28,11 @@ for the observed process:
   have heavier tails for losses than for gains. With equal values it is
   the `"t"` model.
 
+- `"skew_t_leverage"`: Skew t distribution with leverage. As in
+  `"skew_gaussian_leverage"`, the return shock `z_t` drives the
+  volatility shock, `eta_t = rho * z_t + sqrt(1 - rho^2) * e_t`.
+  Estimates `df_left`, `df_right` and `rho`.
+
 The parameters is estimated by minimizing the negative log-likelihood
 (nll) and the latent log-volatility is integrated out by applying the
 Laplace approximation.
@@ -48,7 +53,7 @@ estimate_parameters(data, model = "gaussian", opt.control = NULL, ...)
 
   A character specifying the model. Must be one of the following:
   "gaussian", "t", "leverage", "skew_gaussian",
-  "skew_gaussian_leverage", "skew_t".
+  "skew_gaussian_leverage", "skew_t", "skew_t_leverage".
 
 - opt.control:
 
@@ -92,7 +97,7 @@ of `alpha` is very large even when the skewness is well determined. In
 the "skew_gaussian_leverage" model the skewness is that of the return
 shock, not of the returns.
 
-## Skew t model
+## Skew t models
 
 The left tail of the noise decays like a Student t distribution with
 `df_left` degrees of freedom and the right tail like one with `df_right`

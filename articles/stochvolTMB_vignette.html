@@ -106,7 +106,7 @@ with the returns. The latter is called the <em>leverage effect</em>,
 where there is a negative correlation between a change in price and the
 volatility, meaning that a drop in price tend to lead to an increase in
 volatility To take these features of financial time series into account
-<code>stochvolTMB</code> has implemented the following six models for
+<code>stochvolTMB</code> has implemented the following seven models for
 the innovations:</p>
 <ul>
 <li>Gaussian: <span class="math inline">\(\epsilon_t \sim
@@ -138,6 +138,11 @@ x/\sqrt{a + b + x^2})^{b + 1/2}\)</span> before scaling. The left tail
 decays like a t-distribution with <span class="math inline">\(\nu_L =
 2a\)</span> degrees of freedom, and the right tail like one with <span class="math inline">\(\nu_R = 2b\)</span>. With <span class="math inline">\(\nu_L &lt; \nu_R\)</span>, large losses are more
 likely than large gains, which is common for stock returns. With <span class="math inline">\(\nu_L = \nu_R\)</span> this is the t model.</li>
+<li>Skew-t with leverage: <span class="math inline">\(\epsilon_t\)</span> has the skew t distribution
+above, and <span class="math inline">\(\eta_t = \rho \epsilon_t +
+\sqrt{1 - \rho^2} e_t\)</span> as in the skew-Gaussian model with
+leverage. This combines heavy and asymmetric tails with the leverage
+effect.</li>
 </ul>
 <div class="section level3">
 <h3 id="skewness-and-the-shape-parameter">Skewness and the shape parameter<a class="anchor" aria-label="anchor" href="#skewness-and-the-shape-parameter"></a>
@@ -303,14 +308,15 @@ data:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">date</span>, <span class="va">spy</span><span class="op">$</span><span class="va">price</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Price of S&amp;P500"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-2-2.png" class="r-plt" alt="" width="672"></p>
-<p>We fit all six models:</p>
+<p>We fit all seven models:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gaussian</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"gaussian"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">t_dist</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"t"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">skew_gaussian</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">skew_gaussian_leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_gaussian_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">skew_t</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_t"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">skew_t</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_t"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">skew_t_leverage</span> <span class="op">=</span> <span class="fu"><a href="../reference/estimate_parameters.html">estimate_parameters</a></span><span class="op">(</span><span class="va">spy</span><span class="op">$</span><span class="va">log_return</span>, model <span class="op">=</span> <span class="st">"skew_t_leverage"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>We can investigate the estimate for the degrees of freedom
 (<code>df</code>) to see if the returns are heavy-tailed</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -365,26 +371,31 @@ of our models and pick the smallest.</p>
 <span>    <span class="va">skew_gaussian</span>,</span>
 <span>    <span class="va">skew_t</span>,</span>
 <span>    <span class="va">leverage</span>,</span>
-<span>    <span class="va">skew_gaussian_leverage</span><span class="op">)</span></span>
+<span>    <span class="va">skew_gaussian_leverage</span>,</span>
+<span>    <span class="va">skew_t_leverage</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                        df       AIC</span></span>
 <span><span class="co">#&gt; gaussian                3 -23430.57</span></span>
 <span><span class="co">#&gt; t_dist                  4 -23451.69</span></span>
 <span><span class="co">#&gt; skew_gaussian           4 -23440.72</span></span>
 <span><span class="co">#&gt; skew_t                  5 -23459.72</span></span>
 <span><span class="co">#&gt; leverage                4 -23608.85</span></span>
-<span><span class="co">#&gt; skew_gaussian_leverage  5 -23698.59</span></span></code></pre></div>
-<p>The skew-t model estimates one degree of freedom for each tail. The
-left tail of the S&amp;P 500 returns is slightly heavier than the right
-tail:</p>
+<span><span class="co">#&gt; skew_gaussian_leverage  5 -23698.59</span></span>
+<span><span class="co">#&gt; skew_t_leverage         6 -23721.38</span></span></code></pre></div>
+<p>The skew-t model with leverage has the smallest AIC. It estimates one
+degree of freedom for each tail and the leverage <span class="math inline">\(\rho\)</span>. The left tail of the S&amp;P 500
+returns is clearly heavier than the right tail, and the correlation
+between the return shock and the volatility shock is strongly
+negative:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">skew_t</span>, report <span class="op">=</span> <span class="st">"transformed"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">skew_t_leverage</span>, report <span class="op">=</span> <span class="st">"transformed"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    parameter     estimate    std_error    z_value      p_value        type</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;        &lt;num&gt;        &lt;num&gt;      &lt;num&gt;        &lt;num&gt;      &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:   sigma_y  0.008453231 0.0008845568   9.556459 1.218547e-21 transformed</span></span>
-<span><span class="co">#&gt; 2:   sigma_h  0.179283424 0.0178550242  10.041063 1.005842e-23 transformed</span></span>
-<span><span class="co">#&gt; 3:       phi  0.985608755 0.0038246322 257.700273 0.000000e+00 transformed</span></span>
-<span><span class="co">#&gt; 4:   df_left  8.958567420 1.7847593001   5.019482 5.181096e-07 transformed</span></span>
-<span><span class="co">#&gt; 5:  df_right 10.777893703 2.3315808944   4.622569 3.790166e-06 transformed</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:   sigma_y  0.007960947 0.0003943647  20.186762 1.279816e-90 transformed</span></span>
+<span><span class="co">#&gt; 2:   sigma_h  0.266050222 0.0179234179  14.843721 7.639759e-50 transformed</span></span>
+<span><span class="co">#&gt; 3:       phi  0.975054403 0.0035924730 271.415928 0.000000e+00 transformed</span></span>
+<span><span class="co">#&gt; 4:   df_left  8.633937520 1.5493994858   5.572441 2.511943e-08 transformed</span></span>
+<span><span class="co">#&gt; 5:  df_right 15.174233109 3.7766661081   4.017891 5.872132e-05 transformed</span></span>
+<span><span class="co">#&gt; 6:       rho -0.870746610 0.0201355160 -43.244316 0.000000e+00 transformed</span></span></code></pre></div>
 <p>We can compare the leverage model with the skew-Gaussian leverage
 model to see if adding skewness improves the fit.</p>
 <p>The skew-Gaussian models report both <code>skewness</code> and the
@@ -492,7 +503,7 @@ their share. For a good model the share is close to 5%. The interval
 uses the smoothed log-volatility, which also uses the return on the same
 day, so this is an optimistic, in-sample check.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_returns.html">plot_returns</a></span><span class="op">(</span><span class="va">skew_gaussian_leverage</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_returns.html">plot_returns</a></span><span class="op">(</span><span class="va">skew_t_leverage</span>, dates <span class="op">=</span> <span class="va">spy</span><span class="op">$</span><span class="va">date</span><span class="op">)</span></span></code></pre></div>
 <p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="672"></p>
 <p>A stricter check uses one-step-ahead (OSA) residuals (<span class="citation">Thygesen et al. (2017)</span>). The OSA residual of
 <span class="math inline">\(y_t\)</span> is <span class="math inline">\(\Phi^{-1}(F_t(y_t))\)</span>, where <span class="math inline">\(F_t\)</span> is the predictive distribution
@@ -515,25 +526,24 @@ capture.</li>
 <li>The ACF of the squared residuals. Bars outside the dashed lines show
 volatility clustering that the model does not capture.</li>
 </ul>
-<p>We compare the Gaussian model with the skew-Gaussian model with
+<p>We compare the Gaussian model with the skew-t model with
 leverage:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">gaussian</span><span class="op">)</span></span></code></pre></div>
 <p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">skew_gaussian_leverage</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_diagnostics.html">plot_diagnostics</a></span><span class="op">(</span><span class="va">skew_t_leverage</span><span class="op">)</span></span></code></pre></div>
 <p><img src="stochvolTMB_vignette_files/figure-html/unnamed-chunk-14-2.png" class="r-plt" alt="" width="672"></p>
 <p>For the Gaussian model the Q-Q plot bends down in the left tail:
 there are more large negative returns than the model expects. For the
-skew-Gaussian model with leverage the Q-Q plot is almost a straight
-line, so the skewness captures the asymmetry of the returns. Only a few
-of the most extreme negative returns are still too large. Both models
-leave a small negative autocorrelation at lag 1 in the residuals. The
-models have mean zero and therefore cannot capture this. For the
-skew-Gaussian model with leverage, the autocorrelation of the squared
-residuals at lag 1 is also negative. This suggests that, after a large
-shock, the model increases the predicted volatility slightly too
-much.</p>
+skew-t model with leverage the Q-Q plot is a straight line, also for the
+most extreme negative returns. The heavy and asymmetric tails together
+with the leverage effect capture the distribution of the returns. Both
+models leave a small negative autocorrelation at lag 1 in the residuals.
+The models have mean zero and therefore cannot capture this. For the
+skew-t model with leverage, the autocorrelation of the squared residuals
+at lag 1 is also negative. This suggests that, after a large shock, the
+model increases the predicted volatility slightly too much.</p>
 </div>
 </div>
 <div class="section level2">
@@ -799,7 +809,8 @@ seconds.</p>
 <p>In the leverage models, <span class="math inline">\(y_t\)</span> and
 <span class="math inline">\(h_{t+1}\)</span> are correlated. The filter
 then needs one more step.</p>
-<p>In the <em>skew-Gaussian model with leverage</em>, <span class="math inline">\(y_t\)</span> depends on <span class="math inline">\(h_t\)</span> only, so steps 1 and 2 do not change.
+<p>In the <em>skew-Gaussian</em> and the <em>skew-t model with
+leverage</em>, <span class="math inline">\(y_t\)</span> depends on <span class="math inline">\(h_t\)</span> only, so steps 1 and 2 do not change.
 The return shock <span class="math inline">\(z_t = y_t / (\sigma_y
 e^{h_t/2})\)</span> drives the next volatility shock, so in step 3 the
 model for <span class="math inline">\(h_{t+1}\)</span> also depends on
@@ -828,9 +839,11 @@ e^{h_T})\)</span>.</p>
 <p><code><a href="https://rdrr.io/pkg/TMB/man/oneStepPredict.html" class="external-link">TMB::oneStepPredict</a></code>, which is available with
 <code>residuals(method = "tmb")</code>, calculates the same residuals in
 a different way. For each observation it integrates over <span class="math inline">\(y_t\)</span> numerically, and each point of that
-integral needs a full Laplace approximation over all <span class="math inline">\(T\)</span> latent variables. This takes one to
-three seconds per observation, and the Laplace approximation can be
-inaccurate in the tails. The grid filter uses that <span class="math inline">\(h_t\)</span> is one-dimensional and that the model
+integral needs a full Laplace approximation over all <span class="math inline">\(T\)</span> latent variables. It is not available
+for the skew-t model with leverage, because there <span class="math inline">\(y_t\)</span> also enters the model for <span class="math inline">\(h_{t+1}\)</span>, which
+<code>oneStepPredict</code> does not allow. This takes one to three
+seconds per observation, and the Laplace approximation can be inaccurate
+in the tails. The grid filter uses that <span class="math inline">\(h_t\)</span> is one-dimensional and that the model
 is a Markov chain in <span class="math inline">\(h_t\)</span>. It
 therefore needs only one pass over the data and does not use the Laplace
 approximation.</p>
