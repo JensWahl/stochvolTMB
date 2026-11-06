@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">stochvolTMB</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,17 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="stochvoltmb-development-version">stochvolTMB (development version)<a class="anchor" aria-label="anchor" href="#stochvoltmb-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.4.0" id="stochvoltmb-040">stochvolTMB 0.4.0<a class="anchor" aria-label="anchor" href="#stochvoltmb-040"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-4-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-4-0"></a></h3>
+<ul><li>The skew-Gaussian models estimate the skewness instead of the shape <code>alpha</code>. The fixed parameter <code>alpha</code> is replaced by <code>logit_skewness</code>. <code>summary(report = "transformed")</code> and <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> report both <code>skewness</code> and <code>alpha</code>, and <code><a href="../reference/sim_sv.html">sim_sv()</a></code> still takes <code>alpha</code>.</li>
+<li>
+<code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> uses the exact grid filter by default (<code>method = "grid"</code>) and returns residuals for all observations. Use <code>method = "tmb"</code> for <code><a href="https://rdrr.io/pkg/TMB/man/oneStepPredict.html" class="external-link">TMB::oneStepPredict</a></code>.</li>
+<li>
+<code><a href="../reference/demo.html">demo()</a></code> is deprecated. Use <code><a href="../reference/run_shiny_demo.html">run_shiny_demo()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-and-fixes-0-4-0">New features and fixes<a class="anchor" aria-label="anchor" href="#new-features-and-fixes-0-4-0"></a></h3>
 <ul><li><p>New <code><a href="../reference/var_es.html">var_es()</a></code> calculates the one-day Value at Risk and Expected Shortfall from the exact one-step-ahead predictive distribution, for every observation and for the next day after the data. It uses the same filter on a grid as <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code>.</p></li>
 <li><p>New <code><a href="../reference/backtest_var.html">backtest_var()</a></code> backtests the Value at Risk with the unconditional coverage test of Kupiec (1995), the independence test of Christoffersen (1998) and their combination, and reports the ratio of the realized losses to the Expected Shortfall on the exceedances.</p></li>
 <li><p>New <code><a href="../reference/forecast_var_es.html">forecast_var_es()</a></code> simulates Value at Risk and Expected Shortfall for several days ahead, for the daily and the cumulative returns.</p></li>
@@ -51,7 +61,7 @@
 <li><p>New <code><a href="../reference/compare_models.html">compare_models()</a></code> fits several models and ranks them by AIC. It also reports if the optimizer converged and if the Hessian is positive definite, and it keeps the fitted models.</p></li>
 <li><p><code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> for the <code>leverage</code> model now uses the last observed return for the first volatility shock, as for the skew models with leverage. Before, the first predicted volatility ignored the correlation with the last return.</p></li>
 <li><p>New model <code>skew_gaussian_leverage</code> that combines skew-Gaussian returns with the leverage effect. The skew-Gaussian return shock drives the volatility shock, <code>eta_t = rho * z_t + sqrt(1 - rho^2) * e_t</code>. This order keeps the Laplace approximation accurate. The other order (skew noise added to <code>rho * eta_t</code>) made the approximation overestimate the likelihood, and the fit diverged to <code>rho = -1</code> and <code>|alpha| -&gt; Inf</code>.</p></li>
-<li><p>Breaking: the skew-Gaussian models now estimate the skewness instead of the shape <code>alpha</code>. The fixed parameter <code>alpha</code> is replaced by <code>logit_skewness</code>, and the skewness is bounded by <code>|skewness| &lt; 0.99</code> (<code>|alpha| &lt;= 27</code>). <code>summary(report = "transformed")</code> reports both <code>skewness</code> and <code>alpha</code>. Before, the optimizer started at <code>alpha = 0</code>, where the likelihood is flat (the score is exactly zero), and the fit often stayed at <code>alpha = 0</code>.</p></li>
+<li><p>The skew-Gaussian models now estimate the skewness instead of the shape <code>alpha</code>. The fixed parameter <code>alpha</code> is replaced by <code>logit_skewness</code>, and the skewness is bounded by <code>|skewness| &lt; 0.99</code> (<code>|alpha| &lt;= 27</code>). <code>summary(report = "transformed")</code> reports both <code>skewness</code> and <code>alpha</code>. Before, the optimizer started at <code>alpha = 0</code>, where the likelihood is flat (the score is exactly zero), and the fit often stayed at <code>alpha = 0</code>.</p></li>
 <li><p>The skew-Gaussian density now uses a numerically stable <code>log(pnorm(x))</code> instead of <code>log(1e-5 + pnorm(x))</code>.</p></li>
 <li><p>New model <code>skew_t</code>: the skew t distribution of Jones and Faddy (2003), standardized to mean zero and unit variance, with separate degrees of freedom for the left and the right tail (<code>df_left</code>, <code>df_right</code>). Supported by <code><a href="../reference/estimate_parameters.html">estimate_parameters()</a></code>, <code><a href="../reference/sim_sv.html">sim_sv()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> and <code><a href="../reference/plot_returns.html">plot_returns()</a></code>.</p></li>
 <li><p>New model <code>skew_t_leverage</code>: the skew t return shock drives the volatility shock, as in <code>skew_gaussian_leverage</code>. It estimates <code>df_left</code>, <code>df_right</code> and <code>rho</code>. On the S&amp;P 500 data it has the smallest AIC of all models, and its one-step-ahead residuals have a straight Q-Q plot. <code>residuals(method = "tmb")</code> is not available for this model.</p></li>
@@ -65,6 +75,7 @@
 <li><p>The shiny demo is now started with <code><a href="../reference/run_shiny_demo.html">run_shiny_demo()</a></code>. <code><a href="../reference/demo.html">demo()</a></code> without arguments still runs it, with a deprecation warning. With arguments, <code><a href="../reference/demo.html">demo()</a></code> calls <code><a href="https://rdrr.io/r/utils/demo.html" class="external-link">utils::demo()</a></code>, so <code>demo(topic)</code> works again when stochvolTMB is attached.</p></li>
 <li><p>Plots use <code>linewidth</code> instead of the deprecated <code>size</code> for lines. <code>ggplot2</code> (&gt;= 3.4.0) is required.</p></li>
 </ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="stochvoltmb-020">stochvolTMB 0.2.0<a class="anchor" aria-label="anchor" href="#stochvoltmb-020"></a></h2><p class="text-muted">CRAN release: 2021-08-13</p>
 <ul><li>Added <code>predict</code> function that makes it possible to simulate future volatility and log-returns.</li>

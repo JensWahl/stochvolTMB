@@ -945,7 +945,6 @@ Measurement Models.” *The Journal of Derivatives* 3 (2): 73–84.
 Taylor, S. J. 1982. “Financial Returns Modelled by the Product of Two
 Stochastic Processes-a Study of the Daily Sugar Prices 1961-75.” *Time
 Series Analysis : Theory and Practice* 1: 203–26.
-<https://cir.nii.ac.jp/crid/1571417125349824256?lang=en>.
 
 Thygesen, Uffe Høgsbro, Christoffer Moesgaard Albertsen, Casper W. Berg,
 Kasper Kristensen, and Anders Nielsen. 2017. “Validation of Ecological

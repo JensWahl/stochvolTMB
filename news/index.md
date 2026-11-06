@@ -1,6 +1,25 @@
 # Changelog
 
-## stochvolTMB (development version)
+## stochvolTMB 0.4.0
+
+### Breaking changes
+
+- The skew-Gaussian models estimate the skewness instead of the shape
+  `alpha`. The fixed parameter `alpha` is replaced by `logit_skewness`.
+  `summary(report = "transformed")` and
+  [`coef()`](https://rdrr.io/r/stats/coef.html) report both `skewness`
+  and `alpha`, and
+  [`sim_sv()`](https://jenswahl.github.io/stochvolTMB/reference/sim_sv.md)
+  still takes `alpha`.
+- [`residuals()`](https://rdrr.io/r/stats/residuals.html) uses the exact
+  grid filter by default (`method = "grid"`) and returns residuals for
+  all observations. Use `method = "tmb"` for
+  [`TMB::oneStepPredict`](https://rdrr.io/pkg/TMB/man/oneStepPredict.html).
+- [`demo()`](https://jenswahl.github.io/stochvolTMB/reference/demo.md)
+  is deprecated. Use
+  [`run_shiny_demo()`](https://jenswahl.github.io/stochvolTMB/reference/run_shiny_demo.md).
+
+### New features and fixes
 
 - New
   [`var_es()`](https://jenswahl.github.io/stochvolTMB/reference/var_es.md)
@@ -44,8 +63,8 @@
   noise added to `rho * eta_t`) made the approximation overestimate the
   likelihood, and the fit diverged to `rho = -1` and `|alpha| -> Inf`.
 
-- Breaking: the skew-Gaussian models now estimate the skewness instead
-  of the shape `alpha`. The fixed parameter `alpha` is replaced by
+- The skew-Gaussian models now estimate the skewness instead of the
+  shape `alpha`. The fixed parameter `alpha` is replaced by
   `logit_skewness`, and the skewness is bounded by `|skewness| < 0.99`
   (`|alpha| <= 27`). `summary(report = "transformed")` reports both
   `skewness` and `alpha`. Before, the optimizer started at `alpha = 0`,
