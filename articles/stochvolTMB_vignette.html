@@ -622,91 +622,86 @@ parameters in models with a high number of latent variables.</p>
 <p>Parameter estimation of stochastic volatility models is hard due to
 the fact the likelihood function is expressed as a high dimensional
 integral over the latent variables that cannot be evaluated
-analytically. If <span class="math inline">\(\boldsymbol{y} = (y_1,
-\ldots, y_T)\)</span> denotes our observations, <span class="math inline">\(\boldsymbol{h} = (h_1, \ldots, h_T)\)</span> our
-latent variables and <span class="math inline">\(\boldsymbol{\theta}\)</span> the parameters of
-interest, the likelihood of <span class="math inline">\(\boldsymbol{\theta}\)</span> is given by</p>
+analytically. If <span class="math inline">\(\mathbf{y} = (y_1, \ldots,
+y_T)\)</span> denotes our observations, <span class="math inline">\(\mathbf{h} = (h_1, \ldots, h_T)\)</span> our
+latent variables and <span class="math inline">\(\mathbf{\theta}\)</span> the parameters of
+interest, the likelihood of <span class="math inline">\(\mathbf{\theta}\)</span> is given by</p>
 <p><span class="math display">\[\begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}) = \int
-f_{\boldsymbol{y}}(\boldsymbol{y}|\boldsymbol{h})f_{\boldsymbol{h}}(\boldsymbol{h})
-\, d\boldsymbol{h},
+    \mathcal{L}(\mathbf{\theta}) = \int
+f_{\mathbf{y}}(\mathbf{y}|\mathbf{h})f_{\mathbf{h}}(\mathbf{h}) \,
+d\mathbf{h},
 \end{equation}\]</span></p>
-<p>The conditional density of our observations given <span class="math inline">\(\boldsymbol{h}\)</span> is denoted by <span class="math inline">\(f_{\boldsymbol{y}}(\boldsymbol{y|u})\)</span>, and
-<span class="math inline">\(f_{\boldsymbol{h}}(\boldsymbol{h})\)</span>
-denotes the marginal density of <span class="math inline">\(\boldsymbol{h}\)</span>. To approximate this
-integral we apply the Laplace approximation.</p>
+<p>The conditional density of our observations given <span class="math inline">\(\mathbf{h}\)</span> is denoted by <span class="math inline">\(f_{\mathbf{y}}(\mathbf{y}|\mathbf{h})\)</span>,
+and <span class="math inline">\(f_{\mathbf{h}}(\mathbf{h})\)</span>
+denotes the marginal density of <span class="math inline">\(\mathbf{h}\)</span>. To approximate this integral
+we apply the Laplace approximation.</p>
 <div class="section level3">
 <h3 id="laplace-approximation">Laplace Approximation<a class="anchor" aria-label="anchor" href="#laplace-approximation"></a>
 </h3>
-<p>Let <span class="math inline">\(\boldsymbol{y}\)</span> be a vector
-of observations, <span class="math inline">\(\boldsymbol{\theta}\)</span> our parameters of
-interest and <span class="math inline">\(\boldsymbol{h}\)</span> be a
-random vector of latent variables. Let <span class="math inline">\(g(\boldsymbol{h},\boldsymbol{\theta})\)</span>
-denote the negative joint log-likelihood. The likelihood of <span class="math inline">\(\boldsymbol{\theta}\)</span> is given by</p>
+<p>Let <span class="math inline">\(\mathbf{y}\)</span> be a vector of
+observations, <span class="math inline">\(\mathbf{\theta}\)</span> our
+parameters of interest and <span class="math inline">\(\mathbf{h}\)</span> be a random vector of latent
+variables. Let <span class="math inline">\(g(\mathbf{h},\mathbf{\theta})\)</span> denote the
+negative joint log-likelihood. The likelihood of <span class="math inline">\(\mathbf{\theta}\)</span> is given by</p>
 <p><span class="math display">\[\begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}) = \int
-f(\boldsymbol{y},\boldsymbol{h}) \, d\boldsymbol{h} = \int
-f_{\boldsymbol{y}}(\boldsymbol{y|u}) f_{\boldsymbol{h}}(\boldsymbol{h})
-\, d\boldsymbol{h} = \int \exp
-\{-g(\boldsymbol{h},\boldsymbol{\theta})\} \, d\boldsymbol{h}.
+    \mathcal{L}(\mathbf{\theta}) = \int f(\mathbf{y},\mathbf{h}) \,
+d\mathbf{h} = \int f_{\mathbf{y}}(\mathbf{y}|\mathbf{h})
+f_{\mathbf{h}}(\mathbf{h}) \, d\mathbf{h} = \int \exp
+\{-g(\mathbf{h},\mathbf{\theta})\} \, d\mathbf{h}.
 \end{equation}\]</span></p>
 <p>We assume that <span class="math inline">\(g\)</span> has a global
-minimum at <span class="math inline">\(\boldsymbol{\hat{h}}\)</span> for
-a given <span class="math inline">\(\boldsymbol{\theta}\)</span>,
-i.e. <span class="math inline">\(\boldsymbol{\hat{h}} =
-\text{argmin}_{\boldsymbol{h}}
-g(\boldsymbol{h},\boldsymbol{\theta})\)</span>, and that <span class="math inline">\(g\)</span> is twice differentiable. The solution
-<span class="math inline">\(\hat{\boldsymbol{h}}\)</span> is known as
-the <em>Empirical Bayes</em> (EB) estimate. A second order Taylor
-expansion around <span class="math inline">\(\boldsymbol{\hat{h}}\)</span> yields</p>
+minimum at <span class="math inline">\(\mathbf{\hat{h}}\)</span> for a
+given <span class="math inline">\(\mathbf{\theta}\)</span>, i.e. <span class="math inline">\(\mathbf{\hat{h}} = \text{argmin}_{\mathbf{h}}
+g(\mathbf{h},\mathbf{\theta})\)</span>, and that <span class="math inline">\(g\)</span> is twice differentiable. The solution
+<span class="math inline">\(\hat{\mathbf{h}}\)</span> is known as the
+<em>Empirical Bayes</em> (EB) estimate. A second order Taylor expansion
+around <span class="math inline">\(\mathbf{\hat{h}}\)</span> yields</p>
 <p><span class="math display">\[\begin{equation}
-    g(\boldsymbol{h},\boldsymbol{\theta}) \approx
-g(\boldsymbol{\hat{h}},\boldsymbol{\theta}) + \nabla
-g(\boldsymbol{\hat{h}},\boldsymbol{\theta})(\boldsymbol{h} -
-\boldsymbol{\hat{h}}) + \frac{1}{2}(\boldsymbol{h} -
-\boldsymbol{\hat{h}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{h}})
+    g(\mathbf{h},\mathbf{\theta}) \approx
+g(\mathbf{\hat{h}},\mathbf{\theta}) + \nabla
+g(\mathbf{\hat{h}},\mathbf{\theta})(\mathbf{h} - \mathbf{\hat{h}}) +
+\frac{1}{2}(\mathbf{h} - \mathbf{\hat{h}})^T\mathbb{H}(\mathbf{h} -
+\mathbf{\hat{h}})
 \end{equation}\]</span></p>
-<p>Since <span class="math inline">\(\boldsymbol{\hat{h}}\)</span> is a
+<p>Since <span class="math inline">\(\mathbf{\hat{h}}\)</span> is a
 minimum, <span class="math inline">\(\nabla
-g(\boldsymbol{\hat{h}},\boldsymbol{\theta}) = 0\)</span>. Therefore</p>
+g(\mathbf{\hat{h}},\mathbf{\theta}) = 0\)</span>. Therefore</p>
 <p><span class="math display">\[\begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}) \approx \exp
-\{-g(\boldsymbol{\hat{h}},\boldsymbol{\theta})\} \int \exp \bigg
-\{-\frac{1}{2}(\boldsymbol{h} -
-\boldsymbol{\hat{h}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{h}})
-\bigg \} d\boldsymbol{h}
+    \mathcal{L}(\mathbf{\theta}) \approx \exp
+\{-g(\mathbf{\hat{h}},\mathbf{\theta})\} \int \exp \bigg
+\{-\frac{1}{2}(\mathbf{h} - \mathbf{\hat{h}})^T\mathbb{H}(\mathbf{h} -
+\mathbf{\hat{h}}) \bigg \} d\mathbf{h}
 \end{equation}\]</span></p>
 <p>We can observe that the integrand is the kernel of a multivariate
 normal density with covariance matrix <span class="math inline">\(\mathbb{H}^{-1}\)</span>. The approximation is
 therefore given by</p>
 <p><span class="math display">\[\begin{equation}
-    \mathcal{L}(\boldsymbol{\theta}) \approx \exp
-\{-g(\boldsymbol{\hat{h}},\boldsymbol{\theta})\}
-(2\pi)^{\text{dim}(\boldsymbol{h})/2} \text{det}(\mathbb{H})^{-1/2},
+    \mathcal{L}(\mathbf{\theta}) \approx \exp
+\{-g(\mathbf{\hat{h}},\mathbf{\theta})\}
+(2\pi)^{\text{dim}(\mathbf{h})/2} \text{det}(\mathbb{H})^{-1/2},
 \end{equation}\]</span></p>
 <p>where we have used the fact that <span class="math inline">\(\text{det}(\mathbb{H}^{-1}) =
 \text{det}(\mathbb{H})^{-1}\)</span>. The corresponding negative
 log-likelihood is</p>
 <p><span class="math display">\[\begin{equation}
-    -l(\boldsymbol{\theta}) = -\frac{\text{dim}(\boldsymbol{h})}{2} \log
-(2\pi) + \frac{1}{2} \log \text{det}(\mathbb{H}) +
-g(\boldsymbol{\hat{h}},\boldsymbol{\theta}).
+    -l(\mathbf{\theta}) = -\frac{\text{dim}(\mathbf{h})}{2} \log (2\pi)
++ \frac{1}{2} \log \text{det}(\mathbb{H}) +
+g(\mathbf{\hat{h}},\mathbf{\theta}).
 \end{equation}\]</span></p>
-<p>Finding the optimal value of <span class="math inline">\(\boldsymbol{\theta}\)</span> can be viewed as a
-nested optimization problem. To find <span class="math inline">\(\boldsymbol{h} (\boldsymbol{\theta})\)</span> and
-<span class="math inline">\(\mathbb{H}(\boldsymbol{\theta})\)</span> we
-fix <span class="math inline">\(\boldsymbol{\theta}\)</span> and
-optimize using a quasi-Newton algorithm or a limited memory Newton
-method. The Laplace approximation is then optimized w.r.t. <span class="math inline">\(\boldsymbol{\theta}\)</span> using the
-quasi-Newton algorithm.</p>
+<p>Finding the optimal value of <span class="math inline">\(\mathbf{\theta}\)</span> can be viewed as a nested
+optimization problem. To find <span class="math inline">\(\mathbf{h}
+(\mathbf{\theta})\)</span> and <span class="math inline">\(\mathbb{H}(\mathbf{\theta})\)</span> we fix <span class="math inline">\(\mathbf{\theta}\)</span> and optimize using a
+quasi-Newton algorithm or a limited memory Newton method. The Laplace
+approximation is then optimized w.r.t. <span class="math inline">\(\mathbf{\theta}\)</span> using the quasi-Newton
+algorithm.</p>
 </div>
 <div class="section level3">
 <h3 id="one-step-ahead-residuals">One-step-ahead residuals<a class="anchor" aria-label="anchor" href="#one-step-ahead-residuals"></a>
 </h3>
 <p>This section explains how <code>residuals</code> calculates the
 one-step-ahead (OSA) residuals that <code>plot_diagnostics</code> uses.
-The parameters <span class="math inline">\(\boldsymbol{\theta}\)</span>
-are fixed at their estimates, so we do not write them below.</p>
+The parameters <span class="math inline">\(\mathbf{\theta}\)</span> are
+fixed at their estimates, so we do not write them below.</p>
 <div class="section level4">
 <h4 id="why-osa-residuals-are-standard-gaussian">Why OSA residuals are standard Gaussian<a class="anchor" aria-label="anchor" href="#why-osa-residuals-are-standard-gaussian"></a>
 </h4>

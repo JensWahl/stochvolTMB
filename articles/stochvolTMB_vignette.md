@@ -540,91 +540,85 @@ parameters in models with a high number of latent variables.
 Parameter estimation of stochastic volatility models is hard due to the
 fact the likelihood function is expressed as a high dimensional integral
 over the latent variables that cannot be evaluated analytically. If
-\\\boldsymbol{y} = (y_1, \ldots, y_T)\\ denotes our observations,
-\\\boldsymbol{h} = (h_1, \ldots, h_T)\\ our latent variables and
-\\\boldsymbol{\theta}\\ the parameters of interest, the likelihood of
-\\\boldsymbol{\theta}\\ is given by
+\\\mathbf{y} = (y_1, \ldots, y_T)\\ denotes our observations,
+\\\mathbf{h} = (h_1, \ldots, h_T)\\ our latent variables and
+\\\mathbf{\theta}\\ the parameters of interest, the likelihood of
+\\\mathbf{\theta}\\ is given by
 
-\\\begin{equation} \mathcal{L}(\boldsymbol{\theta}) = \int
-f\_{\boldsymbol{y}}(\boldsymbol{y}\|\boldsymbol{h})f\_{\boldsymbol{h}}(\boldsymbol{h})
-\\ d\boldsymbol{h}, \end{equation}\\
+\\\begin{equation} \mathcal{L}(\mathbf{\theta}) = \int
+f\_{\mathbf{y}}(\mathbf{y}\|\mathbf{h})f\_{\mathbf{h}}(\mathbf{h}) \\
+d\mathbf{h}, \end{equation}\\
 
-The conditional density of our observations given \\\boldsymbol{h}\\ is
-denoted by \\f\_{\boldsymbol{y}}(\boldsymbol{y\|u})\\, and
-\\f\_{\boldsymbol{h}}(\boldsymbol{h})\\ denotes the marginal density of
-\\\boldsymbol{h}\\. To approximate this integral we apply the Laplace
+The conditional density of our observations given \\\mathbf{h}\\ is
+denoted by \\f\_{\mathbf{y}}(\mathbf{y}\|\mathbf{h})\\, and
+\\f\_{\mathbf{h}}(\mathbf{h})\\ denotes the marginal density of
+\\\mathbf{h}\\. To approximate this integral we apply the Laplace
 approximation.
 
 ### Laplace Approximation
 
-Let \\\boldsymbol{y}\\ be a vector of observations,
-\\\boldsymbol{\theta}\\ our parameters of interest and
-\\\boldsymbol{h}\\ be a random vector of latent variables. Let
-\\g(\boldsymbol{h},\boldsymbol{\theta})\\ denote the negative joint
-log-likelihood. The likelihood of \\\boldsymbol{\theta}\\ is given by
+Let \\\mathbf{y}\\ be a vector of observations, \\\mathbf{\theta}\\ our
+parameters of interest and \\\mathbf{h}\\ be a random vector of latent
+variables. Let \\g(\mathbf{h},\mathbf{\theta})\\ denote the negative
+joint log-likelihood. The likelihood of \\\mathbf{\theta}\\ is given by
 
-\\\begin{equation} \mathcal{L}(\boldsymbol{\theta}) = \int
-f(\boldsymbol{y},\boldsymbol{h}) \\ d\boldsymbol{h} = \int
-f\_{\boldsymbol{y}}(\boldsymbol{y\|u})
-f\_{\boldsymbol{h}}(\boldsymbol{h}) \\ d\boldsymbol{h} = \int \exp
-\\-g(\boldsymbol{h},\boldsymbol{\theta})\\ \\ d\boldsymbol{h}.
-\end{equation}\\
+\\\begin{equation} \mathcal{L}(\mathbf{\theta}) = \int
+f(\mathbf{y},\mathbf{h}) \\ d\mathbf{h} = \int
+f\_{\mathbf{y}}(\mathbf{y}\|\mathbf{h}) f\_{\mathbf{h}}(\mathbf{h}) \\
+d\mathbf{h} = \int \exp \\-g(\mathbf{h},\mathbf{\theta})\\ \\
+d\mathbf{h}. \end{equation}\\
 
-We assume that \\g\\ has a global minimum at \\\boldsymbol{\hat{h}}\\
-for a given \\\boldsymbol{\theta}\\, i.e. \\\boldsymbol{\hat{h}} =
-\text{argmin}\_{\boldsymbol{h}} g(\boldsymbol{h},\boldsymbol{\theta})\\,
-and that \\g\\ is twice differentiable. The solution
-\\\hat{\boldsymbol{h}}\\ is known as the *Empirical Bayes* (EB)
-estimate. A second order Taylor expansion around
-\\\boldsymbol{\hat{h}}\\ yields
+We assume that \\g\\ has a global minimum at \\\mathbf{\hat{h}}\\ for a
+given \\\mathbf{\theta}\\, i.e. \\\mathbf{\hat{h}} =
+\text{argmin}\_{\mathbf{h}} g(\mathbf{h},\mathbf{\theta})\\, and that
+\\g\\ is twice differentiable. The solution \\\hat{\mathbf{h}}\\ is
+known as the *Empirical Bayes* (EB) estimate. A second order Taylor
+expansion around \\\mathbf{\hat{h}}\\ yields
 
-\\\begin{equation} g(\boldsymbol{h},\boldsymbol{\theta}) \approx
-g(\boldsymbol{\hat{h}},\boldsymbol{\theta}) + \nabla
-g(\boldsymbol{\hat{h}},\boldsymbol{\theta})(\boldsymbol{h} -
-\boldsymbol{\hat{h}}) + \frac{1}{2}(\boldsymbol{h} -
-\boldsymbol{\hat{h}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{h}})
-\end{equation}\\
+\\\begin{equation} g(\mathbf{h},\mathbf{\theta}) \approx
+g(\mathbf{\hat{h}},\mathbf{\theta}) + \nabla
+g(\mathbf{\hat{h}},\mathbf{\theta})(\mathbf{h} - \mathbf{\hat{h}}) +
+\frac{1}{2}(\mathbf{h} - \mathbf{\hat{h}})^T\mathbb{H}(\mathbf{h} -
+\mathbf{\hat{h}}) \end{equation}\\
 
-Since \\\boldsymbol{\hat{h}}\\ is a minimum, \\\nabla
-g(\boldsymbol{\hat{h}},\boldsymbol{\theta}) = 0\\. Therefore
+Since \\\mathbf{\hat{h}}\\ is a minimum, \\\nabla
+g(\mathbf{\hat{h}},\mathbf{\theta}) = 0\\. Therefore
 
-\\\begin{equation} \mathcal{L}(\boldsymbol{\theta}) \approx \exp
-\\-g(\boldsymbol{\hat{h}},\boldsymbol{\theta})\\ \int \exp \bigg
-\\-\frac{1}{2}(\boldsymbol{h} -
-\boldsymbol{\hat{h}})^T\mathbb{H}(\boldsymbol{h} - \boldsymbol{\hat{h}})
-\bigg \\ d\boldsymbol{h} \end{equation}\\
+\\\begin{equation} \mathcal{L}(\mathbf{\theta}) \approx \exp
+\\-g(\mathbf{\hat{h}},\mathbf{\theta})\\ \int \exp \bigg
+\\-\frac{1}{2}(\mathbf{h} - \mathbf{\hat{h}})^T\mathbb{H}(\mathbf{h} -
+\mathbf{\hat{h}}) \bigg \\ d\mathbf{h} \end{equation}\\
 
 We can observe that the integrand is the kernel of a multivariate normal
 density with covariance matrix \\\mathbb{H}^{-1}\\. The approximation is
 therefore given by
 
-\\\begin{equation} \mathcal{L}(\boldsymbol{\theta}) \approx \exp
-\\-g(\boldsymbol{\hat{h}},\boldsymbol{\theta})\\
-(2\pi)^{\text{dim}(\boldsymbol{h})/2} \text{det}(\mathbb{H})^{-1/2},
+\\\begin{equation} \mathcal{L}(\mathbf{\theta}) \approx \exp
+\\-g(\mathbf{\hat{h}},\mathbf{\theta})\\
+(2\pi)^{\text{dim}(\mathbf{h})/2} \text{det}(\mathbb{H})^{-1/2},
 \end{equation}\\
 
 where we have used the fact that \\\text{det}(\mathbb{H}^{-1}) =
 \text{det}(\mathbb{H})^{-1}\\. The corresponding negative log-likelihood
 is
 
-\\\begin{equation} -l(\boldsymbol{\theta}) =
--\frac{\text{dim}(\boldsymbol{h})}{2} \log (2\pi) + \frac{1}{2} \log
-\text{det}(\mathbb{H}) + g(\boldsymbol{\hat{h}},\boldsymbol{\theta}).
+\\\begin{equation} -l(\mathbf{\theta}) =
+-\frac{\text{dim}(\mathbf{h})}{2} \log (2\pi) + \frac{1}{2} \log
+\text{det}(\mathbb{H}) + g(\mathbf{\hat{h}},\mathbf{\theta}).
 \end{equation}\\
 
-Finding the optimal value of \\\boldsymbol{\theta}\\ can be viewed as a
-nested optimization problem. To find \\\boldsymbol{h}
-(\boldsymbol{\theta})\\ and \\\mathbb{H}(\boldsymbol{\theta})\\ we fix
-\\\boldsymbol{\theta}\\ and optimize using a quasi-Newton algorithm or a
-limited memory Newton method. The Laplace approximation is then
-optimized w.r.t. \\\boldsymbol{\theta}\\ using the quasi-Newton
-algorithm.
+Finding the optimal value of \\\mathbf{\theta}\\ can be viewed as a
+nested optimization problem. To find \\\mathbf{h} (\mathbf{\theta})\\
+and \\\mathbb{H}(\mathbf{\theta})\\ we fix \\\mathbf{\theta}\\ and
+optimize using a quasi-Newton algorithm or a limited memory Newton
+method. The Laplace approximation is then optimized w.r.t.
+\\\mathbf{\theta}\\ using the quasi-Newton algorithm.
 
 ### One-step-ahead residuals
 
 This section explains how `residuals` calculates the one-step-ahead
 (OSA) residuals that `plot_diagnostics` uses. The parameters
-\\\boldsymbol{\theta}\\ are fixed at their estimates, so we do not write
+\\\mathbf{\theta}\\ are fixed at their estimates, so we do not write
 them below.
 
 #### Why OSA residuals are standard Gaussian
