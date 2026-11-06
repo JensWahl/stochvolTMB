@@ -38,13 +38,14 @@ The stochastic volatility model, introduced by @Taylor_SV_1982, is defined by
 \end{equation}
 where $y_t$ is the observed log returns, $h_t$ is the logarithm of the variance on day $t$. The distribution of the innovations $\epsilon_t$ is specified below. To ensure stationarity for $h_t$, we assume $|\phi| < 1$. It can be shown that the unconditional distribution of $h_t$ is $\mathcal{N}(0,\sigma_h^2/(1 - \phi^2))$, and we assume $h_1 \sim \mathcal{N}(0,\sigma_h^2/(1-\phi^2))$. An interpretation of the latent process $\{h_t\}$ is that is represents the random and uneven flow of new information into the marked. For different time points, the variance will be dependent of this unobserved ``flow'' of information, i.e. conditioning on $h_t$, $\mathrm{Var}(y_t | h_t) = \sigma_y^2 e^{h_t}$.
 
-The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatility, meaning that a drop in price tend to lead to an increase in volatility To take these features of financial time series into account `stochvolTMB` has implemented the following five models for the innovations: 
+The original SV model from @Taylor_SV_1982 assumed normally distributed innovations, but this is usually to strong of an assumption. Financial returns are usually heavy-tailed, might be asymmetric and the volatility can be correlated with the returns. The latter is called the *leverage effect*, where there is a negative correlation between a change in price and the volatility, meaning that a drop in price tend to lead to an increase in volatility To take these features of financial time series into account `stochvolTMB` has implemented the following six models for the innovations: 
 
 * Gaussian: $\epsilon_t \sim \mathcal{N}(0,1)$
 * t: $\epsilon_t \sim t_\nu(0,1)$, where $\nu$ is the degrees of freedom.
 * Skew-Gaussian: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$, with zero mean, unit variance and shape parameter $\alpha$. See [Skewness and the shape parameter](#skewness-and-the-shape-parameter) for how the asymmetry is estimated and reported.
 * Leverage: $\epsilon_t \sim \mathcal{N}(0,1)$ and $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$
 * Skew-Gaussian with leverage: $\epsilon_t \sim \mathcal{SN}(0,1, \alpha)$ and $\eta_t = \rho \epsilon_t + \sqrt{1 - \rho^2} e_t$, where $e_t \sim \mathcal{N}(0,1)$ is independent of $\epsilon_t$. Then $\mathrm{Cor}(\epsilon_t, \eta_t) = \rho$, and the returns have the same skewness as in the skew-Gaussian model. With $\alpha = 0$ this is the leverage model.
+* Skew-t: $\epsilon_t$ has the skew t distribution of @jones2003, scaled to zero mean and unit variance. Its density is proportional to $(1 + x/\sqrt{a + b + x^2})^{a + 1/2} (1 - x/\sqrt{a + b + x^2})^{b + 1/2}$ before scaling. The left tail decays like a t-distribution with $\nu_L = 2a$ degrees of freedom, and the right tail like one with $\nu_R = 2b$. With $\nu_L < \nu_R$, large losses are more likely than large gains, which is common for stock returns. With $\nu_L = \nu_R$ this is the t model.
 
 ## Skewness and the shape parameter
 
@@ -112,7 +113,7 @@ plot(spy$date, spy$log_return, type = "l", xlab = "", ylab = "", main = "Log-ret
 plot(spy$date, spy$price, type = "l", xlab = "", ylab = "", main = "Price of S&P500")
 ```
 
-We fit all five models: 
+We fit all six models: 
   
 ```{r warning=FALSE}
 gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
@@ -120,6 +121,7 @@ t_dist = estimate_parameters(spy$log_return, model = "t", silent = TRUE)
 skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
 leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
 skew_gaussian_leverage = estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
+skew_t = estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
 ```
 
 We can investigate the estimate for the degrees of freedom (`df`) to see if the returns are heavy-tailed
@@ -154,8 +156,15 @@ To find the model that fits the data best, we can compare the [AIC](https://en.w
 AIC(gaussian,
     t_dist,
     skew_gaussian,
+    skew_t,
     leverage,
     skew_gaussian_leverage)
+```
+
+The skew-t model estimates one degree of freedom for each tail. The left tail of the S&P 500 returns is slightly heavier than the right tail:
+
+```{r}
+summary(skew_t, report = "transformed")
 ```
 
 

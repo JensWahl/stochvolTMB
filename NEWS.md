@@ -9,6 +9,12 @@
   `summary(report = "transformed")` reports both `skewness` and `alpha`. Before, the optimizer started at `alpha = 0`,
   where the likelihood is flat (the score is exactly zero), and the fit often stayed at `alpha = 0`.
 * The skew-Gaussian density now uses a numerically stable `log(pnorm(x))` instead of `log(1e-5 + pnorm(x))`.
+* New model `skew_t`: the skew t distribution of Jones and Faddy (2003), standardized to mean zero and unit variance,
+  with separate degrees of freedom for the left and the right tail (`df_left`, `df_right`). Supported by
+  `estimate_parameters()`, `sim_sv()`, `predict()`, `residuals()` and `plot_returns()`.
+* The degrees of freedom of the `t` and `skew_t` models are capped at 10,000. For larger values the `lgamma`
+  differences in the density lost all precision, and the fit of the `t` model could run to `df = 1e14` with a
+  meaningless likelihood. At 10,000 degrees of freedom the distribution is gaussian for all practical purposes.
 * New `plot_returns()` plots the returns with the central interval of the fitted conditional distribution and marks
   the returns outside it.
 * New `plot_diagnostics()` plots a Q-Q plot and the autocorrelation of the one-step-ahead residuals and of the squared

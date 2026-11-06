@@ -8,9 +8,11 @@ test_that("Test sim_sv", {
                 sigma_y = 0.2,
                 df = 5, 
                 alpha = 5,
-                rho = -0.7)
+                rho = -0.7,
+                df_left = 4,
+                df_right = 10)
   nobs <- 1000
-  models <- c("gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage")
+  models <- c("gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t")
   
   for (model in models) {
     
@@ -37,6 +39,9 @@ test_that("Test sim_sv", {
   param$phi <- 0.9
   param$df <- 1.9
   expect_error(sim_sv(param, model = "t"))
+
+  param$df_left <- 1.9
+  expect_error(sim_sv(param, model = "skew_t"))
   
   param$rho <- -1.2
   expect_error(sim_sv(param, model = "leverage"))

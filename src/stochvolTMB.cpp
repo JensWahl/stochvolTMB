@@ -49,6 +49,17 @@ Type skewness_to_alpha(Type gamma1){
   return delta / sqrt(Type(1) - delta * delta);
 }
 
+// Above this, lgamma differences in the t densities lose all precision and the optimizer climbs on rounding
+// noise. At 1e4 degrees of freedom the t distribution is gaussian for all practical purposes.
+#define MAX_DF 1e4
+
+// log(df - 2) capped at log(MAX_DF - 2). Below the cap it is unchanged, above it the likelihood is flat.
+template<class Type>
+Type capped_log_df_minus_two(Type x){
+  Type cap = log(Type(MAX_DF) - Type(2));
+  return CppAD::CondExpLt(x, cap, x, cap);
+}
+
 // Theoretical bound is 0.9953 (alpha -> Inf); 0.99 caps |alpha| at about 27, away from the half-normal limit.
 #define MAX_SKEWNESS 0.99
 
@@ -70,6 +81,8 @@ Type objective_function<Type>::operator()(){
   // (~ alpha^3) at alpha = 0, which traps the optimizer, but it is regular in the skewness.
   PARAMETER_VECTOR(logit_skewness);
   PARAMETER_VECTOR(logit_rho); // Correlation in leverage model
+  PARAMETER_VECTOR(log_df_left_minus_two); // Left tail degrees of freedom in skew t model
+  PARAMETER_VECTOR(log_df_right_minus_two); // Right tail degrees of freedom in skew t model
   PARAMETER_VECTOR(h); // Latent process
 
   // Transform parameters------------------
@@ -91,6 +104,24 @@ Type objective_function<Type>::operator()(){
     xi0 = -omega0 * delta * sqrt(Type(2) / M_PI);
     ADREPORT(skewness);
     ADREPORT(alpha);
+  }
+
+  // Jones-Faddy skew t, standardized to mean zero and unit variance. a and b set the left and right tail.
+  Type a_st = 0, b_st = 0, mu_st = 0, sd_st = 1, logc_st = 0;
+  if(model == 5){
+    Type df_left = exp(capped_log_df_minus_two(log_df_left_minus_two(0))) + Type(2);
+    Type df_right = exp(capped_log_df_minus_two(log_df_right_minus_two(0))) + Type(2);
+    ADREPORT(df_left);
+    ADREPORT(df_right);
+    a_st = df_left / Type(2);
+    b_st = df_right / Type(2);
+    mu_st = (a_st - b_st) * sqrt(a_st + b_st) / Type(2) *
+      exp(lgamma(a_st - Type(0.5)) + lgamma(b_st - Type(0.5)) - lgamma(a_st) - lgamma(b_st));
+    Type m2 = (a_st + b_st) / Type(4) * ((a_st - b_st) * (a_st - b_st) + a_st + b_st - Type(2)) /
+      ((a_st - Type(1)) * (b_st - Type(1)));
+    sd_st = sqrt(m2 - mu_st * mu_st);
+    logc_st = -(a_st + b_st - Type(1)) * log(Type(2)) - (lgamma(a_st) + lgamma(b_st) - lgamma(a_st + b_st)) -
+      Type(0.5) * log(a_st + b_st);
   }
 
   Type rho = 0;
@@ -125,7 +156,7 @@ Type objective_function<Type>::operator()(){
     // Centered t-distribution
     // last term is contribution from jacobian of linear transformation y = a * x
     case 1:{
-      Type df = exp(log_df_minus_two(0)) + Type(2); // To ensure that the variance exist
+      Type df = exp(capped_log_df_minus_two(log_df_minus_two(0))) + Type(2); // To ensure that the variance exist
       if(i == 0) ADREPORT(df);
       Type normalization = exp(h(i) / 2) * sigma_y * sqrt((df - Type(2)) / df);
       nll -= keep(i) * (dt(y(i) / normalization, df, true) - log(normalization));
@@ -171,8 +202,18 @@ Type objective_function<Type>::operator()(){
       break;
     }
 
+    // Skew t distribution (Jones and Faddy 2003). The density is smooth, unlike Hansen's skewed t whose
+    // curvature jumps at the mode; that jump broke the Laplace approximation and the optimizer.
+    case 5:{
+      Type scale = sigma_y * exp(h(i) / Type(2));
+      Type t = mu_st + sd_st * y(i) / scale;
+      Type r = t / sqrt(a_st + b_st + t * t);
+      nll -= keep(i) * (logc_st + (a_st + Type(0.5)) * log(Type(1) + r) + (b_st + Type(0.5)) * log(Type(1) - r) +
+        log(sd_st) - log(scale));
+      break;
+    }
+
     // TODO:
-    // Skew t distribution
     // Skew t with leverage
 
     default:

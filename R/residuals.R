@@ -96,6 +96,11 @@ osa_grid <- function(object, grid_size = 500, width = 8) {
     k <- s * sqrt((df - 2) / df)
     cdf <- function(yt, idx) stats::pt(yt / k[idx], df)
     logpdf <- function(yt, idx) stats::dt(yt / k[idx], df, log = TRUE) - log(k[idx])
+  } else if (model == "skew_t") {
+    df_left <- get_par("df_left")
+    df_right <- get_par("df_right")
+    cdf <- function(yt, idx) pskew_t(yt / s[idx], df_left, df_right)
+    logpdf <- function(yt, idx) dskew_t(yt / s[idx], df_left, df_right, log = TRUE) - log(s[idx])
   } else if (model %in% c("skew_gaussian", "skew_gaussian_leverage")) {
     alpha <- get_par("alpha")
     delta <- alpha / sqrt(1 + alpha^2)

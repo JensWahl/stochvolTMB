@@ -10,7 +10,7 @@ estimate_parameters(data, model = "gaussian", opt.control = NULL, ...)
 \item{data}{A vector of observations.}
 
 \item{model}{A character specifying the model. Must be one of the following:
-"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage".}
+"gaussian", "t", "leverage", "skew_gaussian", "skew_gaussian_leverage", "skew_t".}
 
 \item{opt.control}{An optional list of parameters for nlminb.}
 
@@ -35,6 +35,9 @@ The following distributions are implemented for the observed process:
 \item \code{"skew_gaussian_leverage"}: Skew gaussian distribution with leverage. The skew gaussian return shock
  \code{z_t} drives the volatility shock, \code{eta_t = rho * z_t + sqrt(1 - rho^2) * e_t}, where \code{e_t} is
  standard gaussian. Estimates both the skewness and \code{rho}.
+\item \code{"skew_t"}: Skew t distribution of Jones and Faddy (2003), scaled to mean zero and unit variance. The
+ left and the right tail have their own degrees of freedom, \code{df_left} and \code{df_right}, so the model
+ can have heavier tails for losses than for gains. With equal values it is the \code{"t"} model.
 }
 
 The parameters is estimated by minimizing the negative log-likelihood (nll) and the latent log-volatility is 
@@ -61,6 +64,24 @@ the standard error of \code{alpha} is very large even when the skewness is well 
 "skew_gaussian_leverage" model the skewness is that of the return shock, not of the returns.
 }
 
+\section{Skew t model}{
+
+The left tail of the noise decays like a Student t distribution with \code{df_left} degrees of freedom and the
+right tail like one with \code{df_right} degrees of freedom. A smaller value means a heavier tail. If
+\code{df_left < df_right}, large losses are more likely than large gains of the same size, and the noise is
+skewed to the left. Both values are greater than 2, so that the variance exists. They are estimated on the scale
+\code{log(df - 2)}.
+
+A light tail is hard to tell apart from a gaussian tail. If one tail is light, its estimated degrees of freedom
+can be very large and have a large standard error, and \code{nlminb} can report false convergence. This means
+that the data show no heavy tail on that side. The same is true for \code{df} in the \code{"t"} model. In both
+models the degrees of freedom are capped at 10,000, because the density cannot be calculated accurately for larger
+values. Short series (a few hundred observations) can also confuse heavy tails with a very noisy log-volatility.
+
+Hansen's (1994) skewed t distribution is not used, because its log density has a jump in the second
+derivative at the mode. This makes the Laplace approximation inaccurate and the optimization unstable.
+}
+
 \examples{
 \donttest{
 # load data
@@ -79,4 +100,8 @@ plot(opt, include_ci = TRUE)
 opt_sgl <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
 summary(opt_sgl, report = "transformed")
 }
+}
+\references{
+Jones, M. C. and Faddy, M. J. (2003). A skew extension of the t-distribution, with applications.
+  Journal of the Royal Statistical Society: Series B, 65(1), 159-174. \doi{10.1111/1467-9868.00378}
 }

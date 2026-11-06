@@ -24,6 +24,8 @@
 #' the shape parameter \code{alpha} must be specified (see the section on skew gaussian models in
 #' \code{\link{estimate_parameters}} for how \code{alpha} relates to the skewness) and if \code{model} = "leverage", 
 #' the correlation \code{rho} between the latent error term and the observational error has to be specified.
+#' If \code{model} = "skew_t", the degrees of freedom of the left and the right tail, \code{df_left} and
+#' \code{df_right}, must be specified.
 #' @param seed Seed to reproduce simulation.
 #' @param model Distribution of error term.
 #' @return data.table with columns \code{y} (observations) and \code{h} (latent log-volatility).
@@ -121,6 +123,13 @@ sim_sv <- function(param = list(phi = 0.9, sigma_y = 0.4, sigma_h = 0.2, df = 4,
     y <- y[-nobs]
     h <- h[-nobs]
 
+  } else if (model == "skew_t") {
+
+    if (param$df_left <= 2 || param$df_right <= 2) {
+      stop("Degrees of freedom `df_left` and `df_right` have to be greater than 2")
+    }
+    y <- exp(h / 2) * sigma_y * rskew_t(nobs, param$df_left, param$df_right)
+
   } else if (model == "skew_gaussian_leverage") {
 
     if (abs(param$rho) >= 1) {
@@ -205,7 +214,9 @@ simulate_parameters <- function(object, nsim = 1000) {
   # Transform sample to their original scale 
   par_sim[, grepl("log_sigma", colnames(par_sim))] <- exp(par_sim[, grepl("log_sigma", colnames(par_sim))]) 
   par_sim[, grepl("logit", colnames(par_sim))] <- logit(par_sim[, grepl("logit", colnames(par_sim))]) 
-  par_sim[, grepl("log_df_minus_two", colnames(par_sim))] <- exp(par_sim[, grepl("log_df_minus_two", colnames(par_sim))]) + 2 
+  df_cols <- grepl("^log_df.*_minus_two$", colnames(par_sim))
+  # Degrees of freedom are capped at 1e4 in the template (MAX_DF)
+  par_sim[, df_cols] <- pmin(exp(par_sim[, df_cols]), 1e4 - 2) + 2
 
   # Skewness is bounded by 0.99 in the template (MAX_SKEWNESS)
   if ("logit_skewness" %in% colnames(par_sim)) {
@@ -215,7 +226,7 @@ simulate_parameters <- function(object, nsim = 1000) {
   
   colnames(par_sim) <- gsub("log_sigma", "sigma", colnames(par_sim))
   colnames(par_sim) <- gsub("logit_", "", colnames(par_sim))
-  colnames(par_sim) <- gsub("log_df_minus_two", "df", colnames(par_sim))
+  colnames(par_sim) <- gsub("^log_(df.*)_minus_two$", "\\1", colnames(par_sim))
   
   return(par_sim)
   

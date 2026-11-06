@@ -59,10 +59,11 @@ test_that("plot_diagnostics", {
 
 test_that("grid residuals agree with TMB and are standard gaussian", {
 
-  param <- list(phi = 0.9, sigma_h = 0.3, sigma_y = 0.2, df = 5, alpha = -3, rho = -0.7)
+  param <- list(phi = 0.9, sigma_h = 0.3, sigma_y = 0.2, df = 5, alpha = -3, rho = -0.7, df_left = 4, df_right = 10)
 
-  for (model in c("gaussian", "t", "skew_gaussian", "leverage", "skew_gaussian_leverage")) {
-    data <- sim_sv(param = param, nobs = 300, seed = 1, model = model)
+  for (model in c("gaussian", "t", "skew_gaussian", "leverage", "skew_gaussian_leverage", "skew_t")) {
+    # skew_t needs about 1000 observations to separate heavy tails from volatility noise
+    data <- sim_sv(param = param, nobs = 1000, seed = 1, model = model)
     opt <- estimate_parameters(data$y, model = model, silent = TRUE)
 
     res <- residuals(opt)
@@ -73,11 +74,11 @@ test_that("grid residuals agree with TMB and are standard gaussian", {
 
     # Grid is exact; TMB uses the Laplace approximation, so allow a small difference. TMB sometimes returns NaN
     # when its numerical integration fails, so only compare the values it returns.
-    invisible(utils::capture.output(res_tmb <- residuals(opt, conditional = 1:297, method = "tmb")))
+    invisible(utils::capture.output(res_tmb <- residuals(opt, conditional = 1:997, method = "tmb")))
     ok <- is.finite(res_tmb)
     expect_equal(tail(res, 3)[ok], res_tmb[ok], tolerance = 0.05)
   }
 
-  expect_length(residuals(opt, conditional = 1:250), 50)
+  expect_length(residuals(opt, conditional = 1:950), 50)
 
 })

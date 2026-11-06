@@ -5,7 +5,7 @@ l <- list()
 
 seed <- 1234
 nobs <- 1000
-param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7, df = 5)
+param <- list(phi = 0.9, sigma_h = 0.4, sigma_y = 0.2, alpha = -2, rho = -0.7, df = 5, df_left = 4, df_right = 10)
 
 l$param <- param
 l$N <- nobs
@@ -42,6 +42,13 @@ l[[model]]$objective <- opt$fit$objective
 l[[model]]$y <- data$y
 
 model <- "skew_gaussian_leverage"
+data <- sim_sv(param = param, nobs = nobs, seed = seed, model = model)
+opt <- estimate_parameters(data$y, model = model)
+l[[model]]$par <- opt$fit$par
+l[[model]]$objective <- opt$fit$objective
+l[[model]]$y <- data$y
+
+model <- "skew_t"
 data <- sim_sv(param = param, nobs = nobs, seed = seed, model = model)
 opt <- estimate_parameters(data$y, model = model)
 l[[model]]$par <- opt$fit$par

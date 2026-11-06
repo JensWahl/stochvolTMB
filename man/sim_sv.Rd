@@ -17,7 +17,9 @@ the standard deviation of the latent volatility process, \code{sigma_h}, the per
 \code{model} = "t", the degree of freedom \code{df} must be specified. If \code{model} = "skew_gaussian", 
 the shape parameter \code{alpha} must be specified (see the section on skew gaussian models in
 \code{\link{estimate_parameters}} for how \code{alpha} relates to the skewness) and if \code{model} = "leverage", 
-the correlation \code{rho} between the latent error term and the observational error has to be specified.}
+the correlation \code{rho} between the latent error term and the observational error has to be specified.
+If \code{model} = "skew_t", the degrees of freedom of the left and the right tail, \code{df_left} and
+\code{df_right}, must be specified.}
 
 \item{nobs}{Length of time series.}
 
