@@ -145,3 +145,25 @@ test_that("skewness_to_alpha inverts the skewness of the skew gaussian distribut
   expect_equal(skewness_to_alpha(skewness), alpha, tolerance = 1e-8)
 
 })
+
+test_that("S3 methods do not hide stats and utils functions", {
+
+  fit_lm <- stats::lm(dist ~ speed, data = datasets::cars)
+  expect_length(residuals(fit_lm), nrow(datasets::cars))
+  expect_length(coef(fit_lm), 2)
+
+  opt <- readRDS("test_objects/test_summary.rds")
+  est <- coef(opt)
+  expect_true(all(c("sigma_y", "sigma_h", "phi") %in% names(est)))
+  expect_equal(unname(est["phi"]), summary(opt, report = "transformed")[parameter == "phi", estimate])
+  expect_equal(coef(opt, scale = "estimation"), opt$fit$par)
+
+  v <- vcov(opt)
+  expect_equal(dim(v), c(length(est), length(est)))
+  expect_equal(rownames(v), names(est))
+  expect_equal(sqrt(unname(diag(v))), summary(opt, report = "transformed")$std_error)
+  expect_equal(vcov(opt, scale = "estimation"), opt$rep$cov.fixed)
+
+  # With an argument, demo() is utils::demo(); without, it is the deprecated shiny demo
+  expect_error(demo(no_such_topic_xyz), "No demo found for topic")
+})

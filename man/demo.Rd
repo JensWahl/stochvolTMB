@@ -2,10 +2,19 @@
 % Please edit documentation in R/demo.R
 \name{demo}
 \alias{demo}
-\title{Run shiny demo}
+\title{Run the shiny demo (deprecated)}
 \usage{
-demo()
+demo(...)
+}
+\arguments{
+\item{...}{Passed to \code{\link[utils]{demo}}.}
+}
+\value{
+Called for its side effect.
 }
 \description{
-Run shiny demo
+Use \code{\link{run_shiny_demo}} instead. Without arguments, \code{demo()} runs the shiny demo with a
+deprecation warning. With arguments, it calls \code{\link[utils]{demo}}, so \code{demo(topic)} still works
+when stochvolTMB is attached.
 }
+\keyword{internal}

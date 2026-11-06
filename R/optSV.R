@@ -169,7 +169,41 @@ logLik.stochvolTMB <- function(object, ...) {
 }
 
 
-#' Summary tables of model parameters 
+#' Extract parameter estimates and their covariance matrix
+#'
+#' @param object A \code{stochvolTMB} object.
+#' @param scale \code{"natural"} (default) returns the parameters on their natural scale, for example
+#'   \code{sigma_y}, \code{phi} and \code{rho}. Their covariance matrix comes from the delta method.
+#'   \code{"estimation"} returns the parameters on the scale they were estimated, for example \code{log_sigma_y}
+#'   and \code{logit_phi}, with the inverse Hessian as covariance matrix.
+#' @param ... Not used.
+#' @return \code{coef} returns a named vector. \code{vcov} returns a named matrix.
+#' @examples
+#' \donttest{
+#' opt <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
+#' coef(opt)
+#' sqrt(diag(vcov(opt)))
+#' coef(opt, scale = "estimation")
+#' }
+#' @rdname coef.stochvolTMB
+#' @export
+coef.stochvolTMB <- function(object, scale = c("natural", "estimation"), ...) {
+  scale <- match.arg(scale)
+  if (scale == "natural") object$rep$value else object$fit$par
+}
+
+#' @rdname coef.stochvolTMB
+#' @export
+vcov.stochvolTMB <- function(object, scale = c("natural", "estimation"), ...) {
+  scale <- match.arg(scale)
+  if (scale == "estimation") return(object$rep$cov.fixed)
+  cov <- object$rep$cov
+  dimnames(cov) <- list(names(object$rep$value), names(object$rep$value))
+  cov
+}
+
+
+#' Summary tables of model parameters
 #' 
 #' Extract parameters, transformed parameters and latent log volatility along with standard error, z-value and p-value 
 #' 
@@ -295,9 +329,6 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
     stop("`steps` has to be greater or equal to 1")
   }
   
-  # We need an extra step for the volatility to predict the last log-return
-  if (object$model == "leverage") steps <- steps + 1
-  
   # Get parameter estimates 
   rep <- summary(object)
 
@@ -337,16 +368,20 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
   y_pred <- matrix(0, nrow = steps, ncol = nsim)
   h_start <- stats::rnorm(nsim, h_last$estimate, h_last$std_error)
   
-  if (object$model %in% c("skew_gaussian_leverage", "skew_t_leverage")) {
+  if (object$model %in% c("leverage", "skew_gaussian_leverage", "skew_t_leverage")) {
 
-    # The return shock z drives the next volatility shock, so h and y are simulated jointly.
+    # The return shock z drives the next volatility shock, so h and y are simulated jointly. In the leverage model
+    # (z_t, eta_t) is bivariate gaussian with correlation rho, which has the same form.
     # The first volatility shock comes from the last observed return.
     y_last <- utils::tail(object$obj$env$data$y, 1)
     z <- y_last / (sigma_y * exp(h_start / 2))
     h_prev <- h_start
     for (i in 1:steps) {
       h_pred[i, ] <- phi * h_prev + sigma_h * (rho * z + sqrt(1 - rho^2) * stats::rnorm(nsim))
-      z <- if (object$model == "skew_t_leverage") rskew_t(nsim, df_left, df_right) else rsn_standard(nsim, alpha)
+      z <- switch(object$model,
+                  skew_t_leverage = rskew_t(nsim, df_left, df_right),
+                  skew_gaussian_leverage = rsn_standard(nsim, alpha),
+                  stats::rnorm(nsim))
       y_pred[i, ] <- sigma_y * exp(h_pred[i, ] / 2) * z
       h_prev <- h_pred[i, ]
     }
@@ -361,8 +396,6 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
         h_pred[i, ] <- stats::rnorm(nsim, phi * h_pred[i - 1, ], sigma_h)
       }
     }  
-
-    if (object$model == "leverage") steps <- steps - 1
 
     # Predict log-returns
     for (i in 1:steps) {
@@ -379,20 +412,11 @@ predict.stochvolTMB <- function(object, steps = 1L, nsim = 10000, include_parame
 
         y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * sqrt((df - 2) / df) * stats::rt(nsim, df = df)
 
-      } else if (object$model == "leverage") {
-
-        y_pred[i, ] <- sigma_y * exp(h_pred[i, ] / 2) * (rho / sigma_h * (h_pred[i + 1, ] - phi * h_pred[i, ]) + sqrt(1 - rho^2) * stats::rnorm(nsim))
-
       } else {
 
         y_pred[i, ] <- exp(h_pred[i, ] / 2) * sigma_y * stats::rnorm(nsim)
 
       }
-    }
-
-    if (object$model == "leverage") {
-      h_pred <- h_pred[1:steps, , drop = FALSE] 
-      y_pred <- y_pred[1:steps, , drop = FALSE]
     }
 
   }

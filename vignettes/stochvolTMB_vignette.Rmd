@@ -100,6 +100,18 @@ Function Name                 Description
 `residuals`                   Calculate one-step-ahead residuals.
 
 `plot_diagnostics`            Plot diagnostics based on one-step-ahead residuals.
+
+`compare_models`              Fit several models and rank them by AIC.
+
+`coef`, `vcov`                Parameter estimates and their covariance matrix.
+
+`var_es`                      One-day Value at Risk and Expected Shortfall.
+
+`forecast_var_es`             Value at Risk and Expected Shortfall for several days.
+
+`backtest_var`                Backtest the Value at Risk.
+
+`plot_var`                    Plot returns with the Value at Risk and Expected Shortfall.
 ----------------------------- --------------------------------------------------
 
 `estimate_parameters` returns an object of class `stochvolTMB`. The `summary` function returns a `data.table` with estimated parameters, estimated log-volatility and transformed parameters along with standard errors, p-values and z-values. The argument `report = "fixed"` returns the parameters on the scale they were estimated. This means that the standard deviations $\sigma_y, \sigma_h$ are given on the log scale; the degrees of freedom is one the scale $\log (\nu - 2)$ to ensure that $\nu > 2$ (i.e. the variance exists); and lastly that the persistence parameter $\phi$ and the correlation parameter $\rho$ are estimated on a logit scale to ensure that they are between -1 and 1. If `report = c("fixed", "transformed")`, parameter estimates transformed back to their original scale is also returned. If you want to extract the estimated log-volatility you can use `report = "random"`. 
@@ -114,16 +126,18 @@ plot(spy$date, spy$log_return, type = "l", xlab = "", ylab = "", main = "Log-ret
 plot(spy$date, spy$price, type = "l", xlab = "", ylab = "", main = "Price of S&P500")
 ```
 
-We fit all seven models: 
+We fit all seven models with `compare_models`. It calls `estimate_parameters` for each model and stores the fitted models in the attribute `"fits"`. To fit one model, use `estimate_parameters(spy$log_return, model = "leverage")`.
   
 ```{r warning=FALSE}
-gaussian = estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
-t_dist = estimate_parameters(spy$log_return, model = "t", silent = TRUE)
-skew_gaussian = estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
-leverage = estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
-skew_gaussian_leverage = estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
-skew_t = estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
-skew_t_leverage = estimate_parameters(spy$log_return, model = "skew_t_leverage", silent = TRUE)
+comparison <- compare_models(spy$log_return)
+fits <- attr(comparison, "fits")
+gaussian <- fits$gaussian
+t_dist <- fits$t
+skew_gaussian <- fits$skew_gaussian
+leverage <- fits$leverage
+skew_gaussian_leverage <- fits$skew_gaussian_leverage
+skew_t <- fits$skew_t
+skew_t_leverage <- fits$skew_t_leverage
 ```
 
 We can investigate the estimate for the degrees of freedom (`df`) to see if the returns are heavy-tailed
@@ -151,23 +165,23 @@ We can also check if combining skewness and leverage provides a better fit:
 summary(skew_gaussian_leverage, report = "transformed")
 ```
 
-To find the model that fits the data best, we can compare the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of our models and pick the smallest.
+To find the model that fits the data best, we can compare the [AIC](https://en.wikipedia.org/wiki/Akaike_information_criterion) of our models and pick the smallest. `compare_models` returns the models ranked by AIC. The columns `converged` and `pd_hessian` show if the optimizer converged and if the Hessian is positive definite. If one of them is `FALSE`, the estimates of that model are not reliable.
 
 ```{r}
-
-AIC(gaussian,
-    t_dist,
-    skew_gaussian,
-    skew_t,
-    leverage,
-    skew_gaussian_leverage,
-    skew_t_leverage)
+comparison[, .(model, n_par, log_lik, aic, bic, delta_aic, converged, pd_hessian)]
 ```
 
 The skew-t model with leverage has the smallest AIC. It estimates one degree of freedom for each tail and the leverage $\rho$. The left tail of the S&P 500 returns is clearly heavier than the right tail, and the correlation between the return shock and the volatility shock is strongly negative:
 
 ```{r}
 summary(skew_t_leverage, report = "transformed")
+```
+
+`coef` and `vcov` return the estimates on their natural scale and their covariance matrix. With `scale = "estimation"` they use the scale that the parameters were estimated on:
+
+```{r}
+coef(skew_t_leverage)
+sqrt(diag(vcov(skew_t_leverage)))
 ```
 
 
@@ -224,6 +238,57 @@ plot_diagnostics(skew_t_leverage)
 
 For the Gaussian model the Q-Q plot bends down in the left tail: there are more large negative returns than the model expects. For the skew-t model with leverage the Q-Q plot is a straight line, also for the most extreme negative returns. The heavy and asymmetric tails together with the leverage effect capture the distribution of the returns. Both models leave a small negative autocorrelation at lag 1 in the residuals. The models have mean zero and therefore cannot capture this. For the skew-t model with leverage, the autocorrelation of the squared residuals at lag 1 is also negative. This suggests that, after a large shock, the model increases the predicted volatility slightly too much.
 
+
+## Value at Risk and Expected Shortfall
+
+A common use of a volatility model is to measure the risk of a position. For a level $\alpha$, for example $\alpha = 0.99$, the one-day *Value at Risk* (VaR) is the loss that the return on day $t$ is below only with probability $1 - \alpha$. The *Expected Shortfall* (ES) is the expected loss on the days when the loss is larger than the VaR. Let $q_t$ be the $1 - \alpha$ quantile of the predictive distribution $F_t$ of $y_t$ given $y_1, \dots, y_{t-1}$. Then
+\begin{equation}
+    \mathrm{VaR}_t = -q_t, \qquad \mathrm{ES}_t = -\mathrm{E}[y_t \mid y_t \le q_t, y_1, \dots, y_{t-1}].
+\end{equation}
+Both are positive numbers when they are losses, on the scale of the log-returns.
+
+`var_es` calculates $F_t$ with the same filter as the one-step-ahead residuals (see [One-step-ahead residuals](#one-step-ahead-residuals)). On the grid, $F_t$ is a mixture: $F_t(y) = \sum_j w_t(j) F(y \mid g_j)$. In all models, $y_t / (\sigma_y e^{h_t/2})$ given $h_t$ has a fixed standardized distribution $G$ with mean zero and unit variance, so $F(y \mid g_j) = G(y / s_j)$ with $s_j = \sigma_y e^{g_j/2}$. The quantile $q_t$ is the root of $F_t(q) = 1 - \alpha$, and
+\begin{equation}
+    \mathrm{ES}_t = -\frac{1}{1 - \alpha} \sum_j w_t(j) \, s_j \, M\left(\frac{q_t}{s_j}\right), \qquad M(c) = \mathrm{E}[Z \, 1(Z \le c)], \; Z \sim G.
+\end{equation}
+$M$ has a closed form for the Gaussian, t and skew-Gaussian distributions. For the skew t distribution it is calculated numerically on a fine grid. `var_es` returns one row for each day and level, and the last row is the forecast for the next day after the data:
+
+```{r}
+risk <- var_es(skew_t_leverage, level = c(0.95, 0.99))
+risk[is.na(y)]
+```
+
+The parameters are fixed at their estimates from all the data, so the values for the observed days are in-sample. 
+
+### Backtesting
+
+A return is an *exceedance* if $y_t < -\mathrm{VaR}_t$. For a correct model, the exceedances happen on a fraction $1 - \alpha$ of the days, independently of each other. `backtest_var` tests both:
+
+* The *unconditional coverage* test of @kupiec1995 compares the number of exceedances with the expected number. A small p-value (`p_uc`) means that there are too many or too few exceedances.
+* The *independence* test of @christoffersen1998 checks if an exceedance is more likely on the day after an exceedance. A small p-value (`p_ind`) means that the exceedances come in clusters. This happens when the model reacts too slowly to a change in volatility.
+* The *conditional coverage* test combines the two (`p_cc`).
+
+`es_ratio` is the mean of $-y_t / \mathrm{ES}_t$ over the exceedances. It is close to one when the ES is correct.
+
+```{r}
+backtest_var(risk)
+backtest_var(var_es(gaussian, level = c(0.95, 0.99)))
+```
+
+The Gaussian model has too many exceedances, in particular at the 99% level, because its tails are too light. The skew-t model with leverage has close to the expected number of exceedances at both levels, and its `es_ratio` is close to one. `plot_var` shows the returns with $-\mathrm{VaR}_t$ and $-\mathrm{ES}_t$ and marks the exceedances:
+
+```{r fig.height=4}
+plot_var(risk, level = 0.99, dates = spy$date)
+```
+
+### More than one day ahead
+
+For more than one day there is no simple formula for the distribution of the returns. `forecast_var_es` therefore simulates future paths with `predict` and calculates VaR and ES for each day ahead, both for the return on that day and for the cumulative return up to that day. By default, the simulation includes the uncertainty of the parameters. `predict` starts from a Gaussian approximation of the last log-volatility, so for one day ahead the result differs slightly from the exact `var_es`:
+
+```{r}
+set.seed(1)
+forecast_var_es(skew_t_leverage, steps = 10, level = 0.99)
+```
 
 # Comparison to stochvol
 
@@ -381,7 +446,7 @@ In the *Gaussian model with leverage*, $y_t$ depends on both $h_t$ and $h_{t+1}$
 \begin{equation}
     y_t \mid h_t, h_{t+1} \sim \mathcal{N}\left(\sigma_y e^{h_t/2} \rho \eta_t, \; \sigma_y^2 e^{h_t} (1 - \rho^2)\right).
 \end{equation}
-The filter therefore works with the joint predictive weights of $(h_t, h_{t+1})$ on the grid, $w_t(j) P_{jk}$. Steps 1 and 2 sum over both $j$ and $k$, and the sum over $j$ gives the weights for $h_{t+1}$. For the last observation $y_T$ there is no $h_{T+1}$, and $y_T \mid h_T \sim \mathcal{N}(0, \sigma_y^2 e^{h_T})$.
+The filter therefore works with the joint predictive weights of $(h_t, h_{t+1})$ on the grid, $w_t(j) P_{jk}$. Steps 1 and 2 sum over both $j$ and $k$, and the sum over $j$ gives the weights for $h_{t+1}$. Step 1 can also use that $y_t \mid h_t \sim \mathcal{N}(0, \sigma_y^2 e^{h_t})$ once $h_{t+1}$ is integrated out.
 
 ### Comparison with the Laplace approximation
 

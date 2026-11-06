@@ -14,6 +14,7 @@ Imports:
     ggplot2 (>= 3.4.0),
     sn,
     stats,
+    utils,
     data.table,
     MASS
 LinkingTo:
@@ -27,7 +28,7 @@ Suggests:
     stochvol
 URL: https://github.com/JensWahl/stochvolTMB, https://jenswahl.github.io/stochvolTMB/
 BugReports: https://github.com/JensWahl/stochvolTMB/issues
-RoxygenNote: 7.3.2
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

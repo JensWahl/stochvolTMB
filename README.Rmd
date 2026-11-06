@@ -69,17 +69,19 @@ library(stochvolTMB, warn.conflicts = FALSE)
 # load s&p500 data from 2005 to 2018
 data(spy)
 
-# find the best model using AIC 
-gaussian <- estimate_parameters(spy$log_return, model = "gaussian", silent = TRUE)
-t_dist <- estimate_parameters(spy$log_return, model = "t", silent = TRUE)
-skew_gaussian <- estimate_parameters(spy$log_return, model = "skew_gaussian", silent = TRUE)
-leverage <- estimate_parameters(spy$log_return, model = "leverage", silent = TRUE)
-skew_gaussian_leverage <- estimate_parameters(spy$log_return, model = "skew_gaussian_leverage", silent = TRUE)
-skew_t <- estimate_parameters(spy$log_return, model = "skew_t", silent = TRUE)
-skew_t_leverage <- estimate_parameters(spy$log_return, model = "skew_t_leverage", silent = TRUE)
+# fit all seven models and rank them by AIC
+comparison <- compare_models(spy$log_return)
+comparison[, .(model, n_par, log_lik, aic, bic, delta_aic, converged)]
 
-# the models with leverage stand out with an AIC far below the other models
-AIC(gaussian, t_dist, skew_gaussian, skew_t, leverage, skew_gaussian_leverage, skew_t_leverage)
+# the fitted models are stored in the attribute "fits"
+fits <- attr(comparison, "fits")
+leverage <- fits$leverage
+skew_gaussian_leverage <- fits$skew_gaussian_leverage
+skew_t_leverage <- fits$skew_t_leverage
+
+# parameter estimates on their natural scale, with standard errors
+coef(skew_t_leverage)
+sqrt(diag(vcov(skew_t_leverage)))
 
 # the skew models report the skewness and the shape parameter alpha
 summary(skew_gaussian_leverage, report = "transformed")
@@ -120,12 +122,34 @@ To check the fit with one-step-ahead residuals, use `plot_diagnostics`. It shows
 plot_diagnostics(skew_t_leverage)
 ```
 
+## Value at Risk and Expected Shortfall
+
+`var_es` calculates the one-day Value at Risk (VaR) and Expected Shortfall (ES) from the exact one-step-ahead predictive distribution, for every day in the data and for the next day. `backtest_var` tests if the VaR exceedances have the expected frequency (Kupiec) and are independent (Christoffersen). For the S&P 500 data, the skew-t model with leverage passes both tests at the 95% and 99% levels:
+
+```{r fig.height=4, fig.alt = "S&P 500 returns with the one-step-ahead 99% VaR and ES from the skew-t leverage model, with the exceedances marked"}
+risk <- var_es(skew_t_leverage, level = c(0.95, 0.99))
+
+# VaR and ES for the next day
+risk[is.na(y)]
+
+backtest_var(risk)
+
+plot_var(risk, level = 0.99, dates = spy$date)
+```
+
+For more than one day, `forecast_var_es` simulates future returns. The cumulative columns give, for example, the 10-day VaR and ES:
+
+```{r}
+set.seed(123)
+forecast_var_es(skew_t_leverage, steps = 10, level = 0.99)[c(1, 5, 10)]
+```
+
 ## Shiny app 
 
-By running `demo()` you start a shiny application where you can visually inspect the effect of choosing different models and parameter configurations 
+By running `run_shiny_demo()` you start a shiny application where you can visually inspect the effect of choosing different models and parameter configurations 
 
 ```{r eval = FALSE}
-demo()
+run_shiny_demo()
 ```
 
 ![Screenshot of the shiny app with model and parameter controls and a simulated time series](man/figures/shinyApp.png)

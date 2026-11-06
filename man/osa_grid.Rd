@@ -4,21 +4,17 @@
 \alias{osa_grid}
 \title{Exact one-step-ahead residuals by filtering on a grid for the log-volatility}
 \usage{
-osa_grid(object, grid_size = 500, width = 8)
+osa_grid(object, grid_size = 500)
 }
 \arguments{
 \item{object}{A \code{stochvolTMB} object.}
 
 \item{grid_size}{Number of grid points.}
-
-\item{width}{Half-width of the grid in stationary standard deviations of \code{h_t}.}
 }
 \value{
 Vector of one-step-ahead residuals for all observations.
 }
 \description{
-Keeps the predictive density of \code{h_t} on a grid. For each observation it calculates the predictive
-distribution function of \code{y_t}, updates the density with \code{y_t} and moves it one step forward.
-Grid points with negligible weight are skipped, so the cost per step is small.
+Exact one-step-ahead residuals by filtering on a grid for the log-volatility
 }
 \keyword{internal}

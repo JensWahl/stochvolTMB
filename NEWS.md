@@ -1,5 +1,19 @@
 # stochvolTMB (development version)
 
+* New `var_es()` calculates the one-day Value at Risk and Expected Shortfall from the exact one-step-ahead predictive
+  distribution, for every observation and for the next day after the data. It uses the same filter on a grid as
+  `residuals()`.
+* New `backtest_var()` backtests the Value at Risk with the unconditional coverage test of Kupiec (1995), the
+  independence test of Christoffersen (1998) and their combination, and reports the ratio of the realized losses to
+  the Expected Shortfall on the exceedances.
+* New `forecast_var_es()` simulates Value at Risk and Expected Shortfall for several days ahead, for the daily and
+  the cumulative returns.
+* New `plot_var()` plots the returns with the Value at Risk and Expected Shortfall and marks the exceedances.
+* New `compare_models()` fits several models and ranks them by AIC. It also reports if the optimizer converged and
+  if the Hessian is positive definite, and it keeps the fitted models.
+* `predict()` for the `leverage` model now uses the last observed return for the first volatility shock, as for the
+  skew models with leverage. Before, the first predicted volatility ignored the correlation with the last return.
+
 * New model `skew_gaussian_leverage` that combines skew-Gaussian returns with the leverage effect. The skew-Gaussian
   return shock drives the volatility shock, `eta_t = rho * z_t + sqrt(1 - rho^2) * e_t`. This order keeps the Laplace
   approximation accurate. The other order (skew noise added to `rho * eta_t`) made the approximation overestimate the
@@ -28,6 +42,14 @@
   with `method = "tmb"`. With `method = "grid"`, `residuals()` returns residuals for all observations by default.
 * `residuals(method = "tmb")` no longer fails with "Multiple TMB models loaded" when several TMB models are loaded,
   for example after `devtools::load_all()`. It then calculates the residuals without parallel processing.
+* `residuals()` is now an S3 method, `residuals.stochvolTMB()`. Before, the package exported a plain `residuals()`
+  function that hid `stats::residuals()`, so for example `residuals(lm(...))` failed when stochvolTMB was attached.
+  Calls of the form `residuals(fit)` do not change.
+* New `coef()` and `vcov()` methods. By default they return the parameters on their natural scale (for example
+  `sigma_y`, `phi` and `rho`) and their covariance matrix. Use `scale = "estimation"` for the parameters on the scale
+  they were estimated.
+* The shiny demo is now started with `run_shiny_demo()`. `demo()` without arguments still runs it, with a deprecation
+  warning. With arguments, `demo()` calls `utils::demo()`, so `demo(topic)` works again when stochvolTMB is attached.
 * Plots use `linewidth` instead of the deprecated `size` for lines. `ggplot2` (>= 3.4.0) is required.
 
 # stochvolTMB 0.2.0
