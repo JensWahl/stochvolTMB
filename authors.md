@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/JensWahl/stochvolTMB/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/JensWahl/stochvolTMB/blob/v0.4.0/DESCRIPTION)
 
 Wahl J (2026). *stochvolTMB: Likelihood Estimation of Stochastic
 Volatility Models*. R package version 0.4.0,
