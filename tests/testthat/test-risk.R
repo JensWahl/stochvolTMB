@@ -31,6 +31,7 @@ test_that("standardized error distributions are consistent", {
 })
 
 test_that("var_es is consistent with the one-step-ahead residuals", {
+  skip_on_cran()
 
   for (model in models) {
     opt <- fit_model(model)

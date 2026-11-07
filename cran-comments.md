@@ -12,7 +12,11 @@ model. See NEWS.md for the details and the breaking changes.
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+The note lists possibly misspelled words in DESCRIPTION. They are spelled correctly: Kupiec and Christoffersen are
+the authors of the cited backtests, and "backtested" is the standard term in finance for testing a risk model on past
+data.
 
 The installed size is about 21 Mb, most of it the compiled TMB model in libs. This is usual for packages that use TMB.
 

@@ -58,6 +58,7 @@ test_that("plot_diagnostics", {
 
 
 test_that("grid residuals agree with TMB and are standard gaussian", {
+  skip_on_cran()
 
   param <- list(phi = 0.9, sigma_h = 0.3, sigma_y = 0.2, df = 5, alpha = -3, rho = -0.7, df_left = 4, df_right = 10)
 

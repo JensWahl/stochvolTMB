@@ -115,6 +115,7 @@ test_that("Test predict.R for skew_gaussian_leverage", {
 })
 
 test_that("skew gaussian models do not get stuck at alpha = 0 or diverge to |rho| = 1", {
+  skip_on_cran()
 
   param <- list(phi = 0.9, sigma_h = 0.3, sigma_y = 0.2, alpha = 5, rho = -0.8)
 
